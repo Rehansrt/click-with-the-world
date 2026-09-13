@@ -1,0 +1,38 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": false,
+
+    "stats": {
+      "total": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1"
+      },
+      "countries": {
+        "$country": {
+          ".read": true,
+          ".write": true,
+          ".validate": "$country.matches(/^[A-Z]{2}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1"
+        }
+      }
+    },
+
+    "recentClicks": {
+      "latest": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['country', 'ts'])",
+        "country": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Z]{2}$/)"
+        },
+        "ts": {
+          ".validate": "newData.val() <= now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}

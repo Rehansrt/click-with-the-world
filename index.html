@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click With The World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <p class="kicker">a small experiment in collective clicking</p>
+    <h1>Click With The World</h1>
+    <p class="sub">Every tap adds to one number, shared by everyone here right now.</p>
+  </header>
+
+  <div class="counter-zone">
+    <button id="clickBtn" class="counter-button" aria-label="Add your click to the world count">
+      <span id="countDisplay" class="count-number">&mdash;</span>
+      <span class="tap-hint">tap to click</span>
+    </button>
+    <div id="ticker" class="ticker" aria-live="polite">connecting to the world&hellip;</div>
+  </div>
+
+  <section class="milestone">
+    <div class="milestone-head">
+      <span>next milestone</span>
+      <span id="milestoneTarget">&mdash;</span>
+    </div>
+    <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
+    <p id="milestoneNote" class="milestone-note"></p>
+  </section>
+
+  <section class="leaderboard">
+    <h2>who's clicking hardest</h2>
+    <ol id="leaderboardList" class="lb-list"></ol>
+  </section>
+
+  <footer>
+    <button id="shareBtn" class="share-btn">share your rank</button>
+    <p class="footnote">Live and shared by everyone visiting right now, powered by Firebase.</p>
+  </footer>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

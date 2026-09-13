@@ -1,0 +1,9 @@
+{
+  "name": "click-with-the-world",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A live, shared click counter with a real-time country leaderboard, backed by Firebase Realtime Database.",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}
