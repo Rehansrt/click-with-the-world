@@ -8,6 +8,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
+import { sponsorConfig } from "./sponsor-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
@@ -24,6 +25,8 @@ const milestoneNote = document.getElementById("milestoneNote");
 const milestoneTarget = document.getElementById("milestoneTarget");
 const leaderboardList = document.getElementById("leaderboardList");
 const shareBtn = document.getElementById("shareBtn");
+const milestoneSponsor = document.getElementById("milestoneSponsor");
+const leaderboardSponsor = document.getElementById("leaderboardSponsor");
 
 const LB_COLORS = ["var(--coral)", "var(--teal)", "var(--amber)", "var(--amber)", "var(--amber)", "var(--amber)"];
 
@@ -53,6 +56,22 @@ function flagEmoji(iso2) {
 
 function formatCount(n) {
   return n.toLocaleString("en-IN");
+}
+
+// Renders one sponsor slot from sponsor-config.js. Placeholder styling when
+// inactive, real name/logo/link when a sponsor is configured — swapping a
+// slot over never requires touching this code, only sponsor-config.js.
+function renderSponsorSlot(el, config) {
+  const logo = config.active && config.logoUrl
+    ? `<img class="sponsor-logo" src="${config.logoUrl}" alt="">`
+    : "";
+  const tag = config.active ? "sponsored" : "sponsor this spot";
+  const label = config.active && config.name ? config.name : config.placeholderText;
+  const text = config.active && config.link
+    ? `<a class="sponsor-link" href="${config.link}" target="_blank" rel="noopener sponsored">${label}</a>`
+    : `<span class="sponsor-text">${label}</span>`;
+
+  el.innerHTML = `<span class="sponsor-tag">${tag}</span>${logo}${text}`;
 }
 
 // Resolve the visitor's country once per session. Tries the Vercel edge geo
@@ -101,6 +120,8 @@ function milestoneStep(total) {
   return 1000000;
 }
 
+const BIG_MILESTONE_STEP = 100000;
+
 function updateMilestone(total) {
   const step = milestoneStep(total);
   const target = Math.floor(total / step) * step + step;
@@ -111,6 +132,15 @@ function updateMilestone(total) {
   gaugeFill.style.width = Math.max(0, Math.min(100, progress)) + "%";
   milestoneNote.textContent =
     formatCount(remaining) + " clicks to go — first country to push it over gets the crown.";
+
+  // Only show the milestone sponsor slot for "big" milestones (every 100K) —
+  // not every small one on the way there.
+  if (target % BIG_MILESTONE_STEP === 0) {
+    milestoneSponsor.hidden = false;
+    renderSponsorSlot(milestoneSponsor, sponsorConfig.milestone);
+  } else {
+    milestoneSponsor.hidden = true;
+  }
 }
 
 function renderCount(total) {
@@ -143,6 +173,8 @@ function renderLeaderboard(countries, total) {
     })
     .join("");
 }
+
+renderSponsorSlot(leaderboardSponsor, sponsorConfig.leaderboard);
 
 let currentCountries = {};
 
