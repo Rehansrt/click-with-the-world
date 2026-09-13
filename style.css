@@ -315,3 +315,14 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .counter-button.pulse, .particle { animation: none !important; }
 }
+
+/* Ko-fi's floating widget defaults to the bottom-left corner with no config
+   option to change that. These are its own stable class names (its root
+   container id is randomized per page load, so it can't be targeted) —
+   repositioning to bottom-right via CSS keeps it 100% the official widget,
+   just moved so it can't overlap the footer content on narrow viewports. */
+.floatingchat-container-wrap,
+.floatingchat-container-wrap-mobi {
+  left: auto !important;
+  right: 16px !important;
+}

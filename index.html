@@ -67,5 +67,17 @@
 
 <script type="module" src="app.js"></script>
 
+<!-- Ko-fi tip widget — official embed from ko-fi.com/manage/widgets, colors
+     matched to the site theme via the widget's own customization options. -->
+<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+<script>
+  kofiWidgetOverlay.draw('clickwiththeworld', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'buy me a coffee',
+    'floating-chat.donateButton.background-color': '#ffb627',
+    'floating-chat.donateButton.text-color': '#12142b'
+  });
+</script>
+
 </body>
 </html>

@@ -155,3 +155,19 @@ their own site.
 - `/embed` and `/embed-this` only work extension-free once deployed, via `cleanUrls: true`
   in `vercel.json`; locally they're `embed.html` / `embed-this.html` (though `npx serve` also
   happens to resolve the extension-free paths, mirroring Vercel's behavior).
+
+## Ko-fi tip widget
+
+`index.html` includes Ko-fi's official floating-chat embed (from ko-fi.com/manage/widgets,
+Ko-fi page: `ko-fi.com/clickwiththeworld`) just before the closing `</body>` tag, colored to
+match the site via the widget's own `background-color`/`text-color` options rather than a
+custom wrapper.
+
+- It's only on the main site — not the embed widget, which is meant to stay minimal.
+- Ko-fi's floating button has no built-in position option and defaults to bottom-left; the
+  small CSS override at the bottom of `style.css` (targeting `.floatingchat-container-wrap`
+  / `-mobi`, Ko-fi's own stable class names) moves it to bottom-right instead, clear of the
+  footer buttons. The widget's container `id` is randomized per page load, so it can't be
+  targeted directly — the class names are the stable hook.
+- To change the tip text or colors, edit the `kofiWidgetOverlay.draw(...)` call directly;
+  there's no separate config file for this one since it's a single small snippet.
