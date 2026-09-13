@@ -11,9 +11,15 @@ index.html              markup (unchanged design)
 style.css               all styling/animations (unchanged, extracted from the original file)
 app.js                  Firebase wiring, click handling, leaderboard/ticker rendering
 firebase-config.js      your Firebase web app config (paste your own values in)
+embed.html              compact embeddable widget (just the button + count)
+embed-widget.js         Firebase wiring for the embed widget
+embed.js                script-tag loader that injects the embed as an iframe
+embed-this.html         snippet generator + instructions page ("Embed this counter")
 api/geo.js              Vercel serverless function used to detect a visitor's country
-api/og-image.jsx        Vercel Edge Function that renders the live count as a share-preview image
+api/og-image.js         Vercel Function that renders the live count as a share-preview image
+api/fonts/              static Inter TTFs used to render that image (see note below)
 database.rules.json     Realtime Database security rules
+vercel.json             enables clean URLs (/embed, /embed-this instead of .html)
 ```
 
 ## 1. Create the Firebase project
@@ -103,15 +109,25 @@ All three are updated atomically in a single multi-path `update()` call per clic
 
 ## Dynamic share preview (OG image)
 
-`api/og-image.jsx` is a Vercel Edge Function that reads the current `stats/total` value
-straight from Firebase (via its public REST endpoint) and renders a 1200×630 image showing
-the live count and "clicks so far — join in". `index.html` points `og:image` and
-`twitter:image` at `/api/og-image`, so pasting the site's URL into WhatsApp, Twitter/X,
-Slack, etc. shows a live-looking preview card instead of a blank one.
+`api/og-image.js` is a Vercel Function (Node.js runtime) that reads the current
+`stats/total` value straight from Firebase (via its public REST endpoint) and renders a
+1200×630 image showing the live count and "clicks so far — join in", using `satori` (layout)
+and `@resvg/resvg-js` (SVG-to-PNG). `index.html` points `og:image` and `twitter:image` at
+`/api/og-image`, so pasting the site's URL into WhatsApp, Twitter/X, Slack, etc. shows a
+live-looking preview card instead of a blank one.
 
 Notes:
-- This only runs on Vercel — `npm run dev` (plain static server) can't execute Edge
+- This only runs on Vercel — `npm run dev` (plain static server) can't execute Vercel
   Functions, so `/api/og-image` will 404 locally. Verify it after deploying instead.
+- `@vercel/og` was tried first and abandoned: it's built assuming Next.js's build pipeline,
+  and fails in a plain Vercel project in several different ways (Edge build can't resolve
+  its own WASM/font assets; its Node build is an ES module a CommonJS function can't
+  `require()`; even loaded via dynamic `import()` it silently rendered an empty body). Using
+  `satori` + `@resvg/resvg-js` directly — the same pair `@vercel/og` wraps — avoids all of it.
+- The font files in `api/fonts/` must be **static** TTFs, not Google's current variable
+  `Inter[opsz,wght].ttf` — satori's bundled font parser throws on that font's `fvar` table.
+  These were fetched by requesting Google Fonts' CSS with an old Android user agent, a
+  well-known trick that makes it serve plain TrueType instead of a variable font or woff2.
 - The image is cached at Vercel's edge for 60 seconds (`s-maxage=60`) so a burst of shares
   doesn't hammer Firebase; the count in the preview can lag reality by up to a minute.
 - Most chat apps (WhatsApp, Slack, iMessage) cache the preview per-URL for a while after the
@@ -119,3 +135,23 @@ Notes:
   platform-side cache, not a bug here.
 - The og:image URL is hardcoded to `https://click-with-the-world.vercel.app` in
   `index.html`. If you move to a custom domain, update those meta tags to match.
+
+## Embeddable widget
+
+`/embed-this` is a page (linked from the main site's footer) where anyone can pick a size
+and copy either a `<script>` snippet or a plain `<iframe>` snippet to drop the counter into
+their own site.
+
+- `embed.html` (served at `/embed`) is the compact widget itself — just the button and the
+  count, no leaderboard/milestone/ticker/share button. It writes to the exact same
+  `stats/total`, `stats/countries/<ISO2>`, and `recentClicks/latest` paths as the main site,
+  so a click on an embedded widget counts toward the same global total and leaderboard.
+- `embed.js` (served at `/embed.js`) is the script-tag loader: it reads `data-width` /
+  `data-height` off its own `<script>` tag (via `document.currentScript`) and inserts an
+  `<iframe src="https://click-with-the-world.vercel.app/embed">` right after itself.
+- Both are hardcoded to `https://click-with-the-world.vercel.app` (a script or iframe running
+  on someone else's domain still needs an absolute URL back to this site) — update that if
+  you move to a custom domain.
+- `/embed` and `/embed-this` only work extension-free once deployed, via `cleanUrls: true`
+  in `vercel.json`; locally they're `embed.html` / `embed-this.html` (though `npx serve` also
+  happens to resolve the extension-free paths, mirroring Vercel's behavior).

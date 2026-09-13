@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Embed Click With The World</title>
+<meta name="description" content="Add the live global click counter to your own site — copy-paste iframe or script embed code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #12142b;
+    --panel: #1b2044;
+    --panel-line: rgba(255,255,255,0.08);
+    --amber: #ffb627;
+    --teal: #3ed9b3;
+    --text: #f2f0e6;
+    --text-dim: #a7acd9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 50% 0%, rgba(255,182,39,0.10), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px 64px;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  a.back {
+    color: var(--text-dim);
+    font-size: 13px;
+    text-decoration: none;
+  }
+  a.back:hover { color: var(--text); }
+
+  header { text-align: center; }
+
+  .kicker {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .sub {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 400px;
+  }
+
+  section {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 18px;
+    padding: 20px;
+  }
+
+  section h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+
+  .preview-frame {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .size-controls {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .field input {
+    width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .field input:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin: 18px 0 10px;
+  }
+
+  .tab-btn {
+    background: var(--bg);
+    border: 1px solid var(--panel-line);
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .tab-btn.active {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .snippet-wrap { position: relative; }
+
+  pre.snippet {
+    background: var(--bg);
+    border: 1px solid var(--panel-line);
+    border-radius: 12px;
+    padding: 16px;
+    padding-right: 90px;
+    margin: 0;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--teal);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: 1px solid rgba(255,182,39,0.4);
+    color: var(--amber);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .copy-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .steps {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .footnote {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <a class="back" href="/">&larr; back to Click With The World</a>
+
+  <header>
+    <p class="kicker">bring the world's click counter to your site</p>
+    <h1>Embed this counter</h1>
+    <p class="sub">A compact, live version of the counter — same shared Firebase data, no page chrome. Pick a size and copy the code below.</p>
+  </header>
+
+  <section>
+    <h2>Preview</h2>
+    <div class="size-controls">
+      <label class="field">
+        width (px)
+        <input id="widthInput" type="number" min="160" max="480" step="10" value="240">
+      </label>
+      <label class="field">
+        height (px)
+        <input id="heightInput" type="number" min="140" max="400" step="10" value="170">
+      </label>
+    </div>
+    <div class="preview-frame">
+      <iframe id="previewFrame" src="/embed" width="240" height="170" style="border:0; border-radius:18px;" title="Click With The World preview"></iframe>
+    </div>
+  </section>
+
+  <section>
+    <h2>Copy the embed code</h2>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="script">Script tag</button>
+      <button class="tab-btn" data-tab="iframe">iframe</button>
+    </div>
+
+    <div class="panel active" id="panel-script">
+      <div class="snippet-wrap">
+        <pre class="snippet" id="snippetScript"></pre>
+        <button class="copy-btn" data-target="snippetScript">copy</button>
+      </div>
+      <p class="footnote" style="margin-top:12px;">Drop this where you want the widget to appear. It injects the iframe automatically — no extra markup needed.</p>
+    </div>
+
+    <div class="panel" id="panel-iframe">
+      <div class="snippet-wrap">
+        <pre class="snippet" id="snippetIframe"></pre>
+        <button class="copy-btn" data-target="snippetIframe">copy</button>
+      </div>
+      <p class="footnote" style="margin-top:12px;">Plain HTML, if you'd rather not run a script — paste this directly wherever you want the widget.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>The embed is a compact page (just the button + count) served from this site inside your iframe.</li>
+      <li>It reads and writes the exact same Firebase Realtime Database as the main site — a click on your embedded widget adds to the same global total and country leaderboard.</li>
+      <li>No login, no tracking scripts beyond what the main site already uses (Firebase + IP-based country detection for the leaderboard).</li>
+      <li>It's sandboxed in its own iframe, so it can't affect your page's styles or scripts either way.</li>
+    </ol>
+  </section>
+
+</div>
+
+<script>
+  const widthInput = document.getElementById("widthInput");
+  const heightInput = document.getElementById("heightInput");
+  const previewFrame = document.getElementById("previewFrame");
+  const snippetScript = document.getElementById("snippetScript");
+  const snippetIframe = document.getElementById("snippetIframe");
+  const ORIGIN = "https://click-with-the-world.vercel.app";
+
+  function render() {
+    const w = widthInput.value || 240;
+    const h = heightInput.value || 170;
+
+    previewFrame.width = w;
+    previewFrame.height = h;
+
+    snippetScript.textContent =
+      `<script src="${ORIGIN}/embed.js" data-width="${w}" data-height="${h}" async><` + `/script>`;
+
+    snippetIframe.textContent =
+      `<iframe src="${ORIGIN}/embed" width="${w}" height="${h}" style="border:0; border-radius:18px;" title="Click With The World — live click counter" loading="lazy"></iframe>`;
+  }
+
+  widthInput.addEventListener("input", render);
+  heightInput.addEventListener("input", render);
+  render();
+
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.querySelectorAll(".copy-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById(btn.dataset.target).textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = "copied";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        /* clipboard unavailable — snippet is still visible to select manually */
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
