@@ -11,3 +11,8 @@ export const firebaseConfig = {
   appId: "1:874683725656:web:c7192259b92371a2dc572d",
   measurementId: "G-SYQY16SR0D"
 };
+
+// App Check / reCAPTCHA Enterprise site key — also meant to be public client-side
+// (it identifies the reCAPTCHA config, not a secret). Used by app.js and
+// embed-widget.js to gate Realtime Database writes against bot abuse.
+export const recaptchaSiteKey = "6Ld0ebktAAAAAH4-vbZm6glzUaDgIwxcJWR8HWsB";

@@ -1,5 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
+import {
   getDatabase,
   ref,
   onValue,
@@ -7,10 +11,20 @@ import {
   increment,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 
 const app = initializeApp(firebaseConfig);
+
+// Must run before any other Firebase service (getDatabase, etc.) is touched —
+// App Check attaches itself to the app instance and every subsequent SDK call
+// picks up its token automatically. No UI, no user-visible prompt: reCAPTCHA
+// Enterprise runs its risk assessment silently in the background.
+initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
+  isTokenAutoRefreshEnabled: true,
+});
+
 const db = getDatabase(app);
 
 const totalRef = ref(db, "stats/total");

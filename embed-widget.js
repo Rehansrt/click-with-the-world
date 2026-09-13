@@ -1,5 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
+import {
   getDatabase,
   ref,
   onValue,
@@ -7,7 +11,7 @@ import {
   increment,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 
 // Trimmed-down version of app.js for the compact embed widget: same data
 // model (stats/total, stats/countries/<ISO2>, recentClicks/latest), so
@@ -15,6 +19,16 @@ import { firebaseConfig } from "./firebase-config.js";
 // but with no milestone/ticker/leaderboard UI of its own to render.
 
 const app = initializeApp(firebaseConfig);
+
+// Same App Check gate as app.js — must run before getDatabase(). This runs
+// inside the embed's own iframe (served from this site's origin regardless
+// of which page embeds it), so the reCAPTCHA Enterprise key just needs this
+// site's domain allow-listed, not every host page's domain.
+initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
+  isTokenAutoRefreshEnabled: true,
+});
+
 const db = getDatabase(app);
 const totalRef = ref(db, "stats/total");
 
