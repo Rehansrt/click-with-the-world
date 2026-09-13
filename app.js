@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
+  getToken,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
 import {
   getDatabase,
@@ -20,10 +21,24 @@ const app = initializeApp(firebaseConfig);
 // App Check attaches itself to the app instance and every subsequent SDK call
 // picks up its token automatically. No UI, no user-visible prompt: reCAPTCHA
 // Enterprise runs its risk assessment silently in the background.
-initializeAppCheck(app, {
+const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
   isTokenAutoRefreshEnabled: true,
 });
+
+// initializeAppCheck() returns immediately, but the reCAPTCHA challenge that
+// produces the first token is async (real network round trip). getDatabase()
+// opens the RTDB WebSocket connection right away too, so without waiting
+// here, that connection can be established before a valid token exists —
+// showing up as "invalid"/"outdated client" in App Check's metrics for the
+// entire page session, even though nothing is actually broken. Waiting here
+// closes that race; failing open (no token) rather than blocking the app if
+// App Check itself is ever unavailable, since enforcement is off regardless.
+try {
+  await getToken(appCheck);
+} catch {
+  /* proceed without a pre-fetched token — not a hard dependency */
+}
 
 const db = getDatabase(app);
 

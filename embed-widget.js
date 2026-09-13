@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
+  getToken,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
 import {
   getDatabase,
@@ -24,10 +25,20 @@ const app = initializeApp(firebaseConfig);
 // inside the embed's own iframe (served from this site's origin regardless
 // of which page embeds it), so the reCAPTCHA Enterprise key just needs this
 // site's domain allow-listed, not every host page's domain.
-initializeAppCheck(app, {
+const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
   isTokenAutoRefreshEnabled: true,
 });
+
+// See app.js for why this matters: without waiting for the first token,
+// getDatabase()'s WebSocket connection can open before App Check's async
+// reCAPTCHA challenge finishes, showing up as invalid/outdated in metrics
+// for the whole page session even though nothing is actually broken.
+try {
+  await getToken(appCheck);
+} catch {
+  /* proceed without a pre-fetched token — not a hard dependency */
+}
 
 const db = getDatabase(app);
 const totalRef = ref(db, "stats/total");
