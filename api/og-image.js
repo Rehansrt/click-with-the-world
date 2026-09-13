@@ -1,4 +1,3 @@
-import { ImageResponse } from "@vercel/og";
 import { firebaseConfig } from "../firebase-config.js";
 
 // Deliberately NOT using the Edge runtime here: @vercel/og bundles WASM/font
@@ -7,6 +6,12 @@ import { firebaseConfig } from "../firebase-config.js";
 // modules: @vercel: module". The Node.js runtime (the default when no
 // `export const config = { runtime: "edge" }` is present) has full
 // node_modules resolution and works fine, per @vercel/og's own docs.
+//
+// @vercel/og's Node build (dist/index.node.js) is itself published as a real
+// ES module, but this file is transpiled to CommonJS at build time (no
+// "type": "module" in package.json — see its own commit for why). CJS can't
+// `require()` a genuine ES module, so it has to be loaded via dynamic
+// `import()` instead, same as Node's own ERR_REQUIRE_ESM message suggests.
 
 async function fetchTotal() {
   try {
@@ -29,6 +34,7 @@ function el(type, style, children) {
 }
 
 async function renderImage() {
+  const { ImageResponse } = await import("@vercel/og");
   const total = await fetchTotal();
   const formatted = total.toLocaleString("en-IN");
 
