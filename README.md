@@ -12,6 +12,7 @@ style.css               all styling/animations (unchanged, extracted from the or
 app.js                  Firebase wiring, click handling, leaderboard/ticker rendering
 firebase-config.js      your Firebase web app config (paste your own values in)
 api/geo.js              Vercel serverless function used to detect a visitor's country
+api/og-image.jsx        Vercel Edge Function that renders the live count as a share-preview image
 database.rules.json     Realtime Database security rules
 ```
 
@@ -99,3 +100,22 @@ npx vercel
   "someone in X just clicked" ticker in real time.
 
 All three are updated atomically in a single multi-path `update()` call per click.
+
+## Dynamic share preview (OG image)
+
+`api/og-image.jsx` is a Vercel Edge Function that reads the current `stats/total` value
+straight from Firebase (via its public REST endpoint) and renders a 1200×630 image showing
+the live count and "clicks so far — join in". `index.html` points `og:image` and
+`twitter:image` at `/api/og-image`, so pasting the site's URL into WhatsApp, Twitter/X,
+Slack, etc. shows a live-looking preview card instead of a blank one.
+
+Notes:
+- This only runs on Vercel — `npm run dev` (plain static server) can't execute Edge
+  Functions, so `/api/og-image` will 404 locally. Verify it after deploying instead.
+- The image is cached at Vercel's edge for 60 seconds (`s-maxage=60`) so a burst of shares
+  doesn't hammer Firebase; the count in the preview can lag reality by up to a minute.
+- Most chat apps (WhatsApp, Slack, iMessage) cache the preview per-URL for a while after the
+  first share, so resharing the *same* link won't always show an updated count — that's a
+  platform-side cache, not a bug here.
+- The og:image URL is hardcoded to `https://click-with-the-world.vercel.app` in
+  `index.html`. If you move to a custom domain, update those meta tags to match.

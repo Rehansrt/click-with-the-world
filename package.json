@@ -5,5 +5,8 @@
   "description": "A live, shared click counter with a real-time country leaderboard, backed by Firebase Realtime Database.",
   "scripts": {
     "dev": "npx serve ."
+  },
+  "dependencies": {
+    "@vercel/og": "^0.6.3"
   }
 }
