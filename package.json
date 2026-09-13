@@ -7,6 +7,7 @@
     "dev": "npx serve ."
   },
   "dependencies": {
-    "@vercel/og": "^1.0.2"
+    "satori": "^0.12.2",
+    "@resvg/resvg-js": "^2.6.2"
   }
 }
