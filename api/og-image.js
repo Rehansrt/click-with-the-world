@@ -14,7 +14,13 @@ const { firebaseConfig } = require("../firebase-config.js");
 // @vercel/og itself wraps, used directly: both are well-behaved CJS-or-dual
 // packages, and we bundle our own font file so there's no hidden asset the
 // deployment could fail to trace.
-const fontData = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter.ttf"));
+// Must be static (non-variable) TTFs — satori's bundled opentype.js parser
+// throws on the "fvar" table of a variable font (e.g. Google's current
+// Inter[opsz,wght].ttf). These were fetched with an old-Android user agent,
+// which is the well-known trick that makes Google Fonts serve plain static
+// TrueType instead of a variable font or woff2.
+const fontRegular = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Regular.ttf"));
+const fontBold = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Bold.ttf"));
 
 async function fetchTotal() {
   try {
@@ -89,7 +95,10 @@ module.exports = {
     const svg = await satori(tree, {
       width: 1200,
       height: 630,
-      fonts: [{ name: "Inter", data: fontData, weight: 400, style: "normal" }],
+      fonts: [
+        { name: "Inter", data: fontRegular, weight: 400, style: "normal" },
+        { name: "Inter", data: fontBold, weight: 700, style: "normal" },
+      ],
     });
 
     const png = new Resvg(svg, { fitTo: { mode: "width", value: 1200 } })
