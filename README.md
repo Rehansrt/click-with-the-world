@@ -171,3 +171,24 @@ custom wrapper.
   targeted directly — the class names are the stable hook.
 - To change the tip text or colors, edit the `kofiWidgetOverlay.draw(...)` call directly;
   there's no separate config file for this one since it's a single small snippet.
+
+## App Check (reCAPTCHA Enterprise)
+
+`app.js` and `embed-widget.js` both call `initializeAppCheck()` with a
+`ReCaptchaEnterpriseProvider` immediately after `initializeApp()`, before `getDatabase()` is
+touched — required ordering, since every Realtime Database call afterward automatically
+picks up the App Check token. It runs silently; there's no visible challenge or UI.
+
+- The reCAPTCHA Enterprise site key lives in `firebase-config.js` as `recaptchaSiteKey`,
+  alongside the Firebase config (equally safe to expose client-side — it identifies the
+  reCAPTCHA config, not a secret).
+- **This only issues tokens — it doesn't block anything yet.** To actually start rejecting
+  writes without a valid token, turn on enforcement in the Firebase Console under **App
+  Check → Realtime Database → Enforce**. Until that's flipped on, this is purely additive:
+  real users are completely unaffected either way.
+- If you see `@firebase/app-check: recaptcha-error` in the console while testing: reCAPTCHA
+  deliberately gives no diagnostic detail, and it will reject traffic it detects as
+  non-human — including automated/scripted browsers (headless Chrome, browser-automation
+  tools, etc.), even from an allow-listed domain with a correctly configured key. Check in
+  an ordinary browser session with real mouse/keyboard use before assuming something's
+  broken.
