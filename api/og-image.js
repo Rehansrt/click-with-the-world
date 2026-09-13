@@ -1,9 +1,12 @@
 import { ImageResponse } from "@vercel/og";
 import { firebaseConfig } from "../firebase-config.js";
 
-export const config = {
-  runtime: "edge",
-};
+// Deliberately NOT using the Edge runtime here: @vercel/og bundles WASM/font
+// assets in a way that only Next.js's edge build pipeline can resolve — in a
+// plain Vercel project the Edge build fails with "referencing unsupported
+// modules: @vercel: module". The Node.js runtime (the default when no
+// `export const config = { runtime: "edge" }` is present) has full
+// node_modules resolution and works fine, per @vercel/og's own docs.
 
 async function fetchTotal() {
   try {
@@ -25,7 +28,7 @@ function el(type, style, children) {
   return { type, props: { style, children } };
 }
 
-export default async function handler() {
+async function renderImage() {
   const total = await fetchTotal();
   const formatted = total.toLocaleString("en-IN");
 
@@ -82,3 +85,7 @@ export default async function handler() {
     },
   });
 }
+
+export default {
+  fetch: renderImage,
+};
