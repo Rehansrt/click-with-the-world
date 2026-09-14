@@ -34,9 +34,20 @@ const appCheck = initializeAppCheck(app, {
 // entire page session, even though nothing is actually broken. Waiting here
 // closes that race; failing open (no token) rather than blocking the app if
 // App Check itself is ever unavailable, since enforcement is off regardless.
+console.log("[AppCheck] calling getToken(appCheck)…");
 try {
-  await getToken(appCheck);
-} catch {
+  const result = await getToken(appCheck);
+  console.log("[AppCheck] getToken resolved:", {
+    tokenLength: result.token ? result.token.length : 0,
+    tokenPreview: result.token ? result.token.slice(0, 12) + "…" : null,
+  });
+} catch (err) {
+  console.error("[AppCheck] getToken threw:", {
+    code: err && err.code,
+    message: err && err.message,
+    customData: err && err.customData,
+    full: err,
+  });
   /* proceed without a pre-fetched token — not a hard dependency */
 }
 
