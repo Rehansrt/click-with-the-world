@@ -3,6 +3,7 @@ import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
   getToken,
+  onTokenChanged,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
 import {
   getDatabase,
@@ -50,6 +51,28 @@ try {
   });
   /* proceed without a pre-fetched token — not a hard dependency */
 }
+
+// isTokenAutoRefreshEnabled means the SDK re-runs the whole reCAPTCHA
+// challenge periodically in the background (roughly every ~55 min, ahead of
+// the token's ~1hr expiry) for as long as the tab stays open — each of those
+// is an independent network round trip to Google's reCAPTCHA servers, so any
+// one of them can fail for reasons the initial page-load fetch never hits.
+// This logs every one of those background attempts, not just the first.
+onTokenChanged(appCheck, {
+  next: (result) => {
+    console.log("[AppCheck] onTokenChanged (background refresh) succeeded:", {
+      tokenLength: result.token ? result.token.length : 0,
+      time: new Date().toISOString(),
+    });
+  },
+  error: (err) => {
+    console.error("[AppCheck] onTokenChanged (background refresh) failed:", {
+      code: err && err.code,
+      message: err && err.message,
+      time: new Date().toISOString(),
+    });
+  },
+});
 
 const db = getDatabase(app);
 
