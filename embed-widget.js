@@ -1,9 +1,9 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   initializeAppCheck,
   ReCaptchaEnterpriseProvider,
   getToken,
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
 import {
   getDatabase,
   ref,
@@ -11,7 +11,7 @@ import {
   update,
   increment,
   serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 
 // Trimmed-down version of app.js for the compact embed widget: same data
