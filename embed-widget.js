@@ -98,7 +98,18 @@ function spawnParticle(x, y) {
   setTimeout(() => p.remove(), 700);
 }
 
+// UX-level guard only — briefly disables the button so a single embed
+// instance can't rapid-fire clicks. Not a real rate limit (that's App
+// Check's job); just stops one impatient tap-spam from feeling broken.
+const CLICK_COOLDOWN_MS = 400;
+
 clickBtn.addEventListener("click", async (e) => {
+  if (clickBtn.disabled) return;
+  clickBtn.disabled = true;
+  setTimeout(() => {
+    clickBtn.disabled = false;
+  }, CLICK_COOLDOWN_MS);
+
   clickBtn.classList.remove("pulse");
   void clickBtn.offsetWidth;
   clickBtn.classList.add("pulse");

@@ -122,6 +122,37 @@
     outline-offset: 2px;
   }
 
+  .size-btn {
+    background: var(--bg);
+    border: 1px solid var(--panel-line);
+    color: var(--text-dim);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  .size-btn .dims {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+
+  .size-btn.active {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .size-btn.active .dims { color: rgba(18,20,43,0.7); }
+
   .tabs {
     display: flex;
     gap: 8px;
@@ -209,23 +240,18 @@
   <header>
     <p class="kicker">bring the world's click counter to your site</p>
     <h1>Embed this counter</h1>
-    <p class="sub">A compact, live version of the counter — same shared Firebase data, no page chrome. Pick a size and copy the code below.</p>
+    <p class="sub">A compact, transparent, live version of the counter — same shared Firebase data, no page chrome. Pick a size and copy the code below.</p>
   </header>
 
   <section>
     <h2>Preview</h2>
-    <div class="size-controls">
-      <label class="field">
-        width (px)
-        <input id="widthInput" type="number" min="160" max="480" step="10" value="240">
-      </label>
-      <label class="field">
-        height (px)
-        <input id="heightInput" type="number" min="140" max="400" step="10" value="170">
-      </label>
+    <div class="size-controls" id="sizeControls">
+      <button class="size-btn active" data-w="300" data-h="150">Small<span class="dims">300 &times; 150</span></button>
+      <button class="size-btn" data-w="400" data-h="200">Medium<span class="dims">400 &times; 200</span></button>
+      <button class="size-btn" data-w="500" data-h="250">Large<span class="dims">500 &times; 250</span></button>
     </div>
     <div class="preview-frame">
-      <iframe id="previewFrame" src="/embed" width="240" height="170" style="border:0; border-radius:18px;" title="Click With The World preview"></iframe>
+      <iframe id="previewFrame" src="/embed" width="300" height="150" style="border:0;" title="Click With The World preview"></iframe>
     </div>
   </section>
 
@@ -256,8 +282,9 @@
   <section>
     <h2>How it works</h2>
     <ol class="steps">
-      <li>The embed is a compact page (just the button + count) served from this site inside your iframe.</li>
+      <li>The embed is a compact page (just the button + live count) served from this site inside your iframe, with a transparent background so it blends into your page.</li>
       <li>It reads and writes the exact same Firebase Realtime Database as the main site — a click on your embedded widget adds to the same global total and country leaderboard.</li>
+      <li>Clicks are briefly throttled client-side (a short cooldown after each tap) to stop accidental rapid-fire spam from a single embed.</li>
       <li>No login, no tracking scripts beyond what the main site already uses (Firebase + IP-based country detection for the leaderboard).</li>
       <li>It's sandboxed in its own iframe, so it can't affect your page's styles or scripts either way.</li>
     </ol>
@@ -266,17 +293,13 @@
 </div>
 
 <script>
-  const widthInput = document.getElementById("widthInput");
-  const heightInput = document.getElementById("heightInput");
+  const sizeButtons = document.querySelectorAll(".size-btn");
   const previewFrame = document.getElementById("previewFrame");
   const snippetScript = document.getElementById("snippetScript");
   const snippetIframe = document.getElementById("snippetIframe");
-  const ORIGIN = "https://click-with-the-world.vercel.app";
+  const ORIGIN = "https://clickwiththeworld.fun";
 
-  function render() {
-    const w = widthInput.value || 240;
-    const h = heightInput.value || 170;
-
+  function render(w, h) {
     previewFrame.width = w;
     previewFrame.height = h;
 
@@ -284,12 +307,18 @@
       `<script src="${ORIGIN}/embed.js" data-width="${w}" data-height="${h}" async><` + `/script>`;
 
     snippetIframe.textContent =
-      `<iframe src="${ORIGIN}/embed" width="${w}" height="${h}" style="border:0; border-radius:18px;" title="Click With The World — live click counter" loading="lazy"></iframe>`;
+      `<iframe src="${ORIGIN}/embed" width="${w}" height="${h}" style="border:0;" title="Click With The World — live click counter" loading="lazy"></iframe>`;
   }
 
-  widthInput.addEventListener("input", render);
-  heightInput.addEventListener("input", render);
-  render();
+  sizeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      sizeButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      render(btn.dataset.w, btn.dataset.h);
+    });
+  });
+
+  render(300, 150);
 
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {

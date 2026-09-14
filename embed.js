@@ -1,10 +1,10 @@
 (function () {
-  var THIS_ORIGIN = "https://click-with-the-world.vercel.app";
+  var THIS_ORIGIN = "https://clickwiththeworld.fun";
   var script = document.currentScript;
   if (!script) return;
 
-  var width = script.getAttribute("data-width") || "240";
-  var height = script.getAttribute("data-height") || "170";
+  var width = script.getAttribute("data-width") || "300";
+  var height = script.getAttribute("data-height") || "150";
 
   var iframe = document.createElement("iframe");
   iframe.src = THIS_ORIGIN + "/embed";
