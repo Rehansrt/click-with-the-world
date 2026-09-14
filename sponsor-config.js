@@ -3,14 +3,21 @@
 // No code changes needed: app.js reads this file and swaps the placeholder
 // for the real name/logo/link automatically.
 //
-// Fields:
-//   active          — false shows the "sponsor this spot" placeholder; true shows the sponsor.
+// Fields (per slot):
+//   active          — false shows the "sponsor this spot" placeholder (linking to
+//                     inquiryContact below); true shows the real sponsor instead.
 //   name            — sponsor's display name.
 //   logoUrl         — small square-ish logo, ~32x32 works best (svg/png).
-//   link            — where the badge links to (opened in a new tab).
+//   link            — where the badge links to once active (opened in a new tab).
 //   placeholderText — shown while active is false.
+//
+// inquiryContact — where the placeholder's "Your brand here" link points, for
+// anyone who clicks it wanting to become the sponsor. Swap for a real inbox or
+// a dedicated inquiry page whenever one exists — it's just a URL either way.
 
 export const sponsorConfig = {
+  inquiryContact: "mailto:sponsor@clickwiththeworld.fun",
+
   milestone: {
     active: false,
     name: "",

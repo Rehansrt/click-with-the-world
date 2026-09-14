@@ -98,17 +98,21 @@ function formatCount(n) {
   return n.toLocaleString("en-IN");
 }
 
-// Renders one sponsor slot from sponsor-config.js. Placeholder styling when
-// inactive, real name/logo/link when a sponsor is configured — swapping a
-// slot over never requires touching this code, only sponsor-config.js.
+// Renders one sponsor slot from sponsor-config.js. Placeholder state links to
+// sponsorConfig.inquiryContact (so it reads as an intentional, clickable ad
+// slot rather than dead text); active state links to the sponsor's own URL.
+// Swapping a slot over never requires touching this code, only
+// sponsor-config.js.
 function renderSponsorSlot(el, config) {
   const logo = config.active && config.logoUrl
     ? `<img class="sponsor-logo" src="${config.logoUrl}" alt="">`
     : "";
   const tag = config.active ? "sponsored" : "sponsor this spot";
   const label = config.active && config.name ? config.name : config.placeholderText;
-  const text = config.active && config.link
-    ? `<a class="sponsor-link" href="${config.link}" target="_blank" rel="noopener sponsored">${label}</a>`
+  const href = config.active ? config.link : sponsorConfig.inquiryContact;
+  const rel = config.active ? "noopener sponsored" : "noopener";
+  const text = href
+    ? `<a class="sponsor-link" href="${href}" target="_blank" rel="${rel}">${label}</a>`
     : `<span class="sponsor-text">${label}</span>`;
 
   el.innerHTML = `<span class="sponsor-tag">${tag}</span>${logo}${text}`;
@@ -160,7 +164,7 @@ function milestoneStep(total) {
   return 1000000;
 }
 
-const BIG_MILESTONE_STEP = 100000;
+const BIG_MILESTONE_STEP = 1000000;
 
 function updateMilestone(total) {
   const step = milestoneStep(total);
@@ -173,8 +177,9 @@ function updateMilestone(total) {
   milestoneNote.textContent =
     formatCount(remaining) + " clicks to go — first country to push it over gets the crown.";
 
-  // Only show the milestone sponsor slot for "big" milestones (every 100K) —
-  // not every small one on the way there.
+  // Only show the milestone sponsor slot for "big" milestones (every 1M,
+  // matching the gauge's own top-tier step size) — not every small one on
+  // the way there.
   if (target % BIG_MILESTONE_STEP === 0) {
     milestoneSponsor.hidden = false;
     renderSponsorSlot(milestoneSponsor, sponsorConfig.milestone);
