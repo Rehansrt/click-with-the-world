@@ -115,19 +115,81 @@ async function detectCountry() {
 
 const countryPromise = detectCountry();
 
+// Lighter interaction layer than the main site by design: an embed sits on
+// someone else's page, so it stays to particle burst + number roll-up only —
+// no sound, no confetti, no combo text, no golden-click mechanic. Same
+// increment-only Firebase write either way.
+
+let displayedTotal = 0;
+let hasRenderedCount = false;
+let rollupRaf = null;
+let rollupFallbackTimer = null;
+let rollupToken = 0;
+
+function animateCountTo(target) {
+  const start = displayedTotal;
+  const startTime = performance.now();
+  const duration = 300;
+  const myToken = ++rollupToken;
+
+  if (rollupRaf) cancelAnimationFrame(rollupRaf);
+  if (rollupFallbackTimer) clearTimeout(rollupFallbackTimer);
+
+  function commitFinal() {
+    if (myToken !== rollupToken) return;
+    displayedTotal = target;
+    countDisplay.textContent = formatCount(target);
+  }
+
+  function step(now) {
+    if (myToken !== rollupToken) return;
+    const t = Math.min(1, (now - startTime) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = Math.round(start + (target - start) * eased);
+    displayedTotal = value;
+    countDisplay.textContent = formatCount(value);
+    if (t < 1) {
+      rollupRaf = requestAnimationFrame(step);
+    } else {
+      commitFinal();
+    }
+  }
+
+  rollupRaf = requestAnimationFrame(step);
+  // Safety net if rAF stalls (backgrounded tab/iframe) — see app.js for why.
+  rollupFallbackTimer = setTimeout(commitFinal, duration + 120);
+}
+
 onValue(totalRef, (snap) => {
-  countDisplay.textContent = formatCount(snap.val() || 0);
+  const total = snap.val() || 0;
+  if (!hasRenderedCount) {
+    hasRenderedCount = true;
+    displayedTotal = total;
+    countDisplay.textContent = formatCount(total);
+  } else {
+    animateCountTo(total);
+  }
 });
 
-function spawnParticle(x, y) {
-  const p = document.createElement("span");
-  p.className = "particle";
-  p.textContent = "+1";
-  p.style.left = x + "px";
-  p.style.top = y + "px";
-  p.style.setProperty("--dx", Math.random() * 24 - 12 + "px");
-  clickBtn.appendChild(p);
-  setTimeout(() => p.remove(), 700);
+// Radiates a small burst of particles outward from (x, y) — same technique
+// as the main site's spawnParticleBurst, scaled down for this compact widget.
+function spawnParticleBurst(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4 - 0.2);
+    const distance = 14 + Math.random() * 14;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance - 8;
+
+    const p = document.createElement("span");
+    p.className = "particle";
+    p.textContent = "+1";
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    p.style.setProperty("--dx", dx.toFixed(1) + "px");
+    p.style.setProperty("--dy", dy.toFixed(1) + "px");
+    clickBtn.appendChild(p);
+    setTimeout(() => p.remove(), 750);
+  }
 }
 
 // UX-level guard only — briefly disables the button so a single embed
@@ -146,7 +208,9 @@ clickBtn.addEventListener("click", async (e) => {
   void clickBtn.offsetWidth;
   clickBtn.classList.add("pulse");
   const rect = clickBtn.getBoundingClientRect();
-  spawnParticle(e.clientX - rect.left, e.clientY - rect.top);
+  const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+  const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+  spawnParticleBurst(x, y, 10);
 
   const country = await countryPromise;
   update(ref(db), {

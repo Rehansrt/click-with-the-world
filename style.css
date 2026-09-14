@@ -65,6 +65,37 @@ h1 {
   gap: 16px;
 }
 
+.counter-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.mute-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-line);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.mute-btn:hover { color: var(--text); }
+
+.mute-btn:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
 .counter-button {
   position: relative;
   width: 260px;
@@ -101,6 +132,16 @@ h1 {
   100% { box-shadow: 0 0 0 26px rgba(255,182,39,0); }
 }
 
+.counter-button.golden-pulse {
+  animation: goldenPulse 0.6s ease;
+}
+
+@keyframes goldenPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,215,0,0.8); }
+  60% { box-shadow: 0 0 0 34px rgba(255,215,0,0); }
+  100% { box-shadow: 0 0 0 34px rgba(255,215,0,0); }
+}
+
 .count-number {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
@@ -125,9 +166,100 @@ h1 {
   animation: rise 0.75s ease-out forwards;
 }
 
+.particle.gold {
+  color: #ffd700;
+  font-size: 17px;
+  text-shadow: 0 0 6px rgba(255,215,0,0.7);
+}
+
 @keyframes rise {
-  0% { opacity: 1; transform: translate(0, 0); }
-  100% { opacity: 0; transform: translate(var(--dx), -70px); }
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy, -70px)) scale(0.8); }
+}
+
+.combo-text {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  pointer-events: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--coral);
+  text-shadow: 0 0 8px rgba(255,93,93,0.5);
+  animation: comboRise 0.6s ease-out forwards;
+  white-space: nowrap;
+}
+
+@keyframes comboRise {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.7); }
+  25% { opacity: 1; transform: translate(-50%, -8px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+}
+
+.trail-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+  pointer-events: none;
+  animation: trailFade 0.5s ease-out forwards;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes trailFade {
+  0% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 500;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0.9; transform: translate(var(--drift, 0px), 100vh) rotate(var(--spin, 360deg)); }
+}
+
+.milestone-banner {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 501;
+  background: var(--panel);
+  border: 1px solid rgba(255,182,39,0.4);
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  animation: bannerInOut 3s ease forwards;
+  text-align: center;
+  max-width: calc(100vw - 32px);
+}
+
+@keyframes bannerInOut {
+  0% { opacity: 0; transform: translate(-50%, -12px); }
+  12% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -12px); }
+}
+
+.golden-stat {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: -4px;
 }
 
 .ticker {
@@ -313,7 +445,15 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .counter-button.pulse, .particle { animation: none !important; }
+  .counter-button.pulse,
+  .counter-button.golden-pulse,
+  .particle,
+  .combo-text,
+  .trail-dot,
+  .confetti-piece,
+  .milestone-banner {
+    animation: none !important;
+  }
 }
 
 /* Ko-fi's floating widget defaults to the bottom-left corner with no config

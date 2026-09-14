@@ -90,6 +90,17 @@ const leaderboardList = document.getElementById("leaderboardList");
 const shareBtn = document.getElementById("shareBtn");
 const milestoneSponsor = document.getElementById("milestoneSponsor");
 const leaderboardSponsor = document.getElementById("leaderboardSponsor");
+const muteBtn = document.getElementById("muteBtn");
+
+// --- interaction-layer state (purely cosmetic — see click handler for why
+// none of this ever touches the Firebase write amount) ---
+const GOLDEN_CHANCE = 0.02; // ~1-in-50 clicks
+const COMBO_WINDOW_MS = 700;
+let comboCount = 0;
+let lastClickTime = 0;
+let isMuted = localStorage.getItem("cww_muted") === "1";
+let goldenFoundCount = parseInt(localStorage.getItem("cww_golden_found") || "0", 10) || 0;
+let audioCtx = null;
 
 const LB_COLORS = ["var(--coral)", "var(--teal)", "var(--amber)", "var(--amber)", "var(--amber)", "var(--amber)"];
 
@@ -119,6 +130,83 @@ function flagEmoji(iso2) {
 
 function formatCount(n) {
   return n.toLocaleString("en-IN");
+}
+
+// --- mute toggle (persisted) ---
+function updateMuteButton() {
+  muteBtn.textContent = isMuted ? "🔇" : "🔊";
+  muteBtn.setAttribute("aria-label", isMuted ? "Unmute click sound" : "Mute click sound");
+  muteBtn.title = isMuted ? "Unmute click sound" : "Mute click sound";
+}
+updateMuteButton();
+
+muteBtn.addEventListener("click", () => {
+  isMuted = !isMuted;
+  localStorage.setItem("cww_muted", isMuted ? "1" : "0");
+  updateMuteButton();
+});
+
+// --- personal "golden clicks found" stat — local only, never synced ---
+const goldenStat = document.createElement("p");
+goldenStat.className = "golden-stat";
+goldenStat.hidden = true;
+ticker.insertAdjacentElement("afterend", goldenStat);
+
+function renderGoldenStat() {
+  if (goldenFoundCount <= 0) return;
+  goldenStat.hidden = false;
+  goldenStat.textContent = `✨ ${goldenFoundCount} golden click${goldenFoundCount === 1 ? "" : "s"} found`;
+}
+renderGoldenStat();
+
+// --- click sound: short synthesized tone, Web Audio only (no audio files) ---
+function getAudioContext() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioCtx = new Ctx();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume().catch(() => {});
+  }
+  return audioCtx;
+}
+
+function playClickSound(combo, golden) {
+  if (isMuted) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const baseFreq = golden ? 660 : 440;
+  const freq = baseFreq + Math.min(combo, 20) * 14;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = golden ? "triangle" : "sine";
+  osc.frequency.setValueAtTime(freq, now);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.16);
+
+  if (golden) {
+    // second, higher chime layered on top for a distinct "sparkle" sound
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "triangle";
+    osc2.frequency.setValueAtTime(freq * 1.5, now + 0.05);
+    gain2.gain.setValueAtTime(0.0001, now + 0.05);
+    gain2.gain.exponentialRampToValueAtTime(0.14, now + 0.06);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    osc2.connect(gain2).connect(ctx.destination);
+    osc2.start(now + 0.05);
+    osc2.stop(now + 0.24);
+  }
 }
 
 // Renders one sponsor slot from sponsor-config.js. Placeholder state links to
@@ -189,6 +277,13 @@ function milestoneStep(total) {
 
 const BIG_MILESTONE_STEP = 1000000;
 
+// Tracks the next milestone boundary as of the last render, so we can detect
+// the moment `total` actually crosses it — reuses the exact same thresholds
+// the gauge already shows (100, 200, …, 1000, 2000, …), nothing invented.
+// Stays null until the first real render so page load never "celebrates" a
+// milestone that was already passed before this visitor arrived.
+let nextMilestoneTarget = null;
+
 function updateMilestone(total) {
   const step = milestoneStep(total);
   const target = Math.floor(total / step) * step + step;
@@ -209,10 +304,79 @@ function updateMilestone(total) {
   } else {
     milestoneSponsor.hidden = true;
   }
+
+  if (nextMilestoneTarget !== null) {
+    while (total >= nextMilestoneTarget) {
+      celebrateMilestone(nextMilestoneTarget);
+      nextMilestoneTarget += milestoneStep(nextMilestoneTarget);
+    }
+  } else {
+    nextMilestoneTarget = target;
+  }
 }
 
+// Animates the visible count from its current value to `target` over ~300ms
+// (ease-out) instead of jumping instantly, every time the real-time listener
+// reports a new total. Purely cosmetic — the underlying value is already
+// correct the instant this starts.
+let displayedTotal = 0;
+let rollupRaf = null;
+let rollupFallbackTimer = null;
+let rollupToken = 0;
+
+function animateCountTo(target) {
+  const start = displayedTotal;
+  const startTime = performance.now();
+  const duration = 300;
+  const myToken = ++rollupToken;
+
+  if (rollupRaf) cancelAnimationFrame(rollupRaf);
+  if (rollupFallbackTimer) clearTimeout(rollupFallbackTimer);
+
+  function commitFinal() {
+    if (myToken !== rollupToken) return; // a newer update superseded this one
+    displayedTotal = target;
+    countDisplay.textContent = formatCount(target);
+  }
+
+  function step(now) {
+    if (myToken !== rollupToken) return;
+    const elapsed = now - startTime;
+    const t = Math.min(1, elapsed / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = Math.round(start + (target - start) * eased);
+    displayedTotal = value;
+    countDisplay.textContent = formatCount(value);
+
+    if (t < 1) {
+      rollupRaf = requestAnimationFrame(step);
+    } else {
+      commitFinal();
+    }
+  }
+
+  rollupRaf = requestAnimationFrame(step);
+
+  // Safety net: rAF legitimately pauses on backgrounded tabs (and in some
+  // constrained/automated environments doesn't fire at all), which would
+  // otherwise leave the displayed count stuck mid-animation indefinitely.
+  // setTimeout still fires (if throttled) in the background, so this
+  // guarantees the correct final value always lands even if the animation
+  // itself never gets to play.
+  rollupFallbackTimer = setTimeout(commitFinal, duration + 120);
+}
+
+let hasRenderedCount = false;
+
 function renderCount(total) {
-  countDisplay.textContent = formatCount(total);
+  if (!hasRenderedCount) {
+    // First render of the page — set instantly, no roll-up from 0.
+    hasRenderedCount = true;
+    countDisplay.textContent = formatCount(total);
+    displayedTotal = total;
+  } else {
+    animateCountTo(total);
+  }
   updateMilestone(total);
 }
 
@@ -263,24 +427,113 @@ onValue(latestClickRef, (snap) => {
   ticker.textContent = `${flagEmoji(data.country)} someone in ${countryName(data.country)} just clicked`;
 });
 
-function spawnParticle(x, y) {
-  const p = document.createElement("span");
-  p.className = "particle";
-  p.textContent = "+1";
-  p.style.left = x + "px";
-  p.style.top = y + "px";
-  p.style.setProperty("--dx", Math.random() * 40 - 20 + "px");
-  clickBtn.appendChild(p);
-  setTimeout(() => p.remove(), 750);
+// Radiates `count` particles outward from (x, y) in a full circle, with
+// some randomness per particle so the burst doesn't look mechanical.
+// `gold` swaps in the gold color/glow and a sparkle glyph for golden clicks.
+function spawnParticleBurst(x, y, count, gold) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4 - 0.2);
+    const distance = 34 + Math.random() * 34;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance - 20; // slight upward bias
+
+    const p = document.createElement("span");
+    p.className = gold ? "particle gold" : "particle";
+    p.textContent = gold ? "✨" : "+1";
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    p.style.setProperty("--dx", dx.toFixed(1) + "px");
+    p.style.setProperty("--dy", dy.toFixed(1) + "px");
+    clickBtn.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+function spawnComboText(n) {
+  const el = document.createElement("span");
+  el.className = "combo-text";
+  el.textContent = `×${n} combo`;
+  clickBtn.appendChild(el);
+  setTimeout(() => el.remove(), 650);
+}
+
+// Small fading dots trailing the pointer while it hovers the click circle.
+// Throttled so moving the mouse doesn't flood the DOM with dot elements.
+let lastTrailTime = 0;
+clickBtn.addEventListener("pointermove", (e) => {
+  const now = performance.now();
+  if (now - lastTrailTime < 45) return;
+  lastTrailTime = now;
+
+  const rect = clickBtn.getBoundingClientRect();
+  const dot = document.createElement("span");
+  dot.className = "trail-dot";
+  dot.style.left = e.clientX - rect.left + "px";
+  dot.style.top = e.clientY - rect.top + "px";
+  clickBtn.appendChild(dot);
+  setTimeout(() => dot.remove(), 500);
+});
+
+function spawnConfettiBurst() {
+  const colors = ["var(--amber)", "var(--coral)", "var(--teal)", "#ffd700"];
+  const piecesCount = 46;
+  for (let i = 0; i < piecesCount; i++) {
+    const piece = document.createElement("span");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.background = colors[i % colors.length];
+    piece.style.setProperty("--drift", (Math.random() * 200 - 100).toFixed(0) + "px");
+    piece.style.setProperty("--spin", (Math.random() * 720 - 360).toFixed(0) + "deg");
+    piece.style.animationDuration = 1.8 + Math.random() * 1.4 + "s";
+    piece.style.animationDelay = Math.random() * 0.3 + "s";
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 3600);
+  }
+}
+
+function showMilestoneBanner(target) {
+  const banner = document.createElement("div");
+  banner.className = "milestone-banner";
+  banner.textContent = `🎉 ${formatCount(target)} clicks — milestone reached! 🎉`;
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 3000);
+}
+
+function celebrateMilestone(target) {
+  spawnConfettiBurst();
+  showMilestoneBanner(target);
 }
 
 clickBtn.addEventListener("click", async (e) => {
-  clickBtn.classList.remove("pulse");
-  void clickBtn.offsetWidth;
-  clickBtn.classList.add("pulse");
-  const rect = clickBtn.getBoundingClientRect();
-  spawnParticle(e.clientX - rect.left, e.clientY - rect.top);
+  const now = Date.now();
+  comboCount = now - lastClickTime < COMBO_WINDOW_MS ? comboCount + 1 : 1;
+  lastClickTime = now;
 
+  const isGolden = Math.random() < GOLDEN_CHANCE;
+
+  clickBtn.classList.remove("pulse", "golden-pulse");
+  void clickBtn.offsetWidth;
+  clickBtn.classList.add(isGolden ? "golden-pulse" : "pulse");
+
+  const rect = clickBtn.getBoundingClientRect();
+  const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+  const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+  spawnParticleBurst(x, y, isGolden ? 26 : 14, isGolden);
+
+  if (comboCount >= 2) spawnComboText(comboCount);
+
+  playClickSound(comboCount, isGolden);
+
+  if (isGolden) {
+    goldenFoundCount += 1;
+    localStorage.setItem("cww_golden_found", String(goldenFoundCount));
+    renderGoldenStat();
+  }
+
+  // Same +1 write as always, golden or not — the shared total only ever
+  // moves by exactly 1 per click, per the increment-only Firebase rule.
+  // Golden clicks are purely a client-side cosmetic flourish; nothing about
+  // them is written to or read from Firebase.
   const country = await countryPromise;
   update(ref(db), {
     "stats/total": increment(1),

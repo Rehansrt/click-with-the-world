@@ -35,10 +35,13 @@
   </header>
 
   <div class="counter-zone">
-    <button id="clickBtn" class="counter-button" aria-label="Add your click to the world count">
-      <span id="countDisplay" class="count-number">&mdash;</span>
-      <span class="tap-hint">tap to click</span>
-    </button>
+    <div class="counter-wrap">
+      <button id="clickBtn" class="counter-button" aria-label="Add your click to the world count">
+        <span id="countDisplay" class="count-number">&mdash;</span>
+        <span class="tap-hint">tap to click</span>
+      </button>
+      <button id="muteBtn" class="mute-btn" aria-label="Mute click sound" title="Mute click sound">🔊</button>
+    </div>
     <div id="ticker" class="ticker" aria-live="polite">connecting to the world&hellip;</div>
   </div>
 

@@ -135,8 +135,8 @@
   }
 
   @keyframes rise {
-    0% { opacity: 1; transform: translate(0, 0); }
-    100% { opacity: 0; transform: translate(var(--dx), -40px); }
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy, -40px)) scale(0.8); }
   }
 
   @media (prefers-reduced-motion: reduce) {
