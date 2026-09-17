@@ -33,6 +33,14 @@
           ".validate": false
         }
       }
+    },
+
+    "clientCooldowns": {
+      "$clientId": {
+        ".read": false,
+        ".write": true,
+        ".validate": "newData.isNumber() && newData.val() <= now && (!data.exists() || newData.val() > data.val() + 800)"
+      }
     }
   }
 }

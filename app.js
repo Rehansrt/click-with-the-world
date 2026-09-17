@@ -265,6 +265,31 @@ async function detectCountry() {
 
 const countryPromise = detectCountry();
 
+// Interim client-side rate-limit stopgap while App Check enforcement stays
+// off (blocked on firebase/firebase-js-sdk#10385). Not a security boundary —
+// this ID lives in localStorage and anyone can fabricate a fresh one — it
+// only needs to persist per browser so the clientCooldowns/$clientId rule
+// (see database.rules.json) can reject a second write from the same client
+// within COOLDOWN_MS. The real fix is still App Check.
+const COOLDOWN_MS = 800;
+
+function getClientId() {
+  let id = localStorage.getItem("cww_client_id");
+  if (!id) {
+    id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+    localStorage.setItem("cww_client_id", id);
+  }
+  return id;
+}
+
+const clientId = getClientId();
+
 let currentTotal = null;
 
 function milestoneStep(total) {
@@ -505,6 +530,18 @@ function celebrateMilestone(target) {
 }
 
 clickBtn.addEventListener("click", async (e) => {
+  // UX-level throttle matching COOLDOWN_MS on the clientCooldowns rule below —
+  // without this, a fast double-click would pass the +1 validation on
+  // stats/total and stats/countries fine but still get silently rejected as
+  // a whole (multi-path updates are all-or-nothing) once the cooldown rule
+  // fails, since the update() promise here isn't surfaced to the user.
+  // Disabling the button keeps every click a user can actually make succeed.
+  if (clickBtn.disabled) return;
+  clickBtn.disabled = true;
+  setTimeout(() => {
+    clickBtn.disabled = false;
+  }, COOLDOWN_MS);
+
   const now = Date.now();
   comboCount = now - lastClickTime < COMBO_WINDOW_MS ? comboCount + 1 : 1;
   lastClickTime = now;
@@ -539,6 +576,7 @@ clickBtn.addEventListener("click", async (e) => {
     "stats/total": increment(1),
     [`stats/countries/${country}`]: increment(1),
     "recentClicks/latest": { country, ts: serverTimestamp() },
+    [`clientCooldowns/${clientId}`]: serverTimestamp(),
   });
 });
 

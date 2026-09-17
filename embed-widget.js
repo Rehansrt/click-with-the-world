@@ -115,6 +115,30 @@ async function detectCountry() {
 
 const countryPromise = detectCountry();
 
+// Interim client-side rate-limit stopgap while App Check enforcement stays
+// off (blocked on firebase/firebase-js-sdk#10385) — see app.js for the full
+// rationale. Same localStorage key on purpose: this embed shares its origin
+// (and therefore storage) with the main site, so the same visitor gets one
+// consistent cooldown budget across both surfaces.
+const COOLDOWN_MS = 800;
+
+function getClientId() {
+  let id = localStorage.getItem("cww_client_id");
+  if (!id) {
+    id = crypto.randomUUID
+      ? crypto.randomUUID()
+      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+    localStorage.setItem("cww_client_id", id);
+  }
+  return id;
+}
+
+const clientId = getClientId();
+
 // Lighter interaction layer than the main site by design: an embed sits on
 // someone else's page, so it stays to particle burst + number roll-up only —
 // no sound, no confetti, no combo text, no golden-click mechanic. Same
@@ -192,17 +216,17 @@ function spawnParticleBurst(x, y, count) {
   }
 }
 
-// UX-level guard only — briefly disables the button so a single embed
-// instance can't rapid-fire clicks. Not a real rate limit (that's App
-// Check's job); just stops one impatient tap-spam from feeling broken.
-const CLICK_COOLDOWN_MS = 400;
-
+// Disables the button for COOLDOWN_MS after each click — both a UX guard
+// against rapid-fire tap-spam AND kept in sync with the server-side
+// clientCooldowns rule (database.rules.json) so a click a real user can
+// actually make never gets silently rejected by it (multi-path updates are
+// all-or-nothing, and this update()'s result isn't surfaced to the user).
 clickBtn.addEventListener("click", async (e) => {
   if (clickBtn.disabled) return;
   clickBtn.disabled = true;
   setTimeout(() => {
     clickBtn.disabled = false;
-  }, CLICK_COOLDOWN_MS);
+  }, COOLDOWN_MS);
 
   clickBtn.classList.remove("pulse");
   void clickBtn.offsetWidth;
@@ -217,5 +241,6 @@ clickBtn.addEventListener("click", async (e) => {
     "stats/total": increment(1),
     [`stats/countries/${country}`]: increment(1),
     "recentClicks/latest": { country, ts: serverTimestamp() },
+    [`clientCooldowns/${clientId}`]: serverTimestamp(),
   });
 });
