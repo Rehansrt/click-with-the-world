@@ -12,6 +12,7 @@ import {
   update,
   increment,
   serverTimestamp,
+  push,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
@@ -53,6 +54,25 @@ function reportAppCheckError(err) {
     );
   } catch {
     /* reporting must never affect the app */
+  }
+
+  // Also persist to RTDB (appcheckLogs/<pushId>) since Vercel Hobby only keeps
+  // runtime logs ~1h. getDatabase(app) is memoized, so calling it here (before
+  // the `db` const below exists) returns the same instance. Fields must match
+  // the appcheckLogs validate rule exactly: 5 strings/number, strings <= 300.
+  try {
+    const clip = (v) => String(v).slice(0, 300);
+    push(ref(getDatabase(app), "appcheckLogs"), {
+      code: clip((err && err.code) || "unknown"),
+      message: clip((err && err.message) || err),
+      userAgent: clip(navigator.userAgent),
+      path: clip(location.pathname),
+      timestamp: serverTimestamp(),
+    }).catch(() => {
+      /* rules not published / offline — ignore, never break the site */
+    });
+  } catch {
+    /* ignore */
   }
 }
 

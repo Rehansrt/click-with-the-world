@@ -1,9 +1,9 @@
 {
   "rules": {
-    ".read": true,
     ".write": false,
 
     "stats": {
+      ".read": true,
       "total": {
         ".read": true,
         ".write": true,
@@ -19,6 +19,7 @@
     },
 
     "recentClicks": {
+      ".read": true,
       "latest": {
         ".read": true,
         ".write": true,
@@ -40,6 +41,32 @@
         ".read": false,
         ".write": true,
         ".validate": "newData.isNumber() && newData.val() <= now && (!data.exists() || newData.val() > data.val() + 800)"
+      }
+    },
+
+    "appcheckLogs": {
+      ".read": false,
+      "$logId": {
+        ".write": "!data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['code', 'message', 'userAgent', 'path', 'timestamp'])",
+        "code": {
+          ".validate": "newData.isString() && newData.val().length <= 300"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length <= 300"
+        },
+        "userAgent": {
+          ".validate": "newData.isString() && newData.val().length <= 300"
+        },
+        "path": {
+          ".validate": "newData.isString() && newData.val().length <= 300"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "$other": {
+          ".validate": false
+        }
       }
     }
   }
