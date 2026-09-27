@@ -9,7 +9,7 @@ export const PAGES = [
   { label: "Milestones", href: "/milestones", live: false },
   { label: "Leaderboard", href: "/leaderboard", live: false },
   { label: "Embed", href: "/embed-this", live: true },
-  { label: "Sponsor", href: "/sponsor", live: false },
+  { label: "Sponsor", href: "/sponsor", live: true },
   { label: "About", href: "/about", live: true },
   { label: "FAQ", href: "/faq", live: true },
   { label: "Contact", href: "/contact", live: true },

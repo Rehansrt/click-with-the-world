@@ -292,9 +292,12 @@ function renderSponsorSlot(el, config) {
   const tag = config.active ? "sponsored" : "sponsor this spot";
   const label = config.active && config.name ? config.name : config.placeholderText;
   const href = config.active ? config.link : sponsorConfig.inquiryContact;
+  // Internal links (e.g. /sponsor) open in the same tab; external ones in a new tab.
+  const internal = typeof href === "string" && href.startsWith("/");
   const rel = config.active ? "noopener sponsored" : "noopener";
+  const attrs = internal ? "" : ` target="_blank" rel="${rel}"`;
   const text = href
-    ? `<a class="sponsor-link" href="${href}" target="_blank" rel="${rel}">${label}</a>`
+    ? `<a class="sponsor-link" href="${href}"${attrs}>${label}</a>`
     : `<span class="sponsor-text">${label}</span>`;
 
   el.innerHTML = `<span class="sponsor-tag">${tag}</span>${logo}${text}`;

@@ -16,7 +16,7 @@
 // a dedicated inquiry page whenever one exists — it's just a URL either way.
 
 export const sponsorConfig = {
-  inquiryContact: "mailto:sponsor@clickwiththeworld.fun",
+  inquiryContact: "/sponsor",
 
   milestone: {
     active: false,
