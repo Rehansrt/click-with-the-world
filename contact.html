@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Click With The World</title>
+<meta name="description" content="Questions, feedback, bug reports or sponsorship? Send Click With The World a message.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/contact">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contact — Click With The World">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/contact">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site-shell.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="c-hero">
+  <svg class="plane" viewBox="0 0 400 240" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true" focusable="false">
+    <path d="M6 232C60 150 150 120 250 118" stroke-width="2.5" opacity=".7"/>
+    <path d="M30 236C110 170 200 150 300 130" stroke-width="1.5" opacity=".45"/>
+    <path d="M392 8 250 96l-16-46L392 8z"/>
+    <path d="M250 96l-6 44 30-32M234 50l16 46 142-88"/>
+    <path d="M244 140l8-26" />
+  </svg>
+  <div class="c-hero-inner">
+    <h1>Get in <span class="grad">Touch</span></h1>
+    <p>Questions, feedback, bug reports, or sponsorship — drop us a message.</p>
+  </div>
+</section>
+
+<main class="c-main">
+  <div class="c-grid">
+
+    <section class="card" aria-labelledby="formTitle">
+      <div class="card-head">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6.5L21 7"/></svg>
+        </span>
+        <div>
+          <h2 id="formTitle">Send a Message</h2>
+          <p>We'd love to hear from you.</p>
+        </div>
+      </div>
+
+      <form id="contactForm" class="form" novalidate>
+        <div class="field">
+          <span class="f-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></span>
+          <label class="sr-only" for="cName">Your name</label>
+          <input id="cName" name="name" type="text" placeholder="Your Name" autocomplete="name" required maxlength="120">
+        </div>
+        <div class="field">
+          <span class="f-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v.4l-9 5.6-9-5.6v-.4zM3 9.3V17.5A2.5 2.5 0 0 0 5.5 20h13a2.5 2.5 0 0 0 2.5-2.5V9.3l-8.5 5.3a1 1 0 0 1-1 0L3 9.3z"/></svg></span>
+          <label class="sr-only" for="cEmail">Your email</label>
+          <input id="cEmail" name="email" type="email" placeholder="Your Email" autocomplete="email" required maxlength="200">
+        </div>
+        <div class="field">
+          <span class="f-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V8h4.5L13 3.5zM8 12h8v1.6H8V12zm0 3.4h8V17H8v-1.6z"/></svg></span>
+          <label class="sr-only" for="cSubject">Subject</label>
+          <select id="cSubject" name="topic">
+            <option value="">Select a subject</option>
+            <option>General question</option>
+            <option>Feedback</option>
+            <option>Bug report</option>
+            <option>Sponsorship</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="f-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H11l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></span>
+          <label class="sr-only" for="cMessage">Message</label>
+          <textarea id="cMessage" name="message" placeholder="Message" required maxlength="5000"></textarea>
+        </div>
+
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <p id="formStatus" class="status" role="status" aria-live="polite" hidden></p>
+
+        <button id="sendBtn" class="btn-send" type="submit">Send Message &rarr;</button>
+        <p class="form-note">We usually reply within a couple of days.<br>By sending, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="otherTitle">
+      <div class="card-head">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6.5L21 7"/></svg>
+        </span>
+        <div>
+          <h2 id="otherTitle">Other Ways to Reach Us</h2>
+          <p>You can also reach us directly by email.</p>
+        </div>
+      </div>
+      <div class="mail-list">
+        <a class="mail-card" href="mailto:hello@clickwiththeworld.fun">
+          <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6.5L21 7"/></svg></span>
+          <div><strong>General</strong><span>hello@clickwiththeworld.fun</span></div>
+        </a>
+        <a class="mail-card" href="mailto:sponsor@clickwiththeworld.fun">
+          <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
+          <div><strong>Sponsorship</strong><span>sponsor@clickwiththeworld.fun</span></div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="c-cards">
+    <section class="card promo">
+      <div class="promo-body">
+        <div class="promo-title">
+          <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 3 12l5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span>
+          <h2>Embed the Counter</h2>
+        </div>
+        <p>Add the live counter to your website or blog.</p>
+        <a class="btn-outline" href="/embed-this">Get Embed Code &rarr;</a>
+      </div>
+    </section>
+    <section class="card promo">
+      <div class="promo-body">
+        <div class="promo-title">
+          <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8.5 20h7M10 17h4"/></svg></span>
+          <h2>Sponsor a Milestone</h2>
+        </div>
+        <p>Feature your brand at a global milestone.</p>
+        <a class="btn-outline" href="mailto:sponsor@clickwiththeworld.fun">Email Sponsorship &rarr;</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="site-shell.js"></script>
+<script type="module" src="contact.js"></script>
+</body>
+</html>

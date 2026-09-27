@@ -12,12 +12,12 @@ export const PAGES = [
   { label: "Sponsor", href: "/sponsor", live: false },
   { label: "About", href: "/about", live: false },
   { label: "FAQ", href: "/faq", live: false },
-  { label: "Contact", href: "/contact", live: false },
+  { label: "Contact", href: "/contact", live: true },
 ];
 
 export const LEGAL_LINKS = [
-  { label: "Privacy Policy", href: "/privacy", live: false },
-  { label: "Contact", href: "/contact", live: false },
+  { label: "Privacy Policy", href: "/privacy", live: true },
+  { label: "Contact", href: "/contact", live: true },
 ];
 
 export const KOFI_URL = "https://ko-fi.com/clickwiththeworld";

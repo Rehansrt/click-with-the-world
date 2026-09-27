@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Click With The World</title>
+<meta name="description" content="How Click With The World handles data: what a click stores, what your browser keeps, and which third-party services are involved.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/privacy">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Privacy Policy — Click With The World">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/privacy">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site-shell.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose">
+  <h1>Privacy Policy — Click With The World</h1>
+  <p class="updated">Last updated: September 27, 2026</p>
+
+  <p>Click With The World (clickwiththeworld.fun) is a shared global click counter. There are no accounts or sign-ins, and you never need to give us your name or email to click. This policy explains what data is involved and why.</p>
+
+  <h2>1. What happens when you click</h2>
+  <p>Each click adds +1 to the global total, to your country's total, and to today's total (counted by UTC date). These are aggregate counts only. We also show the country and time of the last few clicks in a live feed; each new click overwrites the oldest entry, so no individual click history is kept. Separately, a random browser ID and a timestamp are saved only to stop rapid automated clicking. This ID is generated in your browser and is not linked to your name, email, or IP address. We do not store your IP address, name, or email with any click.</p>
+
+  <h2>2. How we detect your country</h2>
+  <p>Your approximate country comes from our hosting provider, Vercel, based on your connection. We do not store your IP address. If Vercel cannot provide it, your browser asks a third-party service, ipwho.is, which receives your IP address and returns a country code. We only use the country code.</p>
+
+  <h2>3. Data stored in your browser</h2>
+  <p>We set no cookies ourselves. We use your browser's local storage for:</p>
+  <ul>
+    <li>a random ID used for rate-limiting</li>
+    <li>your sound on/off preference</li>
+    <li>a local count of "golden clicks" you've found</li>
+  </ul>
+  <p>Your detected country is kept in session storage and is cleared when you close the tab.</p>
+  <p>The Firebase SDK also keeps a security token and basic technical data (such as SDK version and dates) in your browser. You can clear all of this at any time through your browser settings.</p>
+
+  <h2>4. Security and anti-abuse</h2>
+  <p>We use Firebase App Check with Google reCAPTCHA Enterprise to help detect automated traffic. Google may collect device and browser signals and use cookies for this, under <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>. If a security check fails, we record the error, the page path, your browser's user-agent string, and the time. We do not record your IP address. We use this only to diagnose problems, delete these records periodically, and never make them public.</p>
+
+  <h2>5. Advertising</h2>
+  <p>We use Google AdSense. Third-party vendors, including Google, use cookies to show ads based on your previous visits to this and other websites. Google's advertising cookies let it and its partners show ads based on your visits across the internet. You can opt out of personalised advertising at Google's Ads Settings (<a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>) or at <a href="https://www.aboutads.info" target="_blank" rel="noopener">www.aboutads.info</a>.</p>
+
+  <h2>6. Contact form</h2>
+  <p>When you use the contact form, your name, email, and message are delivered to us through Web3Forms. We use them only to reply to you.</p>
+
+  <h2>7. Tips</h2>
+  <p>The "Tip Us" button uses Ko-fi. Payments are handled entirely by Ko-fi, and we never see your card or payment details.</p>
+
+  <h2>8. Other services</h2>
+  <p>The site is hosted on Vercel, which keeps standard short-lived request logs. The live counter runs on Google Firebase. Fonts are loaded from Google Fonts. Each of these services receives basic connection data, such as your IP address, when your browser loads them.</p>
+
+  <h2>9. Embed widget</h2>
+  <p>Websites that embed our counter load it from clickwiththeworld.fun. The widget uses Firebase, App Check/reCAPTCHA, and, if needed, the ipwho.is country lookup. It shows no ads and loads no Ko-fi or Google Fonts content.</p>
+
+  <h2>10. Third-party privacy policies</h2>
+  <p>Google (Firebase, reCAPTCHA, AdSense, Fonts): <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>. Also Vercel, Ko-fi, Web3Forms, and ipwho.is; each publishes its own privacy policy on its website.</p>
+
+  <h2>11. Children</h2>
+  <p>This site is not directed at children under 13, and we do not knowingly collect personal information from them.</p>
+
+  <h2>12. Your choices</h2>
+  <p>Because we have no accounts, we usually cannot link data to you personally. To reset your browser ID, clear your browser storage. For any privacy question or request, email <a href="mailto:hello@clickwiththeworld.fun">hello@clickwiththeworld.fun</a>.</p>
+
+  <h2>13. Changes</h2>
+  <p>We may update this policy. The "Last updated" date above will show the latest version.</p>
+
+  <p><strong>Contact:</strong> <a href="mailto:hello@clickwiththeworld.fun">hello@clickwiththeworld.fun</a></p>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="site-shell.js"></script>
+</body>
+</html>
