@@ -98,6 +98,18 @@ const statToday = el("statToday");
 const rows = [...document.querySelectorAll("#ladder .j-row")];
 
 const fmt = (n) => n.toLocaleString("en-US");
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// "27 Sep 2026", always UTC, date only.
+function formatUtcDate(ms) {
+  const d = new Date(ms);
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+}
+
+// stats/milestones/<value> = when that milestone was first recorded (written by
+// Home and the embed widget; this page only reads it).
+let milestoneTimes = {};
+let lastTotal = null;
 const utcDate = () => new Date().toISOString().slice(0, 10);
 
 const ICONS = {
@@ -164,6 +176,17 @@ function renderLadder(total) {
     row.querySelector(".j-mark").innerHTML = ICONS[state];
     row.querySelector(".j-chip").textContent = LABELS[state];
 
+    // "Reached on <date>" only when a recorded time exists; otherwise nothing.
+    const oldDate = row.querySelector(".j-date");
+    if (oldDate) oldDate.remove();
+    const ts = milestoneTimes[String(m)];
+    if (state === "reached" && typeof ts === "number") {
+      const small = document.createElement("small");
+      small.className = "j-date";
+      small.textContent = "Reached on " + formatUtcDate(ts);
+      row.querySelector(".j-num").append(small);
+    }
+
     const old = row.querySelector(".j-sponsor");
     if (old) old.remove();
     if (m % BIG_STEP === 0) {
@@ -183,6 +206,7 @@ function render(total) {
   const start = target - step;
   const progress = Math.max(0, Math.min(100, ((total - start) / step) * 100));
 
+  lastTotal = total;
   totalDisplay.textContent = fmt(total);
   msTarget.textContent = fmt(target);
   msStart.textContent = fmt(start);
@@ -197,6 +221,11 @@ onValue(ref(db, "stats/total"), (snap) => {
   const total = snap.val();
   if (typeof total !== "number") return; // keep "—" until real data arrives
   render(total);
+});
+
+onValue(ref(db, "stats/milestones"), (snap) => {
+  milestoneTimes = snap.val() || {};
+  if (lastTotal !== null) renderLadder(lastTotal);
 });
 
 onValue(ref(db, "stats/countries"), (snap) => {

@@ -115,6 +115,16 @@ onTokenChanged(appCheck, {
 });
 
 const db = getDatabase(app);
+
+// Same first-reached recorder as Home. Dynamic import + catch: it must never
+// affect clicks or rendering.
+try {
+  import("./milestone-recorder.js")
+    .then((m) => m.startMilestoneRecorder(db))
+    .catch(() => {});
+} catch {
+  /* ignore */
+}
 const totalRef = ref(db, "stats/total");
 
 const countDisplay = document.getElementById("countDisplay");

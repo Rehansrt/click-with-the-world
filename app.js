@@ -120,6 +120,13 @@ onTokenChanged(appCheck, {
 
 const db = getDatabase(app);
 
+// Records each milestone's first-reached time (separate observer writes; the
+// click update below is untouched). Dynamic import so a failure here can never
+// break the page.
+import("./milestone-recorder.js")
+  .then((m) => m.startMilestoneRecorder(db))
+  .catch(() => {});
+
 const totalRef = ref(db, "stats/total");
 const countriesRef = ref(db, "stats/countries");
 const latestClickRef = ref(db, "recentClicks/latest");

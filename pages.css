@@ -581,6 +581,7 @@ details.qa .ans a { overflow-wrap: anywhere; }
 
 .j-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
 .j-num { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
+.j-num .j-date { color: #7ff0d0; margin-top: 2px; }
 .j-num small { display: block; font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px; color: var(--text-dim); }
 
 .j-chip {
