@@ -24,11 +24,6 @@
         }
       },
       "milestones": {
-          // TEMP-TEST-KEY — remove after verification
-          "100": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 100"
-          },
           "1000": {
             ".write": "newData.exists() && !data.exists()",
             ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 1000"

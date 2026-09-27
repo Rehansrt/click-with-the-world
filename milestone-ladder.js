@@ -3,7 +3,6 @@
 // compare a key string to the numeric total), so keep the two in sync:
 // adding a milestone means editing this list AND database.rules.json.
 export const MILESTONE_LADDER = [
-  100, // TEMP-TEST-KEY — remove after verification
   1000,
   10000,
   100000,
