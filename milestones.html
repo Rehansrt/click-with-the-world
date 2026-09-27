@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestones — Click With The World</title>
+<meta name="description" content="Follow the global click counter toward its next milestone: live progress, clicks remaining, and the big numbers ahead.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/milestones">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Milestones — Click With The World">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/milestones">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site-shell.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="c-hero">
+  <svg class="hero-art" viewBox="0 0 440 250" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M10 235 90 195 130 205 190 150 235 165 300 105 340 118 395 50" stroke-dasharray="2 9" stroke-width="3.4"/>
+    <g fill="currentColor" stroke="none"><circle cx="90" cy="195" r="6"/><circle cx="190" cy="150" r="6"/><circle cx="300" cy="105" r="6"/><circle cx="395" cy="50" r="7"/></g>
+    <path d="M395 50V8M395 8l34 10-34 10" stroke-width="3"/>
+  </svg>
+  <div class="c-hero-inner">
+    <h1><span class="grad">Milestones</span></h1>
+    <p>Every big number is a moment the whole world hits together.</p>
+  </div>
+</section>
+
+<main class="c-main">
+
+  <div class="ms-top">
+    <section class="card ms-cur" aria-labelledby="curTitle">
+      <div class="ms-head">
+        <div class="card-head" style="margin-bottom:0">
+          <span class="card-ico" aria-hidden="true"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><path d="M12 12l7-7M17 3v4h4"/></svg></span>
+          <div><h2 id="curTitle">Current Milestone</h2><p>Let's reach the next big number together!</p></div>
+        </div>
+        <div class="ms-tgt"><span class="lbl">Target</span><span id="msTarget" class="num">&mdash;</span></div>
+      </div>
+      <div class="ms-body">
+        <div class="ms-bar">
+          <div class="gauge"><div id="gaugeFill" class="gauge-fill"></div></div>
+          <div class="ms-labels">
+            <span id="msStart">&mdash;</span>
+            <span id="msNote">&mdash;</span>
+            <span id="msEnd">&mdash;</span>
+          </div>
+        </div>
+        <div id="msPct" class="ms-pct" aria-label="Progress to next milestone">&mdash;</div>
+      </div>
+    </section>
+
+    <section class="card total-card" aria-labelledby="totTitle">
+      <div class="card-head" style="margin-bottom:10px">
+        <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg></span>
+        <h2 id="totTitle">Total Clicks So Far</h2>
+      </div>
+      <div id="totalDisplay" class="count-big" role="status" aria-label="Total clicks so far">&mdash;</div>
+      <ul class="mini-stats">
+        <li><strong id="statCountries">&mdash;</strong><span>Countries</span></li>
+        <li><strong id="statToday">&mdash;</strong><span>Clicks Today <small>(UTC)</small></span></li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="ms-mid">
+    <section class="card" aria-labelledby="jTitle">
+      <div class="card-head">
+        <span class="card-ico" aria-hidden="true"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><circle cx="12" cy="19" r="2.5"/><path d="M12 7.5v9"/></svg></span>
+        <div><h2 id="jTitle">Milestone Journey</h2><p>Key milestones on our global journey.</p></div>
+      </div>
+      <ol id="ladder" class="j-list">
+        <li class="j-row" data-m="1000"><span class="j-mark"></span><div class="j-num">1,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="10000"><span class="j-mark"></span><div class="j-num">10,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="100000"><span class="j-mark"></span><div class="j-num">100,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="500000"><span class="j-mark"></span><div class="j-num">500,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="1000000"><span class="j-mark"></span><div class="j-num">1,000,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="5000000"><span class="j-mark"></span><div class="j-num">5,000,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+        <li class="j-row" data-m="10000000"><span class="j-mark"></span><div class="j-num">10,000,000 <small>Clicks</small></div><span class="j-chip">&mdash;</span></li>
+      </ol>
+    </section>
+
+    <section class="card promo">
+      <div class="promo-body">
+        <div class="promo-title">
+          <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
+          <h2>Sponsor the Counter</h2>
+        </div>
+        <p>Put your logo in the Top Countries card on the Home page. Milestone spots open as we approach 1,000,000.</p>
+        <a class="btn-outline" href="/sponsor">View Sponsorship &rarr;</a>
+      </div>
+    </section>
+  </div>
+
+  <section class="card banner">
+    <div>
+      <h2>Help reach the <span class="grad">next one.</span></h2>
+      <p>Every click brings us closer to the next milestone.</p>
+    </div>
+    <a class="btn-outline" href="/">Go Click &rarr;</a>
+  </section>
+
+  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="site-shell.js"></script>
+<script type="module" src="milestones.js"></script>
+<script type="module" src="ad-slot.js"></script>
+</body>
+</html>
