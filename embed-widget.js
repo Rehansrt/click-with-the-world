@@ -134,6 +134,33 @@ function formatCount(n) {
   return n.toLocaleString("en-IN");
 }
 
+// Shrinks the count number to fit the circle instead of overflowing it (a
+// large total, e.g. 9 digits, would otherwise spill past the button edge —
+// the button diameter and base font-size are fixed by embed.html's CSS and
+// don't grow with text length). Resets to the CSS size first so it can grow
+// back if a shorter value is set later.
+function fitCount() {
+  countDisplay.style.fontSize = "";
+  const maxWidth = clickBtn.clientWidth * 0.8;
+  if (maxWidth <= 0) return;
+  const baseSize = parseFloat(getComputedStyle(countDisplay).fontSize);
+  if (countDisplay.scrollWidth > maxWidth) {
+    const scaled = baseSize * (maxWidth / countDisplay.scrollWidth);
+    countDisplay.style.fontSize = Math.max(10, scaled) + "px";
+  }
+}
+
+function setCount(text) {
+  countDisplay.textContent = text;
+  fitCount();
+}
+
+let fitResizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(fitResizeTimer);
+  fitResizeTimer = setTimeout(fitCount, 120);
+});
+
 async function detectCountry() {
   const cached = sessionStorage.getItem("cww_country");
   if (cached) return cached;
@@ -214,7 +241,7 @@ function animateCountTo(target) {
   function commitFinal() {
     if (myToken !== rollupToken) return;
     displayedTotal = target;
-    countDisplay.textContent = formatCount(target);
+    setCount(formatCount(target));
   }
 
   function step(now) {
@@ -223,7 +250,7 @@ function animateCountTo(target) {
     const eased = 1 - Math.pow(1 - t, 3);
     const value = Math.round(start + (target - start) * eased);
     displayedTotal = value;
-    countDisplay.textContent = formatCount(value);
+    setCount(formatCount(value));
     if (t < 1) {
       rollupRaf = requestAnimationFrame(step);
     } else {
@@ -248,7 +275,7 @@ onValue(totalRef, (snap) => {
   if (!hasRenderedCount) {
     hasRenderedCount = true;
     displayedTotal = total;
-    countDisplay.textContent = formatCount(total);
+    setCount(formatCount(total));
   } else {
     animateCountTo(total);
   }

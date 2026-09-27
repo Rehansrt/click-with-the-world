@@ -47,8 +47,8 @@
   .counter-button {
     position: relative;
     flex: none;
-    width: clamp(50px, 44vh, 130px);
-    height: clamp(50px, 44vh, 130px);
+    width: clamp(56px, 60vh, 150px);
+    height: clamp(56px, 60vh, 150px);
     border-radius: 50%;
     border: 1px solid rgba(255,182,39,0.4);
     background:
@@ -89,14 +89,15 @@
   .count-number {
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    font-size: clamp(12px, 15vh, 34px);
+    font-size: clamp(16px, 16vh, 48px);
     letter-spacing: 0.3px;
     line-height: 1;
+    white-space: nowrap;
   }
 
   .tap-hint {
     margin-top: clamp(2px, 1.5vh, 6px);
-    font-size: clamp(7px, 5.5vh, 12px);
+    font-size: clamp(9px, 6vh, 13px);
     color: var(--text-dim);
     line-height: 1;
   }
@@ -110,13 +111,13 @@
   }
 
   .label {
-    font-size: clamp(8px, 6vh, 14px);
+    font-size: clamp(10px, 7vh, 16px);
     color: var(--text-dim);
     white-space: nowrap;
   }
 
   .attribution {
-    font-size: clamp(7px, 4.5vh, 11px);
+    font-size: clamp(9px, 5vh, 12px);
     color: var(--text-dim);
     text-decoration: none;
     opacity: 0.85;
