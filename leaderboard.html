@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Country Leaderboard — Click With The World</title>
+<meta name="description" content="Which country clicks the most? Every country ranked by total clicks on the shared global counter, updated live.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/leaderboard">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Country Leaderboard — Click With The World">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/leaderboard">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site-shell.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="c-hero">
+  <svg class="hero-art" viewBox="0 0 440 240" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false">
+    <path d="M10 230C60 100 170 50 220 50s160 50 210 180" opacity=".8"/>
+    <path d="M60 230C100 130 170 90 220 90s120 40 160 140" opacity=".6"/>
+    <path d="M110 230C140 160 185 130 220 130s80 30 110 100" opacity=".45"/>
+    <g fill="currentColor" stroke="none"><circle cx="220" cy="50" r="5"/><circle cx="60" cy="215" r="4"/><circle cx="380" cy="215" r="4"/><circle cx="150" cy="105" r="3.5"/><circle cx="292" cy="103" r="3.5"/></g>
+  </svg>
+  <div class="c-hero-inner">
+    <h1>Country <span class="grad">Leaderboard</span></h1>
+    <p>Which country clicks the most? Every click counts for your flag.</p>
+  </div>
+</section>
+
+<main class="c-main">
+
+  <ul class="lb-stats" style="margin-top:-8px">
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4" ry="9.5"/><path d="M2.5 12h19M4 7.5h16M4 16.5h16"/></svg></span>
+      <div><strong id="statCountries">&mdash;</strong><span>Countries</span></div>
+    </li>
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg></span>
+      <div><strong id="statTotal">&mdash;</strong><span>Total Clicks</span></div>
+    </li>
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+      <div><strong id="statToday">&mdash;</strong><span>Clicks Today <small>(UTC)</small></span></div>
+    </li>
+  </ul>
+
+  <div class="lb-grid">
+
+    <section class="card" aria-labelledby="tcTitle">
+      <div class="card-head">
+        <span class="card-ico" aria-hidden="true"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#ffd27a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8.5 20h7M10 17h4"/></svg></span>
+        <div><h2 id="tcTitle">Top Countries</h2><p>Countries ranked by total clicks</p></div>
+      </div>
+      <div class="lb-head" aria-hidden="true"><span>Rank</span><span>Country</span><span>Total Clicks</span><span>Share of clicks</span></div>
+      <ol id="lbList" class="lb-list"><li class="tc-empty">&mdash;</li></ol>
+      <div class="lb-more"><button id="showMoreBtn" class="btn-outline" type="button" hidden>Show all countries &darr;</button></div>
+    </section>
+
+    <div class="lb-side">
+
+      <section id="youCard" class="card you" aria-labelledby="youTitle" hidden>
+        <div class="card-head" style="margin-bottom:12px">
+          <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></span>
+          <div><h2 id="youTitle">Your Country</h2><p>See how your country is doing</p></div>
+        </div>
+        <div class="you-body">
+          <span id="youFlag" class="you-flag"></span>
+          <div>
+            <div id="youName" class="you-name">&mdash;</div>
+            <div class="you-rank">Rank <strong id="youRank">&mdash;</strong></div>
+            <div class="you-clicks"><strong id="youClicks">&mdash;</strong> clicks</div>
+          </div>
+        </div>
+        <a class="btn-outline you-btn" href="/">Click for Your Country &rarr;</a>
+      </section>
+
+      <section class="card" aria-labelledby="lcTitle">
+        <div class="card-head" style="margin-bottom:8px">
+          <span class="card-ico" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+          <div><h2 id="lcTitle">Live Clicks</h2><p>Real-time clicks from around the world</p></div>
+        </div>
+        <ul id="liveList" class="live-list"><li class="tc-empty">&mdash;</li></ul>
+      </section>
+
+      <section class="card sp-card" aria-label="Leaderboard sponsor">
+        <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
+        <div id="lbSponsor" class="sp-body"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <section class="card banner">
+    <div>
+      <h2>Add your <span class="grad">click.</span></h2>
+      <p>Every click counts for your flag.</p>
+    </div>
+    <a class="btn-outline" href="/">Go Click &rarr;</a>
+  </section>
+
+  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="site-shell.js"></script>
+<script type="module" src="leaderboard.js"></script>
+<script type="module" src="ad-slot.js"></script>
+</body>
+</html>
