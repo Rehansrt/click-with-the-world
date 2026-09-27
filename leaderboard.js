@@ -9,12 +9,11 @@ import {
   getDatabase,
   ref,
   onValue,
-  serverTimestamp,
-  push,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
+import { reportAppCheckError } from "./appcheck-logger.js";
 
 // Read-only page: same Firebase + App Check setup as Home and Milestones. It
 // never writes clicks and sets no cww_* keys of its own (it only reads/writes
@@ -26,48 +25,18 @@ const appCheck = initializeAppCheck(app, {
   isTokenAutoRefreshEnabled: true,
 });
 
-// Failure reporting, same as Home: beacon to /api/appcheck-log and a
-// create-only appcheckLogs entry (code, message, user agent, path, time).
-function reportAppCheckError(err) {
-  try {
-    const payload = JSON.stringify({
-      code: (err && err.code) || null,
-      message: (err && err.message) || String(err),
-      userAgent: navigator.userAgent,
-      path: location.pathname,
-      timestamp: new Date().toISOString(),
-    });
-    navigator.sendBeacon("/api/appcheck-log", new Blob([payload], { type: "text/plain" }));
-  } catch {
-    /* reporting must never affect the page */
-  }
-
-  try {
-    const clip = (v) => String(v).slice(0, 300);
-    push(ref(getDatabase(app), "appcheckLogs"), {
-      code: clip((err && err.code) || "unknown"),
-      message: clip((err && err.message) || err),
-      userAgent: clip(navigator.userAgent),
-      path: clip(location.pathname),
-      timestamp: serverTimestamp(),
-    }).catch(() => {});
-  } catch {
-    /* ignore */
-  }
-}
-
 try {
   await getToken(appCheck);
 } catch (err) {
   console.error("[AppCheck] getToken threw:", { code: err && err.code, message: err && err.message });
-  reportAppCheckError(err);
+  reportAppCheckError(app, err);
 }
 
 onTokenChanged(appCheck, {
   next: () => {},
   error: (err) => {
     console.error("[AppCheck] background refresh failed:", { code: err && err.code, message: err && err.message });
-    reportAppCheckError(err);
+    reportAppCheckError(app, err);
   },
 });
 

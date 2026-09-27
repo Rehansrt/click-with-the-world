@@ -12,9 +12,9 @@ import {
   update,
   increment,
   serverTimestamp,
-  push,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
+import { reportAppCheckError } from "./appcheck-logger.js";
 
 // Trimmed-down version of app.js for the compact embed widget: same data
 // model (stats/total, stats/countries/<ISO2>, recentClicks/latest), so
@@ -36,45 +36,6 @@ const appCheck = initializeAppCheck(app, {
 // getDatabase()'s WebSocket connection can open before App Check's async
 // reCAPTCHA challenge finishes, showing up as invalid/outdated in metrics
 // for the whole page session even though nothing is actually broken.
-// Reports App Check failures (never successes) to /api/appcheck-log — see
-// app.js. Runs in the embed's own iframe, so the path here is /embed.
-function reportAppCheckError(err) {
-  try {
-    const payload = JSON.stringify({
-      code: (err && err.code) || null,
-      message: (err && err.message) || String(err),
-      userAgent: navigator.userAgent,
-      path: location.pathname,
-      timestamp: new Date().toISOString(),
-    });
-    navigator.sendBeacon(
-      "/api/appcheck-log",
-      new Blob([payload], { type: "text/plain" })
-    );
-  } catch {
-    /* reporting must never affect the app */
-  }
-
-  // Also persist to RTDB (appcheckLogs/<pushId>) since Vercel Hobby only keeps
-  // runtime logs ~1h. getDatabase(app) is memoized, so calling it here (before
-  // the `db` const below exists) returns the same instance. Fields must match
-  // the appcheckLogs validate rule exactly: 5 strings/number, strings <= 300.
-  try {
-    const clip = (v) => String(v).slice(0, 300);
-    push(ref(getDatabase(app), "appcheckLogs"), {
-      code: clip((err && err.code) || "unknown"),
-      message: clip((err && err.message) || err),
-      userAgent: clip(navigator.userAgent),
-      path: clip(location.pathname),
-      timestamp: serverTimestamp(),
-    }).catch(() => {
-      /* rules not published / offline — ignore, never break the site */
-    });
-  } catch {
-    /* ignore */
-  }
-}
-
 console.log("[AppCheck:embed] calling getToken(appCheck)…");
 try {
   const result = await getToken(appCheck);
@@ -89,7 +50,7 @@ try {
     customData: err && err.customData,
     full: err,
   });
-  reportAppCheckError(err);
+  reportAppCheckError(app, err);
   /* proceed without a pre-fetched token — not a hard dependency */
 }
 
@@ -110,7 +71,7 @@ onTokenChanged(appCheck, {
       message: err && err.message,
       time: new Date().toISOString(),
     });
-    reportAppCheckError(err);
+    reportAppCheckError(app, err);
   },
 });
 

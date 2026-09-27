@@ -9,12 +9,11 @@ import {
   getDatabase,
   ref,
   onValue,
-  serverTimestamp,
-  push,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName } from "./country-utils.js";
+import { reportAppCheckError } from "./appcheck-logger.js";
 
 // Read-only page: same Firebase + App Check setup as Home (app.js) so every
 // request carries a token, but it never writes clicks and stores no cww_* keys.
@@ -25,50 +24,20 @@ const appCheck = initializeAppCheck(app, {
   isTokenAutoRefreshEnabled: true,
 });
 
-// Same failure reporting as Home: beacon to /api/appcheck-log and a create-only
-// appcheckLogs entry (code, message, user agent, path, time). Failures only.
-function reportAppCheckError(err) {
-  try {
-    const payload = JSON.stringify({
-      code: (err && err.code) || null,
-      message: (err && err.message) || String(err),
-      userAgent: navigator.userAgent,
-      path: location.pathname,
-      timestamp: new Date().toISOString(),
-    });
-    navigator.sendBeacon("/api/appcheck-log", new Blob([payload], { type: "text/plain" }));
-  } catch {
-    /* reporting must never affect the page */
-  }
-
-  try {
-    const clip = (v) => String(v).slice(0, 300);
-    push(ref(getDatabase(app), "appcheckLogs"), {
-      code: clip((err && err.code) || "unknown"),
-      message: clip((err && err.message) || err),
-      userAgent: clip(navigator.userAgent),
-      path: clip(location.pathname),
-      timestamp: serverTimestamp(),
-    }).catch(() => {});
-  } catch {
-    /* ignore */
-  }
-}
-
 // Wait for the first token so the database connection doesn't open without
 // one; fail open if App Check is unavailable (enforcement is off).
 try {
   await getToken(appCheck);
 } catch (err) {
   console.error("[AppCheck] getToken threw:", { code: err && err.code, message: err && err.message });
-  reportAppCheckError(err);
+  reportAppCheckError(app, err);
 }
 
 onTokenChanged(appCheck, {
   next: () => {},
   error: (err) => {
     console.error("[AppCheck] background refresh failed:", { code: err && err.code, message: err && err.message });
-    reportAppCheckError(err);
+    reportAppCheckError(app, err);
   },
 });
 
