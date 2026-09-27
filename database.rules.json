@@ -24,38 +24,38 @@
         }
       },
       "milestones": {
-          "1000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 1000"
-          },
-          "10000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 10000"
-          },
-          "100000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 100000"
-          },
-          "500000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 500000"
-          },
-          "1000000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 1000000"
-          },
-          "5000000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 5000000"
-          },
-          "10000000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 10000000"
-          },
-          "100000000": {
-            ".write": "newData.exists() && !data.exists()",
-            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 100000000"
-          }
+        "1000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 1000"
+        },
+        "10000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 10000"
+        },
+        "100000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 100000"
+        },
+        "500000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 500000"
+        },
+        "1000000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 1000000"
+        },
+        "5000000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 5000000"
+        },
+        "10000000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 10000000"
+        },
+        "100000000": {
+          ".write": "newData.exists() && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000 && newData.parent().parent().parent().child('stats/total').val() >= 100000000"
+        }
       }
     },
 
