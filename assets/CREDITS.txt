@@ -1,0 +1,2 @@
+NASA Earth Observatory "Earth at Night" / Black Marble (public domain) was used as source data for hero-*.webp.
+flags/*.svg are from flag-icons v7.5.0 (MIT, see flags/LICENSE).

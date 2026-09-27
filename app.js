@@ -16,6 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
+import { isLive } from "./site-shell.js";
 
 const app = initializeApp(firebaseConfig);
 
@@ -134,6 +135,13 @@ const shareBtn = document.getElementById("shareBtn");
 const milestoneSponsor = document.getElementById("milestoneSponsor");
 const leaderboardSponsor = document.getElementById("leaderboardSponsor");
 const muteBtn = document.getElementById("muteBtn");
+const milestoneStart = document.getElementById("milestoneStart");
+const milestonePct = document.getElementById("milestonePct");
+const statCountries = document.getElementById("statCountries");
+const statToday = document.getElementById("statToday");
+const liveList = document.getElementById("liveList");
+const fullLeaderboardLink = document.getElementById("fullLeaderboardLink");
+const sponsorPromoBtn = document.getElementById("sponsorPromoBtn");
 
 // --- interaction-layer state (purely cosmetic — see click handler for why
 // none of this ever touches the Firebase write amount) ---
@@ -144,8 +152,6 @@ let lastClickTime = 0;
 let isMuted = localStorage.getItem("cww_muted") === "1";
 let goldenFoundCount = parseInt(localStorage.getItem("cww_golden_found") || "0", 10) || 0;
 let audioCtx = null;
-
-const LB_COLORS = ["var(--coral)", "var(--teal)", "var(--amber)", "var(--amber)", "var(--amber)", "var(--amber)"];
 
 const regionNames = (() => {
   try {
@@ -171,8 +177,30 @@ function flagEmoji(iso2) {
   );
 }
 
+// Flags are self-hosted SVGs (flag-icons, MIT - see flags/LICENSE). Emoji
+// flags render as plain letters on Windows, so they aren't used in the lists.
+function flagImg(iso2) {
+  const code = /^[A-Z]{2}$/.test(iso2 || "") ? iso2.toLowerCase() : "xx";
+  return `<img class="flag" src="/flags/${code}.svg" alt="" width="28" height="21" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/flags/xx.svg'">`;
+}
+
 function formatCount(n) {
-  return n.toLocaleString("en-IN");
+  return n.toLocaleString("en-US");
+}
+
+function utcDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function relativeTime(t) {
+  const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (s < 5) return "just now";
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + "h ago";
+  return Math.floor(h / 24) + "d ago";
 }
 
 // --- mute toggle (persisted) ---
@@ -359,9 +387,10 @@ function updateMilestone(total) {
   const progress = ((total - (target - step)) / step) * 100;
 
   milestoneTarget.textContent = formatCount(target);
+  milestoneStart.textContent = formatCount(target - step);
   gaugeFill.style.width = Math.max(0, Math.min(100, progress)) + "%";
-  milestoneNote.textContent =
-    formatCount(remaining) + " clicks to go — first country to push it over gets the crown.";
+  milestonePct.textContent = Math.floor(Math.max(0, Math.min(100, progress))) + "%";
+  milestoneNote.textContent = formatCount(remaining) + " clicks to go";
 
   // Only show the milestone sponsor slot for "big" milestones (every 1M,
   // matching the gauge's own top-tier step size) — not every small one on
@@ -448,29 +477,33 @@ function renderCount(total) {
   updateMilestone(total);
 }
 
-function renderLeaderboard(countries, total) {
+function renderLeaderboard(countries) {
+  // "XX" means the country couldn't be detected - it isn't a country, so it
+  // stays out of both the ranking and the Countries count.
   const rows = Object.entries(countries || {})
+    .filter(([iso2]) => iso2 !== "XX")
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
+    .slice(0, 5);
+
+  statCountries.textContent = formatCount(
+    Object.keys(countries || {}).filter((iso2) => iso2 !== "XX").length
+  );
 
   if (rows.length === 0) {
-    leaderboardList.innerHTML = `<li class="lb-row"><span class="lb-name">no clicks yet — be the first</span></li>`;
+    leaderboardList.innerHTML = `<li class="tc-empty">No clicks yet. Be the first!</li>`;
     return;
   }
 
   leaderboardList.innerHTML = rows
-    .map(([iso2, count], i) => {
-      const pct = total > 0 ? (count / total) * 100 : 0;
-      const pctLabel = pct >= 10 ? pct.toFixed(0) : pct.toFixed(1);
-      const barWidth = Math.max(pct, 1.5);
-      return `
-        <li class="lb-row">
-          <span class="lb-name">${flagEmoji(iso2)} ${countryName(iso2)}</span>
-          <span class="lb-track"><span class="lb-fill" style="width:${barWidth}%; background:${LB_COLORS[i] || "var(--amber)"};"></span></span>
-          <span class="lb-pct">${pctLabel}%</span>
-        </li>
-      `;
-    })
+    .map(
+      ([iso2, count], i) => `
+        <li class="tc-row">
+          <span class="tc-rank">${i + 1}</span>
+          ${flagImg(iso2)}
+          <span class="tc-name">${countryName(iso2)}</span>
+          <span class="tc-count">${formatCount(count)}</span>
+        </li>`
+    )
     .join("");
 }
 
@@ -481,12 +514,11 @@ let currentCountries = {};
 onValue(totalRef, (snap) => {
   currentTotal = snap.val() || 0;
   renderCount(currentTotal);
-  renderLeaderboard(currentCountries, currentTotal);
 });
 
 onValue(countriesRef, (snap) => {
   currentCountries = snap.val() || {};
-  renderLeaderboard(currentCountries, currentTotal || 0);
+  renderLeaderboard(currentCountries);
 });
 
 onValue(latestClickRef, (snap) => {
@@ -494,6 +526,74 @@ onValue(latestClickRef, (snap) => {
   if (!data) return;
   ticker.textContent = `${flagEmoji(data.country)} someone in ${countryName(data.country)} just clicked`;
 });
+
+// --- "Clicks Today (UTC)": one counter per UTC day at stats/daily/<date>.
+// Re-subscribes when the UTC date rolls over while the page stays open. ---
+let dailyDate = null;
+let dailyUnsub = null;
+function watchDaily() {
+  const d = utcDate();
+  if (d === dailyDate) return;
+  dailyDate = d;
+  if (dailyUnsub) dailyUnsub();
+  dailyUnsub = onValue(ref(db, `stats/daily/${d}`), (snap) => {
+    statToday.textContent = formatCount(snap.val() || 0);
+  });
+}
+watchDaily();
+setInterval(watchDaily, 30000);
+
+// --- Live Clicks: recentClicks/feed is a 6-slot ring (slot = newTotal % 6),
+// each slot {c: country, t: server timestamp}. Sorted newest-first here. ---
+let feedEntries = [];
+let feedLoaded = false;
+const animatedFeedKeys = new Set();
+
+function renderLive() {
+  if (feedEntries.length === 0) {
+    liveList.innerHTML = `<li class="tc-empty">Waiting for the next click…</li>`;
+    return;
+  }
+  liveList.innerHTML = feedEntries
+    .map((e) => {
+      const isNew = feedLoaded && !animatedFeedKeys.has(e.key);
+      animatedFeedKeys.add(e.key);
+      const who =
+        e.c === "XX"
+          ? "Someone just clicked"
+          : `Someone in <strong>${countryName(e.c)}</strong> just clicked`;
+      return `
+        <li class="live-row${isNew ? " enter" : ""}">
+          <span class="live-dot" aria-hidden="true"></span>
+          ${flagImg(e.c)}
+          <span class="live-text">${who}</span>
+          <span class="live-time">${relativeTime(e.t)}</span>
+        </li>`;
+    })
+    .join("");
+}
+
+onValue(ref(db, "recentClicks/feed"), (snap) => {
+  const v = snap.val() || {};
+  feedEntries = Object.entries(v)
+    .filter(([, e]) => e && typeof e.t === "number" && /^[A-Z]{2}$/.test(e.c || ""))
+    .map(([slot, e]) => ({ key: slot + ":" + e.t, c: e.c, t: e.t }))
+    .sort((a, b) => b.t - a.t)
+    .slice(0, 6);
+  renderLive();
+  feedLoaded = true;
+});
+setInterval(renderLive, 10000);
+
+// Links to pages that don't exist yet stay hidden (see site-shell.js PAGES).
+fullLeaderboardLink.hidden = !isLive("/leaderboard");
+if (isLive("/sponsor")) {
+  sponsorPromoBtn.href = "/sponsor";
+  sponsorPromoBtn.hidden = false;
+} else if (sponsorConfig.inquiryContact) {
+  sponsorPromoBtn.href = sponsorConfig.inquiryContact;
+  sponsorPromoBtn.hidden = false;
+}
 
 // Radiates `count` particles outward from (x, y) in a full circle, with
 // some randomness per particle so the burst doesn't look mechanical.
@@ -615,12 +715,18 @@ clickBtn.addEventListener("click", async (e) => {
   // Golden clicks are purely a client-side cosmetic flourish; nothing about
   // them is written to or read from Firebase.
   const country = await countryPromise;
-  update(ref(db), {
+  const updates = {
     "stats/total": increment(1),
     [`stats/countries/${country}`]: increment(1),
+    [`stats/daily/${utcDate()}`]: increment(1),
     "recentClicks/latest": { country, ts: serverTimestamp() },
     [`clientCooldowns/${clientId}`]: serverTimestamp(),
-  });
+  };
+  // Live Clicks ring: slot = the total this click produces, mod 6.
+  if (currentTotal !== null) {
+    updates[`recentClicks/feed/${(currentTotal + 1) % 6}`] = { c: country, t: serverTimestamp() };
+  }
+  update(ref(db), updates);
 });
 
 shareBtn.addEventListener("click", async () => {

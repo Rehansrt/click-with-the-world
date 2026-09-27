@@ -226,8 +226,15 @@ function animateCountTo(target) {
   rollupFallbackTimer = setTimeout(commitFinal, duration + 120);
 }
 
+let currentTotal = null;
+
+function utcDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 onValue(totalRef, (snap) => {
   const total = snap.val() || 0;
+  currentTotal = total;
   if (!hasRenderedCount) {
     hasRenderedCount = true;
     displayedTotal = total;
@@ -279,10 +286,17 @@ clickBtn.addEventListener("click", async (e) => {
   spawnParticleBurst(x, y, 10);
 
   const country = await countryPromise;
-  update(ref(db), {
+  const updates = {
     "stats/total": increment(1),
     [`stats/countries/${country}`]: increment(1),
+    [`stats/daily/${utcDate()}`]: increment(1),
     "recentClicks/latest": { country, ts: serverTimestamp() },
     [`clientCooldowns/${clientId}`]: serverTimestamp(),
-  });
+  };
+  // Same Live Clicks ring as the main site: slot = the total this click
+  // produces, mod 6.
+  if (currentTotal !== null) {
+    updates[`recentClicks/feed/${(currentTotal + 1) % 6}`] = { c: country, t: serverTimestamp() };
+  }
+  update(ref(db), updates);
 });

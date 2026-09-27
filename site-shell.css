@@ -1,0 +1,121 @@
+/* Shared header + footer (see site-shell.js). Self-contained tokens so any
+   page can use it without style.css. */
+#site-header, #site-footer {
+  --sh-text: #eaf6ff;
+  --sh-dim: #9fb6d9;
+  --sh-cyan: #27d3ff;
+  --sh-line: rgba(39, 211, 255, 0.22);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--sh-text);
+}
+
+#site-header { min-height: 66px; position: relative; z-index: 50; background: rgba(4, 10, 30, 0.82); border-bottom: 1px solid var(--sh-line); backdrop-filter: blur(6px); }
+
+.sh-inner, .sf-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.sh-inner { justify-content: space-between; }
+
+.sh-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; flex: none; }
+.sh-logo { filter: drop-shadow(0 0 8px rgba(39, 211, 255, 0.55)); flex: none; }
+.sh-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+.sh-brand-text strong { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; }
+.sh-brand-text small { font-size: 12px; color: var(--sh-dim); }
+
+.sh-nav, .sf-nav { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+.sh-nav { margin: 0 auto; }
+
+.sh-nav a, .sf-nav a {
+  color: var(--sh-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+}
+.sh-nav a:hover, .sf-nav a:hover { color: var(--sh-cyan); }
+.sh-nav a.is-active, .sf-nav a.is-active { color: var(--sh-cyan); border-bottom-color: var(--sh-cyan); }
+
+.sh-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 9px 18px;
+  border: 1.5px solid var(--sh-cyan);
+  border-radius: 10px;
+  color: var(--sh-text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 0 14px rgba(39, 211, 255, 0.28), inset 0 0 10px rgba(39, 211, 255, 0.12);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+.sh-tip:hover { background: rgba(39, 211, 255, 0.12); box-shadow: 0 0 20px rgba(39, 211, 255, 0.45); }
+
+.sh-burger {
+  display: none;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--sh-line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sh-text);
+  cursor: pointer;
+  padding: 0;
+}
+
+#site-header a:focus-visible, #site-header button:focus-visible,
+#site-footer a:focus-visible {
+  outline: 2px solid var(--sh-cyan);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+#site-footer { margin-top: 24px; background: rgba(3, 8, 24, 0.9); border-top: 1px solid var(--sh-line); }
+.sf-inner { justify-content: space-between; padding-top: 18px; padding-bottom: 14px; }
+.sf-nav { gap: 22px; }
+.sf-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 20px 22px;
+  border-top: 1px solid var(--sh-line);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--sh-dim);
+}
+.sf-bottom a { color: var(--sh-dim); text-decoration: none; }
+.sf-bottom a:hover { color: var(--sh-cyan); }
+.sf-sep { opacity: 0.5; }
+
+@media (max-width: 820px) {
+  .sh-inner { flex-wrap: wrap; gap: 8px; padding-left: 14px; padding-right: 14px; }
+  .sh-brand { margin-right: auto; gap: 9px; min-width: 0; }
+  .sh-brand .sh-logo { width: 36px; height: 36px; }
+  .sh-brand-text strong { font-size: 15px; }
+  .sh-brand-text small { font-size: 11px; }
+  .sh-burger { display: inline-flex; }
+  .sh-tip { padding: 8px 12px; }
+  .sh-nav { display: none; order: 5; width: 100%; margin: 0; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 0 10px; }
+  .sh-nav.is-open { display: flex; }
+  .sh-nav a { width: 100%; padding: 10px 2px; font-size: 15px; }
+  .sf-inner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 380px) {
+  .sh-tip span { display: none; }
+  .sh-tip { padding: 9px 11px; }
+}

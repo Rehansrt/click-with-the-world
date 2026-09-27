@@ -6,14 +6,21 @@
       ".read": true,
       "total": {
         ".read": true,
-        ".write": true,
+        ".write": "newData.exists()",
         ".validate": "newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1"
       },
       "countries": {
         "$country": {
           ".read": true,
-          ".write": true,
+          ".write": "newData.exists()",
           ".validate": "$country.matches(/^[A-Z]{2}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1"
+        }
+      },
+      "daily": {
+        "$date": {
+          ".read": true,
+          ".write": "newData.exists()",
+          ".validate": "$date.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().parent().child('stats/total').val() == (root.child('stats/total').exists() ? root.child('stats/total').val() : 0) + 1"
         }
       }
     },
@@ -22,7 +29,7 @@
       ".read": true,
       "latest": {
         ".read": true,
-        ".write": true,
+        ".write": "newData.exists()",
         ".validate": "newData.hasChildren(['country', 'ts'])",
         "country": {
           ".validate": "newData.isString() && newData.val().matches(/^[A-Z]{2}$/)"
@@ -33,13 +40,29 @@
         "$other": {
           ".validate": false
         }
+      },
+      "feed": {
+        "$slot": {
+          ".read": true,
+          ".write": "newData.exists()",
+          ".validate": "$slot.matches(/^[0-5]$/) && newData.hasChildren(['c', 't']) && newData.parent().parent().parent().child('stats/total').val() == (root.child('stats/total').exists() ? root.child('stats/total').val() : 0) + 1",
+          "c": {
+            ".validate": "newData.isString() && newData.val().matches(/^[A-Z]{2}$/)"
+          },
+          "t": {
+            ".validate": "newData.isNumber() && newData.val() <= now && newData.val() >= now - 60000"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
       }
     },
 
     "clientCooldowns": {
       "$clientId": {
         ".read": false,
-        ".write": true,
+        ".write": "newData.exists()",
         ".validate": "newData.isNumber() && newData.val() <= now && (!data.exists() || newData.val() > data.val() + 800)"
       }
     },
