@@ -14,6 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
+import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
 
 // Read-only page: same Firebase + App Check setup as Home and Milestones. It
 // never writes clicks and sets no cww_* keys of its own (it only reads/writes
@@ -77,34 +78,6 @@ const el = (id) => document.getElementById(id);
 const fmt = (n) => n.toLocaleString("en-US");
 const utcDate = () => new Date().toISOString().slice(0, 10);
 
-const regionNames = (() => {
-  try {
-    return new Intl.DisplayNames(["en"], { type: "region" });
-  } catch {
-    return null;
-  }
-})();
-
-// Returns the country's name, or null when the code isn't a real country.
-// The database rules accept any two capital letters, so made-up codes can
-// exist; those (and "XX" = undetected) are hidden here, display-side only.
-// TODO: apply same filter on Home (app.js) later.
-function resolveCountry(code) {
-  if (typeof code !== "string" || !/^[A-Z]{2}$/.test(code) || code === "XX") return null;
-  if (!regionNames) return null;
-  try {
-    const name = regionNames.of(code);
-    return name && name !== code ? name : null;
-  } catch {
-    return null;
-  }
-}
-
-function flagImg(code, cls = "flag") {
-  const c = /^[A-Z]{2}$/.test(code || "") ? code.toLowerCase() : "xx";
-  return `<img class="${cls}" src="/flags/${c}.svg" alt="" width="28" height="21" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/flags/xx.svg'">`;
-}
-
 function relativeTime(t) {
   const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
   if (s < 5) return "just now";
@@ -133,13 +106,10 @@ const youCard = el("youCard");
 function buildRows() {
   const rows = Object.entries(countriesData || {})
     .filter(([, count]) => typeof count === "number")
-    .map(([code, count]) => ({ code, count, name: resolveCountry(code) }))
+    .map(([code, count]) => ({ code, count, name: resolveCountryName(code) }))
     .filter((r) => r.name);
   rows.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-  rows.forEach((r, i) => {
-    r.rank = i > 0 && r.count === rows[i - 1].count ? rows[i - 1].rank : i + 1;
-  });
-  return rows;
+  return assignRanks(rows);
 }
 
 function shareText(count) {
@@ -186,7 +156,7 @@ function renderTable(rows) {
 
 function renderYou(rows) {
   if (!myCountry) return; // country not detected: card stays hidden
-  const name = resolveCountry(myCountry);
+  const name = resolveCountryName(myCountry);
   if (!name) return;
   youCard.hidden = false;
   el("youFlag").innerHTML = flagImg(myCountry, "you-flagimg");
@@ -309,7 +279,7 @@ function renderLive() {
     .map((e) => {
       const isNew = feedLoaded && !animatedKeys.has(e.key);
       animatedKeys.add(e.key);
-      const name = resolveCountry(e.c);
+      const name = resolveCountryName(e.c);
       const who = name ? `Someone in <strong>${name}</strong> just clicked` : "Someone just clicked";
       return `
         <li class="live-row${isNew ? " enter" : ""}">

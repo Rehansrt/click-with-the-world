@@ -17,6 +17,7 @@ import {
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { isLive } from "./site-shell.js";
+import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
 
 const app = initializeApp(firebaseConfig);
 
@@ -182,13 +183,6 @@ function flagEmoji(iso2) {
   return String.fromCodePoint(
     ...[...iso2.toUpperCase()].map((c) => 127397 + c.charCodeAt(0))
   );
-}
-
-// Flags are self-hosted SVGs (flag-icons, MIT - see flags/LICENSE). Emoji
-// flags render as plain letters on Windows, so they aren't used in the lists.
-function flagImg(iso2) {
-  const code = /^[A-Z]{2}$/.test(iso2 || "") ? iso2.toLowerCase() : "xx";
-  return `<img class="flag" src="/flags/${code}.svg" alt="" width="28" height="21" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/flags/xx.svg'">`;
 }
 
 function formatCount(n) {
@@ -487,31 +481,34 @@ function renderCount(total) {
   updateMilestone(total);
 }
 
+// Same resolved-name filter and tie-sharing ranks as Leaderboard (see
+// country-utils.js) — a code that can't be resolved to a real country (e.g.
+// "XX", or a made-up two-letter code) stays out of both the ranking and the
+// Countries count.
 function renderLeaderboard(countries) {
-  // "XX" means the country couldn't be detected - it isn't a country, so it
-  // stays out of both the ranking and the Countries count.
   const rows = Object.entries(countries || {})
-    .filter(([iso2]) => iso2 !== "XX")
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+    .filter(([, count]) => typeof count === "number")
+    .map(([code, count]) => ({ code, count, name: resolveCountryName(code) }))
+    .filter((r) => r.name);
+  rows.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  assignRanks(rows);
 
-  statCountries.textContent = formatCount(
-    Object.keys(countries || {}).filter((iso2) => iso2 !== "XX").length
-  );
+  statCountries.textContent = formatCount(rows.length);
 
-  if (rows.length === 0) {
+  const top = rows.slice(0, 5);
+  if (top.length === 0) {
     leaderboardList.innerHTML = `<li class="tc-empty">No clicks yet. Be the first!</li>`;
     return;
   }
 
-  leaderboardList.innerHTML = rows
+  leaderboardList.innerHTML = top
     .map(
-      ([iso2, count], i) => `
+      (r) => `
         <li class="tc-row">
-          <span class="tc-rank">${i + 1}</span>
-          ${flagImg(iso2)}
-          <span class="tc-name">${countryName(iso2)}</span>
-          <span class="tc-count">${formatCount(count)}</span>
+          <span class="tc-rank">${r.rank}</span>
+          ${flagImg(r.code)}
+          <span class="tc-name">${r.name}</span>
+          <span class="tc-count">${formatCount(r.count)}</span>
         </li>`
     )
     .join("");
@@ -568,14 +565,12 @@ function renderLive() {
     .map((e) => {
       const isNew = feedLoaded && !animatedFeedKeys.has(e.key);
       animatedFeedKeys.add(e.key);
-      const who =
-        e.c === "XX"
-          ? "Someone just clicked"
-          : `Someone in <strong>${countryName(e.c)}</strong> just clicked`;
+      const name = resolveCountryName(e.c);
+      const who = name ? `Someone in <strong>${name}</strong> just clicked` : "Someone just clicked";
       return `
         <li class="live-row${isNew ? " enter" : ""}">
           <span class="live-dot" aria-hidden="true"></span>
-          ${flagImg(e.c)}
+          ${flagImg(name ? e.c : "XX")}
           <span class="live-text">${who}</span>
           <span class="live-time">${relativeTime(e.t)}</span>
         </li>`;

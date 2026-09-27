@@ -14,6 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
+import { resolveCountryName } from "./country-utils.js";
 
 // Read-only page: same Firebase + App Check setup as Home (app.js) so every
 // request carries a token, but it never writes clicks and stores no cww_* keys.
@@ -230,7 +231,11 @@ onValue(ref(db, "stats/milestones"), (snap) => {
 
 onValue(ref(db, "stats/countries"), (snap) => {
   const countries = snap.val() || {};
-  statCountries.textContent = fmt(Object.keys(countries).filter((c) => c !== "XX").length);
+  // Same resolved-name count as Leaderboard and Home (a made-up code that
+  // passes the rules but isn't a real country doesn't count here either).
+  statCountries.textContent = fmt(
+    Object.keys(countries).filter((c) => resolveCountryName(c)).length
+  );
 });
 
 // Clicks Today (UTC): stats/daily/<date>, re-subscribed when the UTC date rolls over.
