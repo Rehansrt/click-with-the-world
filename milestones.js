@@ -14,6 +14,7 @@ import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName } from "./country-utils.js";
 import { reportAppCheckError } from "./appcheck-logger.js";
+import { MILESTONE_LADDER } from "./milestone-ladder.js";
 
 // Read-only page: same Firebase + App Check setup as Home (app.js) so every
 // request carries a token, but it never writes clicks and stores no cww_* keys.
@@ -66,6 +67,22 @@ const totalDisplay = el("totalDisplay");
 const statCountries = el("statCountries");
 const statToday = el("statToday");
 const rows = [...document.querySelectorAll("#ladder .j-row")];
+
+// Rows are static HTML (crawlable), not generated from MILESTONE_LADDER — this
+// just checks they still match so the two can't silently drift apart again.
+{
+  const htmlValues = rows.map((r) => Number(r.dataset.m));
+  const ladderValues = MILESTONE_LADDER.slice();
+  const inSync =
+    htmlValues.length === ladderValues.length &&
+    htmlValues.every((v, i) => v === ladderValues[i]);
+  if (!inSync) {
+    console.warn("[milestones] HTML rows out of sync with MILESTONE_LADDER", {
+      html: htmlValues,
+      ladder: ladderValues,
+    });
+  }
+}
 
 const fmt = (n) => n.toLocaleString("en-US");
 
