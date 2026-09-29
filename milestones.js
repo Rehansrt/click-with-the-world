@@ -86,14 +86,6 @@ const rows = [...document.querySelectorAll("#ladder .j-row")];
 
 const fmt = (n) => n.toLocaleString("en-US");
 
-// Orbitron's "0" glyph renders as a broken box in this weight when the whole
-// run is zeros (same bug already fixed in api/og-image.js) — .num-safe swaps
-// to a font proven safe for that case. Never true once a real click lands.
-function setNumText(el, text) {
-  el.textContent = text;
-  el.classList.toggle("num-safe", /^0+$/.test(text));
-}
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // "27 Sep 2026", always UTC, date only.
 function formatUtcDate(ms) {
@@ -202,7 +194,7 @@ function render(total) {
   const progress = Math.max(0, Math.min(100, ((total - start) / step) * 100));
 
   lastTotal = total;
-  setNumText(totalDisplay, fmt(total));
+  totalDisplay.textContent = fmt(total);
   msTarget.textContent = fmt(target);
   msStart.textContent = fmt(start);
   msEnd.textContent = fmt(target);

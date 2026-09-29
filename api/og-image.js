@@ -21,10 +21,6 @@ const { firebaseConfig } = require("../firebase-config.js");
 // TrueType instead of a variable font or woff2.
 const fontRegular = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Regular.ttf"));
 const fontBold = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Bold.ttf"));
-// Orbitron (SIL Open Font License 1.1 — https://scripts.sil.org/OFL), weight
-// 800, fetched the same old-UA way. Used only for the big digit count, to
-// match the Home page's counter font.
-const fontOrbitron = fs.readFileSync(path.join(process.cwd(), "api/fonts/Orbitron-ExtraBold.ttf"));
 
 async function fetchTotal() {
   const res = await fetch(`${firebaseConfig.databaseURL}/stats/total.json`, {
@@ -60,7 +56,6 @@ async function render(tree) {
     fonts: [
       { name: "Inter", data: fontRegular, weight: 400, style: "normal" },
       { name: "Inter", data: fontBold, weight: 700, style: "normal" },
-      { name: "Orbitron", data: fontOrbitron, weight: 800, style: "normal" },
     ],
   });
   return new Resvg(svg, { fitTo: { mode: "width", value: 1200 } }).render().asPng();
@@ -98,13 +93,6 @@ const TAGLINE = "One Counter. The Whole World.";
 
 function successMiddle(total) {
   const formatted = total.toLocaleString("en-US");
-  // This exact Orbitron file fails to render the glyph for "0" when the
-  // whole run is just "0" (verified: every other value, and "0" mixed with
-  // any other digit in the same run, renders fine — isolated "0" alone
-  // doesn't, in this specific font file). Inter Bold renders "0" correctly,
-  // so it's used for that one value only; every other count still uses
-  // Orbitron to match the Home page counter.
-  const isZero = formatted === "0";
   return el(
     "div",
     { display: "flex", flexDirection: "column", alignItems: "center" },
@@ -137,8 +125,8 @@ function successMiddle(total) {
             "div",
             {
               display: "flex",
-              fontFamily: isZero ? "Inter" : "Orbitron",
-              fontWeight: isZero ? 700 : 800,
+              fontFamily: "Inter",
+              fontWeight: 700,
               fontSize: countFontSize(formatted),
               color: "#eaffff",
               textShadow: "0 0 24px rgba(39,211,255,0.95), 0 0 60px rgba(39,211,255,0.6)",

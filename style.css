@@ -109,8 +109,8 @@ h1 {
 }
 
 .count-number {
-  font-family: 'Orbitron', 'Space Grotesk', sans-serif;
-  font-weight: 800;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-size: clamp(26px, 7.4vw, 66px);
   line-height: 1.15;
@@ -118,15 +118,6 @@ h1 {
   color: #eaffff;
   text-shadow: 0 0 10px rgba(39, 211, 255, 0.95), 0 0 28px rgba(39, 211, 255, 0.6);
   white-space: nowrap;
-}
-
-/* Orbitron's "0" glyph renders as a broken box in this weight when the whole
-   run is zeros (same bug already fixed in api/og-image.js) — also covers the
-   static "—" placeholder shown before the first value loads. Toggled by
-   app.js; #countDisplay wins on specificity so weight/size/color/glow above
-   are unaffected, only font-family changes. */
-#countDisplay.num-safe {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
 }
 
 /* ---------- click button ---------- */

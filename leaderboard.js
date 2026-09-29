@@ -45,14 +45,6 @@ const db = getDatabase(app);
 // --- helpers ---------------------------------------------------------------
 const el = (id) => document.getElementById(id);
 const fmt = (n) => n.toLocaleString("en-US");
-
-// Orbitron's "0" glyph renders as a broken box in this weight when the whole
-// run is zeros (same bug already fixed in api/og-image.js) — .num-safe swaps
-// to a font proven safe for that case. Never true once a real click lands.
-function setNumText(el, text) {
-  el.textContent = text;
-  el.classList.toggle("num-safe", /^0+$/.test(text));
-}
 const utcDate = () => new Date().toISOString().slice(0, 10);
 
 function relativeTime(t) {
@@ -141,12 +133,12 @@ function renderYou(rows) {
   if (countriesData === null) return; // keep "—" until live data arrives
   const row = rows.find((r) => r.code === myCountry);
   el("youRank").textContent = row ? "#" + row.rank : "—";
-  setNumText(el("youClicks"), row ? fmt(row.count) : "0");
+  el("youClicks").textContent = row ? fmt(row.count) : "0";
 }
 
 function renderStats(rows) {
   if (countriesData !== null) statCountries.textContent = fmt(rows.length);
-  if (totalData !== null) setNumText(statTotal, fmt(totalData));
+  if (totalData !== null) statTotal.textContent = fmt(totalData);
 }
 
 function renderAll() {
