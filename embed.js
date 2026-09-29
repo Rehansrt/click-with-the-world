@@ -1,5 +1,5 @@
 (function () {
-  var THIS_ORIGIN = "https://clickwiththeworld.fun";
+  var THIS_ORIGIN = "https://www.clickwiththeworld.fun";
   var script = document.currentScript;
   if (!script) return;
 

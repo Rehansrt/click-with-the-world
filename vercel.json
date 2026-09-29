@@ -1,3 +1,17 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "^click-with-the-world\\.vercel\\.app$" }],
+      "destination": "https://www.clickwiththeworld.fun/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/:path((?!ads\\.txt$).*)",
+      "has": [{ "type": "host", "value": "^clickwiththeworld\\.fun$" }],
+      "destination": "https://www.clickwiththeworld.fun/:path",
+      "statusCode": 301
+    }
+  ]
 }
