@@ -385,6 +385,14 @@ let rollupRaf = null;
 let rollupFallbackTimer = null;
 let rollupToken = 0;
 
+// Orbitron's "0" glyph renders as a broken box in this weight when the whole
+// run is zeros (same bug already fixed in api/og-image.js) — .num-safe swaps
+// to a font proven safe for that case. Never true once a real click lands.
+function setCountText(text) {
+  countDisplay.textContent = text;
+  countDisplay.classList.toggle("num-safe", /^0+$/.test(text));
+}
+
 function animateCountTo(target) {
   const start = displayedTotal;
   const startTime = performance.now();
@@ -397,7 +405,7 @@ function animateCountTo(target) {
   function commitFinal() {
     if (myToken !== rollupToken) return; // a newer update superseded this one
     displayedTotal = target;
-    countDisplay.textContent = formatCount(target);
+    setCountText(formatCount(target));
   }
 
   function step(now) {
@@ -407,7 +415,7 @@ function animateCountTo(target) {
     const eased = 1 - Math.pow(1 - t, 3);
     const value = Math.round(start + (target - start) * eased);
     displayedTotal = value;
-    countDisplay.textContent = formatCount(value);
+    setCountText(formatCount(value));
 
     if (t < 1) {
       rollupRaf = requestAnimationFrame(step);
@@ -433,7 +441,7 @@ function renderCount(total) {
   if (!hasRenderedCount) {
     // First render of the page — set instantly, no roll-up from 0.
     hasRenderedCount = true;
-    countDisplay.textContent = formatCount(total);
+    setCountText(formatCount(total));
     displayedTotal = total;
   } else {
     animateCountTo(total);

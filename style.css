@@ -120,6 +120,15 @@ h1 {
   white-space: nowrap;
 }
 
+/* Orbitron's "0" glyph renders as a broken box in this weight when the whole
+   run is zeros (same bug already fixed in api/og-image.js) — also covers the
+   static "—" placeholder shown before the first value loads. Toggled by
+   app.js; #countDisplay wins on specificity so weight/size/color/glow above
+   are unaffected, only font-family changes. */
+#countDisplay.num-safe {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
 /* ---------- click button ---------- */
 .counter-zone {
   display: flex;

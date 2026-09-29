@@ -686,6 +686,18 @@ details.qa .ans a { overflow-wrap: anywhere; }
 .you-clicks { color: var(--text-dim); margin-top: 2px; }
 .you-btn { width: 100%; justify-content: center; margin-top: 0; }
 
+/* Orbitron's "0" glyph renders as a broken box in this weight when the whole
+   run is zeros (same bug already fixed in api/og-image.js) — also covers the
+   static "—" placeholder shown before the first value loads. Toggled by
+   milestones.js / leaderboard.js; the ID selectors win on specificity over
+   .count-big / .lb-stats strong / .you-clicks strong above, so only
+   font-family changes there, not weight/size/color/glow. */
+#totalDisplay.num-safe,
+#statTotal.num-safe,
+#youClicks.num-safe {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
 .live-list { list-style: none; margin: 0; padding: 0; }
 .live-row { display: grid; grid-template-columns: 8px 28px 1fr auto; align-items: center; gap: 12px; padding: 10px 2px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 14px; }
 .live-row.enter { animation: liveIn 0.45s ease-out; }
