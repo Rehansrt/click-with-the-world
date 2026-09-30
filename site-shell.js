@@ -102,6 +102,22 @@ function renderFooter(el) {
     </div>`;
 }
 
+// Vercel Web Analytics — single-sourced here so every page that loads
+// site-shell.js gets it automatically, and embed.html (the third-party
+// iframe widget, which never loads site-shell.js) is excluded without a
+// separate per-page opt-out. window.va is set directly rather than via an
+// injected inline <script> tag — same effect as Vercel's standard two-tag
+// snippet, one fewer moving part.
+function injectAnalytics() {
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  if (!document.querySelector('script[src="/_vercel/insights/script.js"]')) {
+    const script = document.createElement("script");
+    script.defer = true;
+    script.src = "/_vercel/insights/script.js";
+    document.head.appendChild(script);
+  }
+}
+
 function init() {
   if (!document.querySelector('link[href$="site-shell.css"]')) {
     const link = document.createElement("link");
@@ -109,6 +125,7 @@ function init() {
     link.href = "/site-shell.css";
     document.head.appendChild(link);
   }
+  injectAnalytics();
   const header = document.getElementById("site-header");
   const footer = document.getElementById("site-footer");
   if (header) renderHeader(header);
