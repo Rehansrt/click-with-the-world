@@ -428,6 +428,9 @@ details.qa .ans a { overflow-wrap: anywhere; }
 .opt p.body { margin: 0; color: #d3e3f8; line-height: 1.6; font-size: 15px; }
 .opt .btn-outline { align-self: flex-start; margin-top: auto; }
 
+.body { margin: 0; color: #d3e3f8; line-height: 1.6; font-size: 15px; }
+.opt-sub-head { margin: 4px 0 2px; font-family: 'Space Grotesk', sans-serif; font-size: 17px; }
+
 .badge {
   display: inline-block;
   padding: 3px 10px;

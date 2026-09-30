@@ -557,6 +557,10 @@ h1 {
 
 .sponsor-slot a.sponsor-link:hover { color: var(--cyan); }
 
+.ms-partner-link { margin: 10px 0 0; font-size: 13px; text-align: right; }
+.ms-partner-link a { color: var(--text-dim); text-decoration: none; }
+.ms-partner-link a:hover { color: var(--cyan); }
+
 .sponsor-slot--milestone { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.12); }
 .sponsor-slot--leaderboard { margin-bottom: 8px; padding-bottom: 10px; border-bottom: 1px dashed rgba(255, 255, 255, 0.12); }
 
