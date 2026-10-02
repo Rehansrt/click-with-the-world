@@ -221,7 +221,7 @@
 
       <div class="ae-block">
         <h3>How We Keep It Fair</h3>
-        <p>A counter anyone can click invites automated abuse, so a few lightweight safeguards run quietly in the background: a short per-browser cooldown between clicks, and Google reCAPTCHA Enterprise helping flag unusual traffic patterns. These are best-effort protections, not guarantees — no system catches everything, and we'd rather be upfront about that than overclaim. If we ever find data that was clearly added by a script rather than a real person, we correct or reset the affected counts rather than let a false number stand.</p>
+        <p>A counter anyone can click invites automated abuse, so every click is verified by Firebase App Check (using Google reCAPTCHA Enterprise) to block bots and automated clicking, and a short per-browser rate limit stops rapid repeat clicks. Clicks that fail verification are rejected. No system is perfect, and if we ever find data that was clearly added by a script rather than a real person, we correct or reset the affected counts rather than let a false number stand.</p>
       </div>
     </section>
 
