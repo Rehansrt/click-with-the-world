@@ -461,6 +461,11 @@ h1 {
 .step h3 { margin: 0 0 4px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; }
 .step p { margin: 0; font-size: 14px; color: #cfe3ff; line-height: 1.4; }
 
+.about-exp .ae-block { margin-bottom: 18px; }
+.about-exp .ae-block:last-child { margin-bottom: 0; }
+.about-exp h3 { margin: 0 0 6px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; }
+.about-exp p { margin: 0; font-size: 15px; color: #cfe3ff; line-height: 1.6; }
+
 .step-ico {
   flex: none;
   width: 78px;

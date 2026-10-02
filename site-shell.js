@@ -17,6 +17,7 @@ export const PAGES = [
 
 export const LEGAL_LINKS = [
   { label: "Privacy Policy", href: "/privacy", live: true },
+  { label: "Terms", href: "/terms", live: true },
   { label: "Contact", href: "/contact", live: true },
 ];
 
