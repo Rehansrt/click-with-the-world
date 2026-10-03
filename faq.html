@@ -16,6 +16,44 @@
 <link rel="stylesheet" href="site-shell.css">
 <link rel="stylesheet" href="pages.css">
 <noscript><style>.cat-card, .faq-search-card { display: none; }</style></noscript>
+<!-- FAQ structured data: static copy of the visible FAQ below. Any edit to a question or answer (especially Partner pricing) must be made here too. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"What is Click With The World?","acceptedAnswer":{"@type":"Answer","text":"A single live counter shared by everyone on the internet. Click the button, and the global number goes up by one, for everyone, in real time."}},
+    {"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Clicking is free and needs no sign-up. The site may show ads and accepts optional tips."}},
+    {"@type":"Question","name":"Do I need an account?","acceptedAnswer":{"@type":"Answer","text":"No. There are no accounts or sign-ins, and you never need to give your name or email to click."}},
+    {"@type":"Question","name":"How is my country detected?","acceptedAnswer":{"@type":"Answer","text":"Your approximate country comes from our hosting provider, Vercel, based on your connection. If that isn't available, your browser asks a third-party service, ipwho.is, for a country code. We don't store your IP address. See the Privacy Policy."}},
+    {"@type":"Question","name":"Can I click as many times as I want?","acceptedAnswer":{"@type":"Answer","text":"There's no overall limit, but there's a short pause of under a second between clicks from the same browser. That per-browser rate limit, together with Firebase App Check verification, keeps the count fair."}},
+    {"@type":"Question","name":"Why did my click not count?","acceptedAnswer":{"@type":"Answer","text":"Usually one of these: you clicked again during the short pause between clicks, you were briefly offline, or a browser extension or privacy tool blocked the connection to the live counter. Refresh the page and try again. If it keeps happening, contact us."}},
+    {"@type":"Question","name":"Can I put the counter on my website?","acceptedAnswer":{"@type":"Answer","text":"Yes, it's free. Choose a size and copy the snippet on the Embed page."}},
+    {"@type":"Question","name":"How can I support the project?","acceptedAnswer":{"@type":"Answer","text":"You can leave an optional tip on Ko-fi. Payments are handled entirely by Ko-fi, and we never see your payment details."}},
+    {"@type":"Question","name":"What happens when I click?","acceptedAnswer":{"@type":"Answer","text":"It adds 1 to the global total, to your country's total, and to today's total. Each click always adds exactly one."}},
+    {"@type":"Question","name":"Is the number really live?","acceptedAnswer":{"@type":"Answer","text":"Yes. It comes from a shared real-time database, so you see other people's clicks as they arrive. A slow connection can cause a short delay."}},
+    {"@type":"Question","name":"What is \"Clicks Today\"?","acceptedAnswer":{"@type":"Answer","text":"The number of clicks since 00:00 UTC today. It resets at UTC midnight, wherever you are."}},
+    {"@type":"Question","name":"What are golden clicks and combos?","acceptedAnswer":{"@type":"Answer","text":"Just for fun. About 1 in 50 clicks sparkles gold, and quick successive clicks show a combo. They're visual only, and every click still adds exactly one. Your golden-click count and sound setting are kept only in your browser."}},
+    {"@type":"Question","name":"Can I turn the sound off?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the small speaker button at the bottom-right of the CLICK button on the Home page. Your choice is remembered in your browser."}},
+    {"@type":"Question","name":"How do you keep the count fair?","acceptedAnswer":{"@type":"Answer","text":"Each click can only add one. Every click is verified by Firebase App Check (using Google reCAPTCHA Enterprise) to block bots and automated clicking, and a short per-browser rate limit stops rapid repeat clicks. Clicks that fail verification are rejected. No system is perfect, but these checks keep the count honest."}},
+    {"@type":"Question","name":"How are countries ranked?","acceptedAnswer":{"@type":"Answer","text":"By the total clicks credited to each country. The Home page shows the top five, and the Leaderboard page lists every country, updated live."}},
+    {"@type":"Question","name":"Can I choose my country?","acceptedAnswer":{"@type":"Answer","text":"No, it's detected automatically. If you use a VPN or proxy, your clicks may be credited to a different country."}},
+    {"@type":"Question","name":"What if my country can't be detected?","acceptedAnswer":{"@type":"Answer","text":"The click still counts toward the global and daily totals, but it doesn't appear in the country rankings."}},
+    {"@type":"Question","name":"What is the Live Clicks list?","acceptedAnswer":{"@type":"Answer","text":"The most recent few clicks, showing the country and how long ago they happened. Older entries are overwritten, so no individual click history is kept."}},
+    {"@type":"Question","name":"How is the next milestone chosen?","acceptedAnswer":{"@type":"Answer","text":"It's the next round number: every 100 clicks up to 1,000; every 1,000 up to 10,000; every 10,000 up to 100,000; every 100,000 up to 1,000,000; and every 1,000,000 after that. The progress bar on the Home page shows how close we are, and the Milestones page shows the big numbers ahead."}},
+    {"@type":"Question","name":"What happens when a milestone is reached?","acceptedAnswer":{"@type":"Answer","text":"If you have the page open, you'll see a short celebration with confetti and a banner. The Milestones page shows the date each big milestone was reached (in UTC)."}},
+    {"@type":"Question","name":"How do I embed the counter?","acceptedAnswer":{"@type":"Answer","text":"Open the Embed page, pick a size, copy the snippet and paste it into your site's HTML."}},
+    {"@type":"Question","name":"Do embedded clicks count?","acceptedAnswer":{"@type":"Answer","text":"Yes. They add to the same global and country totals as clicks on the main site."}},
+    {"@type":"Question","name":"Does the widget show ads or use cookies?","acceptedAnswer":{"@type":"Answer","text":"It shows no ads and loads no Ko-fi or Google Fonts content. It uses the same Firebase and reCAPTCHA tools as the main site, and may keep a random rate-limiting ID in the visitor's browser storage. See section 9 of the Privacy Policy."}},
+    {"@type":"Question","name":"Can I sponsor a milestone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Milestones from 100,000 to 100,000,000 clicks can be reserved — see the Milestone Inventory on the Partner page. Founding Partners (5 slots) pay ₹999 per milestone; standard pricing applies after that. The Top Countries placement is also available — pricing on request. Questions: sponsor@clickwiththeworld.fun."}},
+    {"@type":"Question","name":"Are sponsors labeled?","acceptedAnswer":{"@type":"Answer","text":"Yes. An active sponsor placement is marked with a small \"Sponsored\" label. Open placements read \"Sponsor this spot\"."}},
+    {"@type":"Question","name":"What data do you collect?","acceptedAnswer":{"@type":"Answer","text":"Aggregate counts, a country code, and a random browser ID used to limit rapid clicking. Never your IP address, name or email with a click. See the Privacy Policy."}},
+    {"@type":"Question","name":"Do you use cookies?","acceptedAnswer":{"@type":"Answer","text":"We set no cookies ourselves; we use your browser's storage for a few small settings. Third-party services such as Google reCAPTCHA and AdSense may use cookies. See sections 3 to 5 of the Privacy Policy."}},
+    {"@type":"Question","name":"How do I reset my browser ID?","acceptedAnswer":{"@type":"Answer","text":"Clear your browser's site data for www.clickwiththeworld.fun."}},
+    {"@type":"Question","name":"Who do I ask about privacy?","acceptedAnswer":{"@type":"Answer","text":"Email hello@clickwiththeworld.fun or use the Contact page."}}
+  ]
+}
+</script>
 </head>
 <body>
 
