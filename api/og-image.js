@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const satoriModule = require("satori");
 const satori = satoriModule.default || satoriModule;
 const { Resvg } = require("@resvg/resvg-js");
@@ -22,9 +23,58 @@ const { firebaseConfig } = require("../firebase-config.js");
 const fontRegular = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Regular.ttf"));
 const fontBold = fs.readFileSync(path.join(process.cwd(), "api/fonts/Inter-Bold.ttf"));
 
+// With App Check enforced on the database, an unauthenticated REST read is
+// rejected (401 "Missing appcheck token"), and a server can't obtain an App
+// Check token the way a browser does. So the read carries a Google OAuth2
+// access token for a service account instead. The key comes from the
+// FIREBASE_SERVICE_ACCOUNT_B64 env var (base64 of the JSON key file) and is
+// never in the repo. Without the env var the read is unauthenticated, as before.
+function loadServiceAccount() {
+  const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
+  if (!b64) return null;
+  return JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
+}
+
+let cachedToken = null;
+
+async function getAccessToken(sa) {
+  if (cachedToken && Date.now() < cachedToken.expiresAt - 60000) return cachedToken.value;
+
+  const now = Math.floor(Date.now() / 1000);
+  const encode = (obj) => Buffer.from(JSON.stringify(obj)).toString("base64url");
+  const unsigned =
+    encode({ alg: "RS256", typ: "JWT" }) +
+    "." +
+    encode({
+      iss: sa.client_email,
+      scope:
+        "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email",
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    });
+  const signature = crypto.createSign("RSA-SHA256").update(unsigned).sign(sa.private_key, "base64url");
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: unsigned + "." + signature,
+    }),
+  });
+  if (!res.ok) throw new Error("token exchange failed " + res.status);
+  const data = await res.json();
+  cachedToken = { value: data.access_token, expiresAt: Date.now() + data.expires_in * 1000 };
+  return cachedToken.value;
+}
+
 async function fetchTotal() {
+  const sa = loadServiceAccount();
+  const headers = sa ? { Authorization: "Bearer " + (await getAccessToken(sa)) } : {};
   const res = await fetch(`${firebaseConfig.databaseURL}/stats/total.json`, {
     cache: "no-store",
+    headers,
   });
   if (!res.ok) throw new Error("bad response " + res.status);
   const data = await res.json();
@@ -172,7 +222,8 @@ module.exports = {
           "Cache-Control": "public, max-age=60, s-maxage=60, stale-while-revalidate=300",
         },
       });
-    } catch {
+    } catch (err) {
+      console.error("[og-image] falling back:", err && err.message);
       // Never show a fake "0" — a failed fetch renders the same card without
       // a number, and gets a short cache so a bad render doesn't stick around.
       const png = await render(page(failureMiddle()));

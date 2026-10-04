@@ -98,6 +98,8 @@ Change these if you deploy under your own domain:
 `api/og-image.js` renders a 1200×630 preview image with `satori` and `@resvg/resvg-js`.
 
 - The fonts in `api/fonts/` must be static TTFs. satori's font parser fails on variable fonts.
-- It reads `stats/total` through the database's REST endpoint without credentials. With App
-  Check enforcement on, that read is rejected and the image shows its fallback text instead
-  of the live count.
+- It reads `stats/total` through the database's REST endpoint. With App Check enforcement
+  on, an unauthenticated read is rejected and the image shows its fallback text. To show the
+  live count, create a service account with read access, base64-encode its JSON key, and
+  set it as the `FIREBASE_SERVICE_ACCOUNT_B64` environment variable in Vercel. Never commit
+  the key.
