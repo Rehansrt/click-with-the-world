@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /api/og-image
+Disallow: /api/
+
+Sitemap: https://www.clickwiththeworld.fun/sitemap.xml
