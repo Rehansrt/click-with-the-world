@@ -127,7 +127,7 @@
       <div><h2 id="howTitle">How it works</h2><p>What the widget does, and what it uses.</p></div>
     </div>
     <ol class="eg-how">
-      <li>The embed is a compact page (just the button and the live count) served from this site inside your iframe, with a transparent background so it blends into your page.</li>
+      <li>The embed is a compact page (just the button and the live count) served from this site inside your iframe, on a compact dark pill, so it stays readable on light or dark pages.</li>
       <li>It reads and writes the same Firebase Realtime Database as the main site, so a click on your embedded widget adds to the same global total and country leaderboard.</li>
       <li>There is a short pause between clicks, to help stop accidental rapid-fire clicking from a single embed.</li>
       <li>It uses Firebase for the live count, and every click is verified by Firebase App Check (using Google reCAPTCHA Enterprise) to block bots and automated clicking; clicks that fail verification are rejected. It finds the visitor's country from our host, Vercel; if that isn't available it asks ipwho.is for a country code. It keeps a random rate-limiting ID in the browser's storage and sets no cookies of its own. It shows no ads. See the <a href="/privacy">Privacy Policy</a>.</li>
