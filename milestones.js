@@ -13,7 +13,6 @@ import {
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName } from "./country-utils.js";
-import { reportAppCheckError } from "./appcheck-logger.js";
 import { MILESTONE_LADDER } from "./milestone-ladder.js";
 
 // Read-only page: same Firebase + App Check setup as Home (app.js) so every
@@ -29,17 +28,13 @@ const appCheck = initializeAppCheck(app, {
 // one; fail open if App Check is unavailable (enforcement is off).
 try {
   await getToken(appCheck);
-} catch (err) {
-  console.error("[AppCheck] getToken threw:", { code: err && err.code, message: err && err.message });
-  reportAppCheckError(app, err);
+} catch {
+  /* proceed without a pre-fetched token — not a hard dependency */
 }
 
 onTokenChanged(appCheck, {
   next: () => {},
-  error: (err) => {
-    console.error("[AppCheck] background refresh failed:", { code: err && err.code, message: err && err.message });
-    reportAppCheckError(app, err);
-  },
+  error: () => {},
 });
 
 const db = getDatabase(app);

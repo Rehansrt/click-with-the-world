@@ -14,7 +14,6 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
-import { reportAppCheckError } from "./appcheck-logger.js";
 
 // Trimmed-down version of app.js for the compact embed widget: same data
 // model (stats/total, stats/countries/<ISO2>, recentClicks/latest), so
@@ -36,43 +35,17 @@ const appCheck = initializeAppCheck(app, {
 // getDatabase()'s WebSocket connection can open before App Check's async
 // reCAPTCHA challenge finishes, showing up as invalid/outdated in metrics
 // for the whole page session even though nothing is actually broken.
-console.log("[AppCheck:embed] calling getToken(appCheck)…");
 try {
-  const result = await getToken(appCheck);
-  console.log("[AppCheck:embed] getToken resolved:", {
-    tokenLength: result.token ? result.token.length : 0,
-    tokenPreview: result.token ? result.token.slice(0, 12) + "…" : null,
-  });
-} catch (err) {
-  console.error("[AppCheck:embed] getToken threw:", {
-    code: err && err.code,
-    message: err && err.message,
-    customData: err && err.customData,
-    full: err,
-  });
-  reportAppCheckError(app, err);
+  await getToken(appCheck);
+} catch {
   /* proceed without a pre-fetched token — not a hard dependency */
 }
 
-// See app.js's matching onTokenChanged block for why this exists: it logs
-// every background auto-refresh attempt (not just this initial fetch), since
-// isTokenAutoRefreshEnabled means the SDK repeats the reCAPTCHA challenge
-// periodically for as long as the embed stays open.
+// Token-change listener kept registered, as before; it used to log each
+// background refresh and no longer does.
 onTokenChanged(appCheck, {
-  next: (result) => {
-    console.log("[AppCheck:embed] onTokenChanged (background refresh) succeeded:", {
-      tokenLength: result.token ? result.token.length : 0,
-      time: new Date().toISOString(),
-    });
-  },
-  error: (err) => {
-    console.error("[AppCheck:embed] onTokenChanged (background refresh) failed:", {
-      code: err && err.code,
-      message: err && err.message,
-      time: new Date().toISOString(),
-    });
-    reportAppCheckError(app, err);
-  },
+  next: () => {},
+  error: () => {},
 });
 
 const db = getDatabase(app);

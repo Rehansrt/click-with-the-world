@@ -34,7 +34,6 @@ What the rules do:
   time only) for the Live Clicks list.
 - `stats/milestones/<value>` records when a milestone was first reached; it can be written
   once, and only when the total has reached that value.
-- `appcheckLogs` accepts write-once error reports and can't be read by clients.
 - Everything else is rejected.
 
 ## 4. Set up App Check

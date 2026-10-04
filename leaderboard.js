@@ -13,7 +13,6 @@ import {
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
-import { reportAppCheckError } from "./appcheck-logger.js";
 
 // Read-only page: same Firebase + App Check setup as Home and Milestones. It
 // never writes clicks and sets no cww_* keys of its own (it only reads/writes
@@ -27,17 +26,13 @@ const appCheck = initializeAppCheck(app, {
 
 try {
   await getToken(appCheck);
-} catch (err) {
-  console.error("[AppCheck] getToken threw:", { code: err && err.code, message: err && err.message });
-  reportAppCheckError(app, err);
+} catch {
+  /* proceed without a pre-fetched token — not a hard dependency */
 }
 
 onTokenChanged(appCheck, {
   next: () => {},
-  error: (err) => {
-    console.error("[AppCheck] background refresh failed:", { code: err && err.code, message: err && err.message });
-    reportAppCheckError(app, err);
-  },
+  error: () => {},
 });
 
 const db = getDatabase(app);

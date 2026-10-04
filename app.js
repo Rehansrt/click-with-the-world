@@ -17,7 +17,6 @@ import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { isLive } from "./site-shell.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
-import { reportAppCheckError } from "./appcheck-logger.js";
 
 const app = initializeApp(firebaseConfig);
 
@@ -38,45 +37,17 @@ const appCheck = initializeAppCheck(app, {
 // entire page session, even though nothing is actually broken. Waiting here
 // closes that race; failing open (no token) rather than blocking the app if
 // App Check itself is ever unavailable, since enforcement is off regardless.
-console.log("[AppCheck] calling getToken(appCheck)…");
 try {
-  const result = await getToken(appCheck);
-  console.log("[AppCheck] getToken resolved:", {
-    tokenLength: result.token ? result.token.length : 0,
-    tokenPreview: result.token ? result.token.slice(0, 12) + "…" : null,
-  });
-} catch (err) {
-  console.error("[AppCheck] getToken threw:", {
-    code: err && err.code,
-    message: err && err.message,
-    customData: err && err.customData,
-    full: err,
-  });
-  reportAppCheckError(app, err);
+  await getToken(appCheck);
+} catch {
   /* proceed without a pre-fetched token — not a hard dependency */
 }
 
-// isTokenAutoRefreshEnabled means the SDK re-runs the whole reCAPTCHA
-// challenge periodically in the background (roughly every ~55 min, ahead of
-// the token's ~1hr expiry) for as long as the tab stays open — each of those
-// is an independent network round trip to Google's reCAPTCHA servers, so any
-// one of them can fail for reasons the initial page-load fetch never hits.
-// This logs every one of those background attempts, not just the first.
+// Token-change listener kept registered, as before; it used to log each
+// background refresh and no longer does.
 onTokenChanged(appCheck, {
-  next: (result) => {
-    console.log("[AppCheck] onTokenChanged (background refresh) succeeded:", {
-      tokenLength: result.token ? result.token.length : 0,
-      time: new Date().toISOString(),
-    });
-  },
-  error: (err) => {
-    console.error("[AppCheck] onTokenChanged (background refresh) failed:", {
-      code: err && err.code,
-      message: err && err.message,
-      time: new Date().toISOString(),
-    });
-    reportAppCheckError(app, err);
-  },
+  next: () => {},
+  error: () => {},
 });
 
 const db = getDatabase(app);
