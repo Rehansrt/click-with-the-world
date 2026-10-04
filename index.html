@@ -243,7 +243,33 @@
 <div id="site-footer"></div>
 
 <script type="module" src="site-shell.js"></script>
-<script type="module" src="app.js"></script>
+<script type="module">
+  // Start the counter app only after the browser has painted the page. App
+  // Check's reCAPTCHA run is heavy; whenever it began before the first paint,
+  // that paint was held back by seconds.
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    import("./app.js");
+  };
+  const hasPaintTiming =
+    typeof PerformanceObserver === "function" &&
+    (PerformanceObserver.supportedEntryTypes || []).includes("paint");
+
+  if (document.visibilityState === "hidden") {
+    start(); // background tab: nothing is painted until it is shown
+  } else if (hasPaintTiming) {
+    new PerformanceObserver((list, observer) => {
+      observer.disconnect();
+      start();
+    }).observe({ type: "paint", buffered: true });
+    document.addEventListener("visibilitychange", start, { once: true });
+    setTimeout(start, 3000); // safety net if no paint is ever reported
+  } else {
+    requestAnimationFrame(() => setTimeout(start, 60));
+  }
+</script>
 <script type="module" src="ad-slot.js"></script>
 
 </body>
