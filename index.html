@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Click With The World</title>
+<!-- AdSense site verification. The AdSense script itself is loaded after the
+     page has loaded (see ad-slot.js), not from <head>: there it ran before the
+     stylesheets and made the whole page shift. -->
+<meta name="google-adsense-account" content="ca-pub-5895766839000240">
 <meta name="description" content="Every tap adds to one shared number. Join clickers around the world.">
 <link rel="canonical" href="https://www.clickwiththeworld.fun/">
 
@@ -21,11 +24,20 @@
 <meta name="twitter:description" content="Every tap adds to one shared number. Join clickers around the world.">
 <meta name="twitter:image" content="https://www.clickwiththeworld.fun/api/og-image">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/hero-1920.webp" media="(min-width: 769px)">
+<!-- The hero background is the largest paint; fetch the right size early. -->
+<link rel="preload" as="image" href="assets/hero-1920.webp" media="(min-width: 769px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero-960.webp" media="(max-width: 768px)" fetchpriority="high">
 <link rel="stylesheet" href="site-shell.css">
 <link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.google.com">
+<link rel="dns-prefetch" href="https://click-with-the-world-default-rtdb.asia-southeast1.firebasedatabase.app">
+<!-- Web fonts load without blocking first paint (they already use display=swap). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap"></noscript>
 </head>
 <body>
 
@@ -111,7 +123,7 @@
         <div id="leaderboardSponsor" class="sponsor-slot sponsor-slot--leaderboard"></div>
         <ol id="leaderboardList" class="tc-list"></ol>
         <div class="card-foot">
-          <a id="fullLeaderboardLink" class="link-cyan" href="/leaderboard" hidden>View Full Leaderboard &rarr;</a>
+          <a id="fullLeaderboardLink" class="link-cyan" href="/leaderboard">View Full Leaderboard &rarr;</a>
           <button id="shareBtn" class="share-btn" type="button">share your rank</button>
         </div>
       </section>
@@ -165,7 +177,7 @@
     </section>
 
     <!-- Only ad on this page. Rendered by ad-slot.js and only when AD_SLOT is set. -->
-    <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
+    <section id="adSection" class="ad-section" aria-label="Advertisement" data-load-adsense hidden></section>
 
     <div class="two-col promos">
       <section class="card promo">
@@ -189,7 +201,7 @@
             <h2>Sponsor the counter</h2>
           </div>
           <p>Put your logo in the Top Countries card on the Home page. Milestone spots open as we approach 1,000,000.</p>
-          <a id="sponsorPromoBtn" class="btn-outline" href="/embed-this" hidden>Sponsor the Counter &rarr;</a>
+          <a id="sponsorPromoBtn" class="btn-outline" href="/sponsor">Sponsor the Counter &rarr;</a>
         </div>
       </section>
     </div>
