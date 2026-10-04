@@ -65,7 +65,7 @@ const countDisplay = document.getElementById("countDisplay");
 const clickBtn = document.getElementById("clickBtn");
 
 function formatCount(n) {
-  return n.toLocaleString("en-IN");
+  return n.toLocaleString("en-US");
 }
 
 // Shrinks the count number to fit the circle instead of overflowing it (a
