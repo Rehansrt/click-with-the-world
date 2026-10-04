@@ -101,21 +101,40 @@
 .sf-bottom a:hover { color: var(--sh-cyan); }
 .sf-sep { opacity: 0.5; }
 
-@media (max-width: 820px) {
-  .sh-inner { flex-wrap: wrap; gap: 8px; padding-left: 14px; padding-right: 14px; }
-  .sh-brand { margin-right: auto; gap: 9px; min-width: 0; }
-  .sh-brand .sh-logo { width: 36px; height: 36px; }
-  .sh-brand-text strong { font-size: 15px; }
-  .sh-brand-text small { font-size: 11px; }
+/* The header nav needs about 1050px to fit on one line, so below 1100px it
+   collapses behind the menu button instead of wrapping onto a second row. */
+@media (max-width: 1099px) {
+  .sh-inner { flex-wrap: wrap; }
+  .sh-brand { margin-right: auto; }
   .sh-burger { display: inline-flex; }
-  .sh-tip { padding: 8px 12px; }
   .sh-nav { display: none; order: 5; width: 100%; margin: 0; flex-direction: column; align-items: flex-start; gap: 4px; padding: 6px 0 10px; }
   .sh-nav.is-open { display: flex; }
   .sh-nav a { width: 100%; padding: 10px 2px; font-size: 15px; }
+}
+
+@media (max-width: 820px) {
+  .sh-inner { gap: 8px; padding-left: 14px; padding-right: 14px; }
+  .sh-brand { gap: 9px; min-width: 0; }
+  .sh-brand .sh-logo { width: 36px; height: 36px; }
+  .sh-brand-text strong { font-size: 15px; }
+  .sh-brand-text small { font-size: 11px; }
+  .sh-tip { padding: 8px 12px; }
   .sf-inner { flex-direction: column; align-items: flex-start; }
 }
 
-@media (max-width: 380px) {
+/* Below this the "Tip Us" label no longer fits beside the brand and the menu
+   button, so the button shows its icon only. */
+@media (max-width: 420px) {
   .sh-tip span { display: none; }
   .sh-tip { padding: 9px 11px; }
+}
+
+/* Narrowest phones: tighten the brand so logo, Tip Us and the menu button
+   stay on one row. */
+@media (max-width: 350px) {
+  .sh-inner { gap: 6px; padding-left: 10px; padding-right: 10px; }
+  .sh-brand { gap: 7px; }
+  .sh-brand .sh-logo { width: 32px; height: 32px; }
+  .sh-brand-text strong { font-size: 13.5px; }
+  .sh-tip { padding: 8px; }
 }
