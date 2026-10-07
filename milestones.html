@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site-shell.css">
 <link rel="stylesheet" href="pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js). -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -87,7 +89,7 @@
       </ol>
     </section>
 
-    <section class="card promo">
+    <section class="card promo" data-sponsor-placeholder hidden>
       <div class="promo-body">
         <div class="promo-title">
           <span class="card-ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
@@ -99,6 +101,35 @@
     </section>
   </div>
 
+  <section class="card explain" aria-labelledby="msHowTitle">
+    <div class="card-head">
+      <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.2"/></svg></span>
+      <div><h2 id="msHowTitle">How Milestones Work</h2><p>What the numbers mean and how they are recorded.</p></div>
+    </div>
+
+    <h3>Two kinds of milestone</h3>
+    <p>The progress bar at the top of this page always points at the next round number. Below 1,000 clicks that is every 100; then every 1,000 up to 10,000; every 10,000 up to 100,000; every 100,000 up to 1,000,000; and every 1,000,000 after that. The Milestone Journey lists the eight big numbers that get a permanent record.</p>
+
+    <h3>What each big milestone means</h3>
+    <ul>
+      <li><strong>1,000</strong> is the first four-digit total and the first entry in the record.</li>
+      <li><strong>10,000</strong> and <strong>100,000</strong> are each ten times the one before.</li>
+      <li><strong>500,000</strong> is the halfway point to a million.</li>
+      <li><strong>1,000,000</strong> is the first seven-digit total. At one click a second, a million clicks is more than eleven days of non-stop clicking, which is why it takes many people.</li>
+      <li><strong>5,000,000</strong> and <strong>10,000,000</strong> come after the progress bar has switched to steps of one million.</li>
+      <li><strong>100,000,000</strong> is the last number on the list for now. At one click a second it would take more than three years.</li>
+    </ul>
+
+    <h3>How a milestone is recorded</h3>
+    <p>When the live total first reaches one of these numbers, the date is saved next to it and shown here in UTC. It is saved once: a date can only be written after the total has really reached that number, and once written it can't be overwritten or removed by visitors. Each row shows one of three states: Reached, In progress (the next one ahead) or Locked (further ahead). A dash (&mdash;) means the live data hasn't loaded yet.</p>
+
+    <h3>What you see when one is reached</h3>
+    <p>If you have the Home page open when the total passes a milestone, you'll see a short celebration with confetti and a banner. Nothing else changes: the counter keeps going toward the next number.</p>
+
+    <h3>Rules that keep milestones honest</h3>
+    <p>Milestones count real clicks only. Each click adds exactly one, clicks on embedded counters feed the same total, and automated clicking is not allowed under the <a href="/terms">Terms of Use</a>. If clicks are found to have come from scripts, the total can be corrected, and that can affect milestone timings. The checks behind this are described under Fair Play on the <a href="/about">About page</a>.</p>
+  </section>
+
   <section class="card banner">
     <div>
       <h2>Help reach the <span class="grad">next one.</span></h2>
@@ -107,13 +138,11 @@
     <a class="btn-outline" href="/">Go Click &rarr;</a>
   </section>
 
-  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
 </main>
 
 <div id="site-footer"></div>
 
 <script type="module" src="site-shell.js"></script>
 <script type="module" src="milestones.js"></script>
-<script type="module" src="ad-slot.js"></script>
 </body>
 </html>

@@ -18,6 +18,13 @@
 export const sponsorConfig = {
   inquiryContact: "/sponsor",
 
+  // Master switch for every "sponsor this" placeholder and promo on the site:
+  // the empty slots on Home, Leaderboard and Milestones, the "Sponsor the
+  // Counter" promo cards, and the inventory grid and mock-ups on /sponsor.
+  // false hides them all; true brings them back. A slot with active: true
+  // (a real sponsor) shows either way.
+  showPlaceholders: false,
+
   milestone: {
     active: false,
     name: "",

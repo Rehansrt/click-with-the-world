@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Click With The World</title>
-<!-- AdSense site verification. The AdSense script itself is loaded after the
-     page has loaded (see ad-slot.js), not from <head>: there it ran before the
-     stylesheets and made the whole page shift. -->
+<!-- AdSense site verification (the AdSense script is at the end of <head>). -->
 <meta name="google-adsense-account" content="ca-pub-5895766839000240">
 <meta name="description" content="Every tap adds to one shared number. Join clickers around the world.">
 <link rel="canonical" href="https://www.clickwiththeworld.fun/">
@@ -38,6 +36,8 @@
 <!-- Web fonts load without blocking first paint (they already use display=swap). -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap"></noscript>
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js). -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -106,7 +106,7 @@
         <div id="milestonePct" class="ms-pct" aria-label="Progress to next milestone">0%</div>
       </div>
       <div id="milestoneSponsor" class="sponsor-slot sponsor-slot--milestone" hidden></div>
-      <p class="ms-partner-link"><a href="/sponsor#inventory">Sponsor this milestone &rarr;</a></p>
+      <p class="ms-partner-link" data-sponsor-placeholder hidden><a href="/sponsor#inventory">Sponsor this milestone &rarr;</a></p>
     </section>
 
     <div class="two-col">
@@ -120,7 +120,8 @@
             <p>Countries with the most clicks</p>
           </div>
         </div>
-        <div id="leaderboardSponsor" class="sponsor-slot sponsor-slot--leaderboard"></div>
+        <!-- Hidden until app.js has a sponsor (or a placeholder) to put in it. -->
+        <div id="leaderboardSponsor" class="sponsor-slot sponsor-slot--leaderboard" hidden></div>
         <ol id="leaderboardList" class="tc-list"></ol>
         <div class="card-foot">
           <a id="fullLeaderboardLink" class="link-cyan" href="/leaderboard">View Full Leaderboard &rarr;</a>
@@ -176,9 +177,6 @@
       </ol>
     </section>
 
-    <!-- Only ad on this page. Rendered by ad-slot.js and only when AD_SLOT is set. -->
-    <section id="adSection" class="ad-section" aria-label="Advertisement" data-load-adsense hidden></section>
-
     <div class="two-col promos">
       <section class="card promo">
         <div class="promo-body">
@@ -192,7 +190,7 @@
           <a class="btn-outline" href="/embed-this">Get Embed Code &rarr;</a>
         </div>
       </section>
-      <section class="card promo">
+      <section class="card promo" data-sponsor-placeholder hidden>
         <div class="promo-body">
           <div class="promo-title">
             <span class="card-ico" aria-hidden="true">
@@ -230,11 +228,12 @@
         <h3>Milestones and the Country Leaderboard</h3>
         <p>As the total climbs, it passes round-number milestones — 1,000, 10,000, 1,000,000, and beyond — each one recorded on the Milestones page along with the date it was first reached, so you can see exactly when the world crossed that line. Every click is also attributed to the country it came from, building a live leaderboard of which countries have clicked the most. Nobody's individual activity is tracked or named anywhere; only country-level totals, visible to everyone who visits.</p>
       </div>
+    </section>
 
-      <div class="ae-block">
-        <h3>How We Keep It Fair</h3>
-        <p>A counter anyone can click invites automated abuse, so every click is verified by Firebase App Check (using Google reCAPTCHA Enterprise) to block bots and automated clicking, and a short per-browser rate limit stops rapid repeat clicks. Clicks that fail verification are rejected. No system is perfect, and if we ever find data that was clearly added by a script rather than a real person, we correct or reset the affected counts rather than let a false number stand.</p>
-      </div>
+    <!-- Only ad on this page: last on the page, away from the click button and
+         the "Click" step. Rendered by ad-slot.js and only when AD_SLOT is set. -->
+    <section id="adSection" class="ad-section" aria-label="Advertisement" hidden>
+      <p class="ad-label">Advertisement</p>
     </section>
 
   </div>

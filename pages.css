@@ -237,6 +237,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 /* bottom cards */
 .c-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+/* With the sponsor promo hidden (see sponsor-config.js) the remaining card takes the full row. */
+.c-cards:has(> [hidden]), .ms-mid:has(> [hidden]) { grid-template-columns: 1fr; }
 .promo-body { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .promo-title { display: flex; align-items: center; gap: 12px; }
 .promo p { margin: 0; max-width: 340px; font-size: 15px; color: #cfe3ff; line-height: 1.5; }
@@ -387,6 +389,14 @@ details.qa .ans a { overflow-wrap: anywhere; }
 .banner .btn-outline { margin: 0; }
 
 .ad-section { min-height: 100px; text-align: center; }
+.ad-label { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+
+/* explanatory text cards (Leaderboard, Milestones) */
+.explain h3 { margin: 18px 0 6px; font-family: 'Space Grotesk', sans-serif; font-size: 18px; }
+.explain p, .explain ul { margin: 0 0 10px; max-width: 80ch; color: #d3e3f8; line-height: 1.65; font-size: 15px; }
+.explain ul { padding-left: 22px; }
+.explain li { margin-bottom: 4px; }
+.explain > :last-child { margin-bottom: 0; }
 
 /* about */
 .a-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; margin-top: -8px; }

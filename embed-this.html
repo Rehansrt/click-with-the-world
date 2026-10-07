@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site-shell.css">
 <link rel="stylesheet" href="pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js). -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -130,7 +132,7 @@
       <li>The embed is a compact page (just the button and the live count) served from this site inside your iframe, on a compact dark pill, so it stays readable on light or dark pages.</li>
       <li>It reads and writes the same Firebase Realtime Database as the main site, so a click on your embedded widget adds to the same global total and country leaderboard.</li>
       <li>There is a short pause between clicks, to help stop accidental rapid-fire clicking from a single embed.</li>
-      <li>It uses Firebase for the live count, and every click is verified by Firebase App Check (using Google reCAPTCHA Enterprise) to block bots and automated clicking; clicks that fail verification are rejected. It finds the visitor's country from our host, Vercel; if that isn't available it asks ipwho.is for a country code. It keeps a random rate-limiting ID in the browser's storage and sets no cookies of its own. It shows no ads. See the <a href="/privacy">Privacy Policy</a>.</li>
+      <li>It uses Firebase for the live count and Firebase App Check (using Google reCAPTCHA Enterprise) to verify clicks. It finds the visitor's country from our host, Vercel; if that isn't available it asks ipwho.is for a country code. It keeps a random rate-limiting ID in the browser's storage and sets no cookies of its own. It shows no ads. See the <a href="/privacy">Privacy Policy</a>.</li>
       <li>It runs in its own iframe, so it can't affect your page's styles or scripts, and your page can't affect it.</li>
     </ol>
   </section>

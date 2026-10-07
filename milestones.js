@@ -175,7 +175,7 @@ function renderLadder(total) {
       const isActiveRow = row === nextBigRow;
       if (sponsorConfig.milestone.active) {
         if (isActiveRow) row.append(buildSponsorLine(true));
-      } else if (state !== "reached") {
+      } else if (state !== "reached" && sponsorConfig.showPlaceholders) {
         row.append(buildSponsorLine(false));
       }
     }

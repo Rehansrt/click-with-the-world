@@ -218,6 +218,12 @@ function playClickSound(combo, golden) {
 // Swapping a slot over never requires touching this code, only
 // sponsor-config.js.
 function renderSponsorSlot(el, config) {
+  // No sponsor and placeholders switched off: the slot stays out of the page.
+  if (!config.active && !sponsorConfig.showPlaceholders) {
+    el.hidden = true;
+    return;
+  }
+  el.hidden = false;
   const logo = config.active && config.logoUrl
     ? `<img class="sponsor-logo" src="${config.logoUrl}" alt="">`
     : "";
@@ -331,7 +337,6 @@ function updateMilestone(total) {
   // matching the gauge's own top-tier step size) — not every small one on
   // the way there.
   if (target % BIG_MILESTONE_STEP === 0) {
-    milestoneSponsor.hidden = false;
     renderSponsorSlot(milestoneSponsor, sponsorConfig.milestone);
   } else {
     milestoneSponsor.hidden = true;

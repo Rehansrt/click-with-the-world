@@ -272,6 +272,13 @@ setInterval(renderLive, 10000);
 function renderSponsor() {
   const box = el("lbSponsor");
   const cfg = sponsorConfig.leaderboard;
+  // No sponsor and placeholders switched off: the card stays hidden.
+  const card = box.closest(".sp-card");
+  if (!cfg.active && !sponsorConfig.showPlaceholders) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
   const tag = document.createElement("span");
   tag.className = "sp-tag";
   tag.textContent = cfg.active ? "sponsored" : "sponsor spot";

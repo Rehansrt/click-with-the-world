@@ -505,6 +505,7 @@ h1 {
 
 /* ad slot: the section is only un-hidden by ad-slot.js when AD_SLOT is set */
 .ad-section { min-height: 100px; text-align: center; }
+.ad-label { margin: 0 0 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
 .ad-section ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 
 /* promo cards */
@@ -513,6 +514,9 @@ h1 {
     linear-gradient(90deg, rgba(4, 12, 36, 0.97) 42%, rgba(4, 12, 36, 0.45) 100%),
     url("assets/hero-960.webp") right center / cover no-repeat;
 }
+
+/* With the sponsor promo hidden (see sponsor-config.js) the remaining card takes the full row. */
+.two-col.promos:has(> [hidden]) { grid-template-columns: 1fr; }
 
 .promo-body { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .promo-title { display: flex; align-items: center; gap: 12px; }

@@ -4,6 +4,8 @@
 // Pages show up in the nav ONLY when `live: true` — flip the flag when the page
 // ships so no link ever points at a 404.
 
+import { sponsorConfig } from "./sponsor-config.js";
+
 export const PAGES = [
   { label: "Home", href: "/", live: true },
   { label: "Milestones", href: "/milestones", live: true },
@@ -119,6 +121,16 @@ function injectAnalytics() {
   }
 }
 
+// "Sponsor this" promos written into a page's HTML carry
+// data-sponsor-placeholder and ship hidden; sponsor-config.js decides whether
+// they are shown.
+function revealSponsorPlaceholders() {
+  if (!sponsorConfig.showPlaceholders) return;
+  document.querySelectorAll("[data-sponsor-placeholder]").forEach((el) => {
+    el.hidden = false;
+  });
+}
+
 function init() {
   if (!document.querySelector('link[href$="site-shell.css"]')) {
     const link = document.createElement("link");
@@ -127,6 +139,7 @@ function init() {
     document.head.appendChild(link);
   }
   injectAnalytics();
+  revealSponsorPlaceholders();
   const header = document.getElementById("site-header");
   const footer = document.getElementById("site-footer");
   if (header) renderHeader(header);

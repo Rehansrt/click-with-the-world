@@ -15,6 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site-shell.css">
 <link rel="stylesheet" href="pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js). -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -88,13 +90,33 @@
         <ul id="liveList" class="live-list"><li class="tc-empty">&mdash;</li></ul>
       </section>
 
-      <section class="card sp-card" aria-label="Leaderboard sponsor">
+      <!-- Hidden until leaderboard.js has a sponsor (or a placeholder) to show. -->
+      <section class="card sp-card" aria-label="Leaderboard sponsor" hidden>
         <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg></span>
         <div id="lbSponsor" class="sp-body"></div>
       </section>
 
     </div>
   </div>
+
+  <section class="card explain" aria-labelledby="lbHowTitle">
+    <div class="card-head">
+      <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.2"/></svg></span>
+      <div><h2 id="lbHowTitle">How the Leaderboard Works</h2><p>What the ranks mean and how they change.</p></div>
+    </div>
+
+    <h3>How a click gets its country</h3>
+    <p>Every click made on the Home page, or on a counter embedded on another website, is credited to one country. The country is detected automatically from your internet connection. There is no country picker, and it can't be changed by hand. If you browse through a VPN or proxy, your clicks are credited to the country that connection appears to come from. If no country can be detected, the click still adds to the worldwide total and to today's total, but it isn't added to any row in this table.</p>
+
+    <h3>How the ranking is worked out</h3>
+    <p>Countries are ordered by their total clicks since the counter started, highest first. Countries with exactly the same total share a rank and the next rank is skipped, so two countries tied for first are both shown as 1 and the one after them as 3. "Share of clicks" is a country's total as a percentage of all clicks worldwide. Because clicks with no detected country still count toward the worldwide total, the shares can add up to a little less than 100%. The table opens with the top ten, and the button below it shows more.</p>
+
+    <h3>How often it updates</h3>
+    <p>This page keeps a live connection to the same database the counter writes to. When someone clicks anywhere in the world, the totals, ranks and shares here change within moments, with no need to reload. "Clicks Today" counts from midnight UTC, so it resets at the same instant for everyone. If your country is detected, a "Your Country" card shows its current rank and total. The Live Clicks list shows only the most recent few clicks; older entries are overwritten, so no history of individual clicks is kept. A dash (&mdash;) means the live data hasn't loaded yet.</p>
+
+    <h3>Rules for a fair table</h3>
+    <p>A click adds exactly one, to exactly one country, and there is a short pause between clicks from the same browser. Automated clicking is not allowed under the <a href="/terms">Terms of Use</a>, and totals found to come from scripts can be corrected. The checks behind this are described under Fair Play on the <a href="/about">About page</a>.</p>
+  </section>
 
   <section class="card banner">
     <div>
@@ -104,13 +126,11 @@
     <a class="btn-outline" href="/">Go Click &rarr;</a>
   </section>
 
-  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
 </main>
 
 <div id="site-footer"></div>
 
 <script type="module" src="site-shell.js"></script>
 <script type="module" src="leaderboard.js"></script>
-<script type="module" src="ad-slot.js"></script>
 </body>
 </html>

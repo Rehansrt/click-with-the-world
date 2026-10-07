@@ -45,8 +45,8 @@
     {"@type":"Question","name":"How do I embed the counter?","acceptedAnswer":{"@type":"Answer","text":"Open the Embed page, pick a size, copy the snippet and paste it into your site's HTML."}},
     {"@type":"Question","name":"Do embedded clicks count?","acceptedAnswer":{"@type":"Answer","text":"Yes. They add to the same global and country totals as clicks on the main site."}},
     {"@type":"Question","name":"Does the widget show ads or use cookies?","acceptedAnswer":{"@type":"Answer","text":"It shows no ads and loads no Ko-fi or Google Fonts content. It uses the same Firebase and reCAPTCHA tools as the main site, and may keep a random rate-limiting ID in the visitor's browser storage. See section 9 of the Privacy Policy."}},
-    {"@type":"Question","name":"Can I sponsor a milestone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Milestones from 100,000 to 100,000,000 clicks can be reserved — see the Milestone Inventory on the Partner page. Founding Partners (5 slots) pay ₹999 per milestone; standard pricing applies after that. The Top Countries placement is also available — pricing on request. Questions: sponsor@clickwiththeworld.fun."}},
-    {"@type":"Question","name":"Are sponsors labeled?","acceptedAnswer":{"@type":"Answer","text":"Yes. An active sponsor placement is marked with a small \"Sponsored\" label. Open placements read \"Sponsor this spot\"."}},
+    {"@type":"Question","name":"Can I sponsor a milestone?","acceptedAnswer":{"@type":"Answer","text":"Yes. Milestones from 100,000 to 100,000,000 clicks can be reserved — see the Partner page. Founding Partners (5 slots) pay ₹999 per milestone; standard pricing applies after that. The Top Countries placement is also available — pricing on request. Questions: sponsor@clickwiththeworld.fun."}},
+    {"@type":"Question","name":"Are sponsors labeled?","acceptedAnswer":{"@type":"Answer","text":"Yes. An active sponsor placement is marked with a small \"Sponsored\" label."}},
     {"@type":"Question","name":"What data do you collect?","acceptedAnswer":{"@type":"Answer","text":"Aggregate counts, a country code, and a random browser ID used to limit rapid clicking. Never your IP address, name or email with a click. See the Privacy Policy."}},
     {"@type":"Question","name":"Do you use cookies?","acceptedAnswer":{"@type":"Answer","text":"We set no cookies ourselves; we use your browser's storage for a few small settings. Third-party services such as Google reCAPTCHA and AdSense may use cookies. See sections 3 to 5 of the Privacy Policy."}},
     {"@type":"Question","name":"How do I reset my browser ID?","acceptedAnswer":{"@type":"Answer","text":"Clear your browser's site data for www.clickwiththeworld.fun."}},
@@ -54,6 +54,8 @@
   ]
 }
 </script>
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js). -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -197,8 +199,8 @@
           <div><h2 id="h-sponsorship">Sponsorship</h2><p>Featuring your brand at a milestone.</p></div>
         </div>
         <div class="faq-items">
-          <details class="qa"><summary>Can I sponsor a milestone?</summary><div class="ans"><p>Yes. Milestones from 100,000 to 100,000,000 clicks can be reserved — see the Milestone Inventory on the <a href="/sponsor#inventory">Partner page</a>. Founding Partners (5 slots) pay ₹999 per milestone; standard pricing applies after that. The Top Countries placement is also available — pricing on request. Questions: <a href="mailto:sponsor@clickwiththeworld.fun">sponsor@clickwiththeworld.fun</a>.</p></div></details>
-          <details class="qa"><summary>Are sponsors labeled?</summary><div class="ans"><p>Yes. An active sponsor placement is marked with a small "Sponsored" label. Open placements read "Sponsor this spot".</p></div></details>
+          <details class="qa"><summary>Can I sponsor a milestone?</summary><div class="ans"><p>Yes. Milestones from 100,000 to 100,000,000 clicks can be reserved — see the <a href="/sponsor">Partner page</a>. Founding Partners (5 slots) pay ₹999 per milestone; standard pricing applies after that. The Top Countries placement is also available — pricing on request. Questions: <a href="mailto:sponsor@clickwiththeworld.fun">sponsor@clickwiththeworld.fun</a>.</p></div></details>
+          <details class="qa"><summary>Are sponsors labeled?</summary><div class="ans"><p>Yes. An active sponsor placement is marked with a small "Sponsored" label.</p></div></details>
         </div>
       </section>
 
@@ -228,7 +230,9 @@
     <a class="btn-outline" href="/contact">Contact Us &rarr;</a>
   </section>
 
-  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden></section>
+  <section id="adSection" class="ad-section" aria-label="Advertisement" hidden>
+    <p class="ad-label">Advertisement</p>
+  </section>
 </main>
 
 <div id="site-footer"></div>
