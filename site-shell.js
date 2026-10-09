@@ -10,6 +10,7 @@ export const PAGES = [
   { label: "Home", href: "/", live: true },
   { label: "Milestones", href: "/milestones", live: true },
   { label: "Leaderboard", href: "/leaderboard", live: true },
+  { label: "Stories", href: "/stories", live: true },
   { label: "Embed", href: "/embed-this", live: true },
   { label: "Partner", href: "/sponsor", live: true },
   { label: "About", href: "/about", live: true },
@@ -54,11 +55,16 @@ function globeLogo(size) {
 
 const cupIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M9 3v2M12 3v2"/></svg>`;
 
+// A section's link also stays lit on the pages beneath it (/stories/...).
+function isActive(href, active) {
+  return href === active || (href !== "/" && active.startsWith(href + "/"));
+}
+
 function navLinks(active) {
   return PAGES.filter((p) => p.live)
     .map(
       (p) =>
-        `<a href="${p.href}"${p.href === active ? ' class="is-active" aria-current="page"' : ""}>${p.label}</a>`
+        `<a href="${p.href}"${isActive(p.href, active) ? ` class="is-active"${p.href === active ? ' aria-current="page"' : ""}` : ""}>${p.label}</a>`
     )
     .join("");
 }

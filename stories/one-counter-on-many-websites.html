@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Counter on Many Websites — Click With The World</title>
+<meta name="description" content="How the embeddable Click With The World widget works: three sizes, two ways to add it, why it lives in a frame, and what services it uses.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/one-counter-on-many-websites">
+<meta property="og:type" content="article">
+<meta property="og:title" content="One Counter on Many Websites — Click With The World">
+<meta property="og:description" content="How the embeddable Click With The World widget works: three sizes, two ways to add it, why it lives in a frame, and what services it uses.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/one-counter-on-many-websites">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>One Counter on Many Websites</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>The counter on Click With The World does not have to stay on Click With The World. Anyone can put a small version of it on their own website or blog. It is free, there is no sign-up, and a click made there counts toward the same total as a click made here.</p>
+
+  <h2>What a visitor sees</h2>
+  <p>The widget is a round button with the live total inside it and the words "tap to click". Beside it are a short label, "clicks worldwide", and a link back to the main site.</p>
+  <p>It comes in three sizes: 300 by 150 pixels, 400 by 200, and 500 by 250. The preview on our <a href="/embed-this">Embed page</a> is the real widget, so clicking it there adds a real click.</p>
+
+  <h2>Two ways to add it</h2>
+  <p>The Embed page gives two pieces of code. They produce the same result.</p>
+  <ul>
+    <li><strong>A script tag.</strong> One line, placed where the widget should appear. It creates the frame for you, and two settings on the line choose the width and height.</li>
+    <li><strong>A plain frame.</strong> Ordinary HTML with no script, for people who would rather not run someone else's script on their page.</li>
+  </ul>
+  <p>Either way, what ends up on the page is a frame that shows one small page from our site. The frame is marked to load lazily, so a browser can leave it until a visitor scrolls near it.</p>
+
+  <h2>Why it lives in a frame</h2>
+  <p>A frame keeps two pages apart.</p>
+  <ul>
+    <li>The widget cannot read or change anything on the page around it.</li>
+    <li>The styles and scripts on that page cannot reach into the widget and break it.</li>
+  </ul>
+  <p>It also keeps the counting honest. Because the widget is served from our own address, a click on someone else's site goes through the same checks as a click on ours: the same database rules, the same App Check verification and the same short pause between clicks. Those are described in <a href="/stories/how-one-shared-number-stays-honest">How One Shared Number Stays Honest</a> and <a href="/stories/what-protects-the-counter">Bots, App Check and a Cooldown</a>.</p>
+
+  <h2>Built to be a quiet guest</h2>
+  <p>A widget sits on a page that belongs to somebody else, so it does less than the main site.</p>
+  <ul>
+    <li>It shows no ads and no tip button.</li>
+    <li>It loads no web fonts.</li>
+    <li>A click gives a small burst of "+1" and the number rolls up. There is no sound, no confetti and none of the main site's golden clicks or combo messages.</li>
+  </ul>
+  <p>Its look is meant to survive any background. The frame itself is transparent, and the button and text sit together on a dark, pill-shaped panel, so the light text stays readable on a white page or a dark one. Everything is sized from the frame, so the three sizes look like the same widget at different scales. If the total grows too long for the circle, the digits shrink to fit.</p>
+
+  <h2>What it uses</h2>
+  <p>If you add the widget to your site, these are the services your visitors' browsers will contact through it:</p>
+  <ul>
+    <li><strong>Firebase</strong>, for the live number.</li>
+    <li><strong>Firebase App Check with Google reCAPTCHA Enterprise</strong>, to verify clicks.</li>
+    <li><strong>Our host, Vercel</strong>, to work out the visitor's country, with ipwho.is as a fallback.</li>
+  </ul>
+  <p>The widget keeps a random ID in the browser's storage for the pause between clicks, and sets no cookies of its own. Section 9 of our <a href="/privacy">Privacy Policy</a> covers the widget specifically, and you are welcome to link to it from your own.</p>
+
+  <h2>The terms</h2>
+  <p>The <a href="/terms">Terms of Use</a> keep it short. You may embed the widget free of charge for any lawful, non-deceptive purpose. Don't present it as your own creation, don't use it to suggest a connection with us that doesn't exist, and don't alter the code to misrepresent the count. We may change or withdraw the widget.</p>
+
+  <h2>Why offer it at all?</h2>
+  <p>The counter is a shared number, and a shared number is more interesting with more doors into it. A click from a small blog and a click from our Home page land in the same place, on the same total, credited to the same country leaderboard.</p>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories/loading-fast-with-recaptcha">&larr; Making a Page That Runs reCAPTCHA Load Fast</a>
+    <a href="/stories/internet-doing-one-thing-together">A Short History of the Internet Doing One Thing Together &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

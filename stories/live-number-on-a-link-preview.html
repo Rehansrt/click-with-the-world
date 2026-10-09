@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Putting a Live Number on a Link Preview — Click With The World</title>
+<meta name="description" content="How the link preview card for Click With The World is drawn on request with the live total, and what changed when App Check was switched on.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/live-number-on-a-link-preview">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Putting a Live Number on a Link Preview — Click With The World">
+<meta property="og:description" content="How the link preview card for Click With The World is drawn on request with the live total, and what changed when App Check was switched on.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/live-number-on-a-link-preview">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>Putting a Live Number on a Link Preview</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>When someone pastes a link to Click With The World into a chat or a social post, a small card appears: a dark background, the words "Total Clicks Worldwide", and the number. The number is the real one, fetched when the card is made. This is how that picture gets drawn.</p>
+
+  <h2>A picture that has to be made on request</h2>
+  <p>Link previews work from a tag in the page that points to an image. Most sites point to a fixed picture. Ours points to a small function on our host that draws a new picture each time it is asked.</p>
+  <p>The function does three things: it reads the current total, lays out the card, and returns a PNG of 1,200 by 630 pixels.</p>
+
+  <h2>Drawing without a browser</h2>
+  <p>On a web page, the browser turns layout and fonts into pixels. A server function has no browser, so the card is built in two steps:</p>
+  <ol>
+    <li>A library called Satori takes a description of the card, written much like a web page, and turns it into an SVG drawing.</li>
+    <li>A second library, Resvg, turns that drawing into a PNG.</li>
+  </ol>
+  <p>A ready-made package exists that bundles both steps, and we tried it first. It would not run in a plain project like ours, so the function uses the two libraries directly.</p>
+  <p>Fonts needed care as well. The function carries its own copies of the Inter typeface, because there are no system fonts to fall back on. They have to be ordinary single-weight font files; the newer "variable" kind made the drawing step fail.</p>
+
+  <h2>Making long numbers fit</h2>
+  <p>The frame around the number has a fixed width, but the number keeps growing. So the text size steps down as the number gets longer: the largest size holds anything up to 99,999, the next up to 9,999,999, the third up to 999,999,999, and a smaller one is ready beyond that.</p>
+  <p>We also changed typeface once. The display font we started with drew the digit 0 wrongly in this renderer, so a total such as 100 came out looking broken. The digits are now set in Inter Bold.</p>
+
+  <h2>The read that stopped working</h2>
+  <p>At first the function read the total the simple way, with one plain request to the database.</p>
+  <p>Then we switched on Firebase App Check, which refuses any request that does not carry proof it came from the real site in a real browser (see <a href="/stories/what-protects-the-counter">Bots, App Check and a Cooldown</a>). A server function is not a browser and cannot produce that proof. The request was refused, and the preview card lost its number.</p>
+  <p>The fix was to let the function identify itself in a different way. It now signs in with a service account, a key that belongs to the project and is kept in our host's private settings. The key is never in the repository and never reaches a visitor's browser. With it, the function asks Google for a short-lived access pass, reuses that pass until it is close to expiring, and attaches it to the one read it makes.</p>
+
+  <h2>Never show a made-up number</h2>
+  <p>Sometimes the read fails. The network may hiccup, or the pass may be refused. In that case the function does not print a zero or reuse an old figure. It draws the same card with no number on it and a line inviting people to join the global click.</p>
+  <p>That version is kept for only a few seconds, so a single bad moment does not linger.</p>
+
+  <h2>How fresh is the number?</h2>
+  <p>A successful card is reused for 60 seconds before a new one is drawn. Without that, a popular link could trigger a new drawing for every viewer.</p>
+  <p>The platforms add their own delay. Chat apps and social networks usually fetch a preview once and keep their copy for a while, so the number on a card you see in a feed can be older than the number on the site. The site itself is always live.</p>
+
+  <h2>Why bother?</h2>
+  <p>A fixed picture would have been one line of work. But the whole site is a single number, and a preview that shows yesterday's number, or none, would misdescribe it. The card is often the first part of the site people see, before they decide whether to click through.</p>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories/which-country-clicked">&larr; How We Know Which Country Clicked Without Storing Your IP</a>
+    <a href="/stories/loading-fast-with-recaptcha">Making a Page That Runs reCAPTCHA Load Fast &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bots, App Check and a Cooldown: What Protects the Counter — Click With The World</title>
+<meta name="description" content="The three layers that protect the shared click counter: increment-only database rules, Firebase App Check with reCAPTCHA Enterprise, and a short pause between clicks.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/what-protects-the-counter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bots, App Check and a Cooldown: What Protects the Counter — Click With The World">
+<meta property="og:description" content="The three layers that protect the shared click counter: increment-only database rules, Firebase App Check with reCAPTCHA Enterprise, and a short pause between clicks.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/what-protects-the-counter">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>Bots, App Check and a Cooldown: What Protects the Counter</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>A counter that anyone can click, with no account and no login, is an open invitation to automate. A script can press a button far faster than a person, and it never gets bored. If nothing stood in the way, the total would say more about one person's laptop than about the world.</p>
+  <p>Three layers stand in the way. Each does a different job.</p>
+
+  <h2>Layer one: the database only accepts "plus one"</h2>
+  <p>Every write to the counter is checked by rules inside the database. The new total must be exactly one more than the old one, nothing can be deleted, and the parts of a click have to agree with each other. That layer is described in <a href="/stories/how-one-shared-number-stays-honest">How One Shared Number Stays Honest</a>.</p>
+  <p>Rules can check what is being written. They cannot check who is writing it. That is the job of the second layer.</p>
+
+  <h2>Layer two: App Check asks "is this the real site?"</h2>
+  <p>Before the page talks to the database, it asks Google for a short-lived token. The token is evidence that the request comes from the genuine Click With The World site, running in an ordinary browser. The service is Firebase App Check, and the evidence comes from Google reCAPTCHA Enterprise.</p>
+  <p>This is not the kind of reCAPTCHA that shows a puzzle. App Check uses score-based keys, which work in the background, and according to Firebase's documentation the provider never asks a visitor to solve a challenge.</p>
+  <p>The token travels with every request the page makes to the database. Enforcement is switched on, which means a request without a valid token is refused. That applies to reading the numbers as well as to clicking.</p>
+  <p>Two details of how the site uses it:</p>
+  <ul>
+    <li>The page waits for its first token before it opens a connection to the database.</li>
+    <li>The token is renewed automatically in the background for as long as the page stays open.</li>
+  </ul>
+  <p>The check runs on every page that shows live numbers: Home, Milestones, Leaderboard and the embeddable widget. The widget is served from our own site inside a frame, so a click made on someone else's blog goes through exactly the same check.</p>
+
+  <h2>Layer three: a short pause between clicks</h2>
+  <p>After each click the button rests for 800 milliseconds. The database holds the same limit: it keeps the time of each browser's last click and refuses a new one that arrives less than 800 milliseconds later.</p>
+  <p>That time is filed under a random ID created in your browser. The ID is not linked to your name, your email or your IP address, and the stored times cannot be read back by other visitors.</p>
+  <p>The pause is short enough to feel instant to a person and long enough to take the point out of holding a key down.</p>
+
+  <h2>What you notice as a visitor</h2>
+  <p>Almost nothing. There is no puzzle and no sign-in. If a click doesn't count, the usual causes are:</p>
+  <ul>
+    <li>you clicked again during the pause,</li>
+    <li>you were briefly offline, or</li>
+    <li>a browser extension or privacy tool blocked the connection the check needs.</li>
+  </ul>
+  <p>Refreshing the page normally fixes it.</p>
+
+  <h2>What Google sees</h2>
+  <p>To make its judgement, Google may collect device and browser signals and may use cookies. The details, and links to Google's own policies, are in section 4 of our <a href="/privacy">Privacy Policy</a>. We do not keep our own log of failed checks.</p>
+
+  <h2>Why not accounts, or a puzzle on every click?</h2>
+  <p>Either would stop more bots. Either would also end the idea. The site exists so that anyone, anywhere, can add one to a shared number without handing anything over first. The protections were chosen to fit that, not the other way round.</p>
+
+  <h2>The limits</h2>
+  <p>No system is foolproof. These layers are there to make automated clicking difficult and unrewarding. We adjust the protections over time, and under the <a href="/terms">Terms of Use</a> we can correct counts that turn out to have come from automation.</p>
+
+  <h2>Source</h2>
+  <ul class="story-sources">
+    <li><a href="https://firebase.google.com/docs/app-check/web/recaptcha-enterprise-provider" target="_blank" rel="noopener">Get started using App Check with reCAPTCHA Enterprise in web apps, Firebase documentation</a></li>
+  </ul>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories/how-one-shared-number-stays-honest">&larr; How One Shared Number Stays Honest</a>
+    <a href="/stories/which-country-clicked">How We Know Which Country Clicked Without Storing Your IP &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

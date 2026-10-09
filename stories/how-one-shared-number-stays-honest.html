@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How One Shared Number Stays Honest — Click With The World</title>
+<meta name="description" content="The database rules behind every click on Click With The World: why each write must be exactly +1, why nothing can be deleted, and how milestone dates are kept.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/how-one-shared-number-stays-honest">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How One Shared Number Stays Honest — Click With The World">
+<meta property="og:description" content="The database rules behind every click on Click With The World: why each write must be exactly +1, why nothing can be deleted, and how milestone dates are kept.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/how-one-shared-number-stays-honest">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>How One Shared Number Stays Honest</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>Click With The World has one number that everyone can change. Anyone, anywhere, without an account, can open the site and make the total go up. That is the whole idea, and it is also the whole problem: a number anyone can change is a number someone will try to change by a million at once.</p>
+  <p>This article explains the rules that sit between your browser and that number.</p>
+
+  <h2>The database checks every write</h2>
+  <p>The total is stored in Google's Firebase Realtime Database, and your browser talks to it directly. No server of ours sits in the middle deciding what to accept. Instead, the database checks every write against a short list of rules before saving anything. If a write breaks a rule, it is rejected and the number does not move.</p>
+  <p>The starting point is that nothing may be written anywhere:</p>
+  <pre><code>".write": false</code></pre>
+  <p>Every exception is listed one by one: the world total, each country's total, today's total, the milestone dates, the short Live Clicks list, and a per-browser timestamp. Anything else is refused.</p>
+
+  <h2>Rule one: the new value is the old value plus one</h2>
+  <p>This is the rule for the world total:</p>
+  <pre><code>newData.isNumber() &amp;&amp; newData.val() == (data.exists() ? data.val() : 0) + 1</code></pre>
+  <p>In words: the value being saved must be a number, and it must be exactly one more than the value already there. Not "greater than". Exactly one more.</p>
+  <p>That single line rules out most mischief. Nobody's browser can set the total to a billion, lower it, reset it to zero, or replace it with a word. Each accepted write is one step. The same rule applies to every country's total and to the daily total.</p>
+
+  <h2>Rule two: nothing can be deleted</h2>
+  <p>A second condition sits beside the first on every counter:</p>
+  <pre><code>".write": "newData.exists()"</code></pre>
+  <p>To the database, deleting a value means writing "nothing" in its place. This rule says the new data must exist, so a delete is refused.</p>
+
+  <h2>Rule three: the parts of a click must agree</h2>
+  <p>A click is not one write. It changes several things together: the world total, your country's total, today's total and the Live Clicks list. They are sent as one update, and the database treats one update as all-or-nothing. If any part breaks a rule, none of it is saved.</p>
+  <p>The rules use this. Today's total may only go up by one if the world total goes up by one in the same update. The same holds for a new entry in Live Clicks. So the daily figure cannot run ahead of the total, and the list cannot fill with clicks that never happened.</p>
+  <p>Timing is checked too. The site records when each browser last clicked, and the rules reject a new time less than 800 milliseconds after the previous one. That timestamp travels in the same update as the click, so a click sent too quickly is refused whole.</p>
+
+  <h2>Rule four: a milestone date is written once</h2>
+  <p>When the total first reaches a number on the milestone ladder, from 1,000 up to 100,000,000, the date is saved. Three conditions apply:</p>
+  <ul>
+    <li>There must be no date there already. The first write wins and cannot be replaced.</li>
+    <li>The total must really be at or above that milestone.</li>
+    <li>The time must be the current time, within the last minute, so a date cannot be backdated.</li>
+  </ul>
+
+  <h2>Two people clicking at the same moment</h2>
+  <p>Suppose two people both see 41 and both send 42. One click would be lost. So the site never sends a number. It sends an instruction, "add one", and the database applies it to whatever the value is at that instant. The rule then checks the result. Two clicks at the same moment become 42 and 43.</p>
+
+  <h2>What the rules do not do</h2>
+  <p>Rules check the shape of a write: is it a number, and is it one more than before. They cannot see who is sending it. Telling the real site apart from a script is a separate job, done by Firebase App Check, which is the subject of <a href="/stories/what-protects-the-counter">the next article</a>.</p>
+  <p>The rules also apply to visitors, not to us. As the <a href="/terms">Terms of Use</a> say, we can correct the counts if we find clicks that were added by automation.</p>
+  <p>No set of rules is foolproof. What these give is a narrow door: the only thing a visitor's browser can do to the number is add one to it. The full rules file is in the project's <a href="https://github.com/Rehansrt/click-with-the-world/blob/main/database.rules.json" target="_blank" rel="noopener">public repository</a>.</p>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories">&larr; All stories</a>
+    <a href="/stories/what-protects-the-counter">Bots, App Check and a Cooldown: What Protects the Counter &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

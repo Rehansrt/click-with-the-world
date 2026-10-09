@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Making a Page That Runs reCAPTCHA Load Fast — Click With The World</title>
+<meta name="description" content="An account of fixing layout shift and slow first paint on a page that runs Google's bot check, with the PageSpeed figures before and after.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/loading-fast-with-recaptcha">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Making a Page That Runs reCAPTCHA Load Fast — Click With The World">
+<meta property="og:description" content="An account of fixing layout shift and slow first paint on a page that runs Google's bot check, with the PageSpeed figures before and after.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/loading-fast-with-recaptcha">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>Making a Page That Runs reCAPTCHA Load Fast</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>The Home page of Click With The World looks simple: a number and a button. Behind it, the page opens a live connection to a database and runs Google's bot check before a single click can count. Both are heavy. This is an account of making the page feel quick anyway, including the change that made it slower.</p>
+  <p>All figures are from Google's PageSpeed Insights tests of our own Home page.</p>
+
+  <h2>Where we started</h2>
+  <p>On 4 October 2026 the mobile score was 71 out of 100. The bigger problem was layout shift, the measure of how much a page jumps around while loading. Google counts a score of 0.1 or less as good and anything above 0.25 as poor. Ours was 0.365 on mobile and 0.809 on desktop.</p>
+  <p>In plain terms, the page appeared and then lurched.</p>
+
+  <h2>Problem one: the page jumped</h2>
+  <p>The test traces pointed to the order in which things loaded. A third-party script sat at the very top of the page, ahead of the stylesheets, and the page was being measured before its styles had arrived. When they landed, everything moved.</p>
+  <p>We made three changes together:</p>
+  <ul>
+    <li>The script was moved so that it comes after the stylesheets.</li>
+    <li>The web fonts stopped holding up the first draw. They now load in the background and swap in when ready.</li>
+    <li>The lists that fill in later, Top Countries and Live Clicks, were given reserved space, so their arrival pushes nothing down.</li>
+  </ul>
+  <p>Because these went in together, we can't say how much each one contributed. Layout shift came down to between 0 and 0.01.</p>
+
+  <h2>Problem two: we made it slower</h2>
+  <p>The same round of changes dropped the mobile score from 71 to 57. First Contentful Paint, the moment the first text or image appears, went out to 7.0 seconds.</p>
+  <p>The cause was a side effect. With less standing in their way, the page's own scripts started sooner. That meant the bot check began its work before the browser had drawn anything, and the first draw had to wait behind it.</p>
+  <p>The fix was to turn the order round. The page now waits until the browser reports that it has painted, and only then starts the counter's code and the check. Two safety nets cover the odd cases: a three-second timer in case no paint is ever reported, and an immediate start when the tab is opened in the background.</p>
+  <p>First Contentful Paint came back to 2.6 seconds, and the mobile score to 73 and 77 on two runs.</p>
+  <p>The lesson was an old one. Removing a delay in one place can move the work somewhere worse, so every change needs measuring on its own.</p>
+
+  <h2>Smaller changes</h2>
+  <ul>
+    <li>The large background image is fetched early, in a smaller version for phones.</li>
+    <li>The browser is told in advance which outside hosts it will need, so those connections open sooner.</li>
+    <li>Flag images are stored by the browser for a year and other images for 30 days.</li>
+    <li>One idea was taken back out. Fetching the database library early made the measured first paint worse.</li>
+  </ul>
+
+  <h2>Where it stands</h2>
+  <p>A test on 7 October 2026, mobile:</p>
+  <table>
+    <thead><tr><th>Measure</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Performance score</td><td>82</td></tr>
+      <tr><td>Layout shift</td><td>0.007</td></tr>
+      <tr><td>First Contentful Paint</td><td>2.6 s</td></tr>
+      <tr><td>Largest Contentful Paint</td><td>3.7 s</td></tr>
+      <tr><td>Total Blocking Time</td><td>210 ms</td></tr>
+    </tbody>
+  </table>
+  <p>Two things are not finished. Largest Contentful Paint was 2.6 seconds on 4 October and 3.7 seconds here, and we have not yet found out why. And the bot check still takes a noticeable share of the phone's processing time. We can't remove it, because it is what keeps the count fair.</p>
+  <p>Scores also move a few points from one run to the next, so single results should be read loosely.</p>
+
+  <h2>What a visitor sees now</h2>
+  <p>The page draws straight away with a dash where the number will be. A moment later the live total, the countries and the recent clicks fill in, and nothing on the page moves to make room for them.</p>
+
+  <h2>Source</h2>
+  <ul class="story-sources">
+    <li><a href="https://web.dev/articles/cls" target="_blank" rel="noopener">Cumulative Layout Shift (CLS), web.dev</a></li>
+  </ul>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories/live-number-on-a-link-preview">&larr; Putting a Live Number on a Link Preview</a>
+    <a href="/stories/one-counter-on-many-websites">One Counter on Many Websites &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

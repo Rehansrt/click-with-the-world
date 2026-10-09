@@ -101,9 +101,9 @@
 .sf-bottom a:hover { color: var(--sh-cyan); }
 .sf-sep { opacity: 0.5; }
 
-/* The header nav needs about 1050px to fit on one line, so below 1100px it
+/* The header nav needs about 1120px to fit on one line, so below 1180px it
    collapses behind the menu button instead of wrapping onto a second row. */
-@media (max-width: 1099px) {
+@media (max-width: 1179px) {
   .sh-inner { flex-wrap: wrap; }
   .sh-brand { margin-right: auto; }
   .sh-burger { display: inline-flex; }

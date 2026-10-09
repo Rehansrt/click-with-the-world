@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stories — Click With The World</title>
+<meta name="description" content="Articles about how Click With The World is built, how the count is kept fair, and the internet experiments that came before it.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stories — Click With The World">
+<meta property="og:description" content="Articles about how Click With The World is built, how the count is kept fair, and the internet experiments that came before it.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="c-hero">
+  <svg class="hero-art" viewBox="0 0 440 240" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M220 60c-40-22-90-26-150-14v150c60-12 110-8 150 14 40-22 90-26 150-14V46c-60-12-110-8-150 14z"/>
+    <path d="M220 60v150"/>
+    <path d="M100 86c30-4 60-2 90 8M100 116c30-4 60-2 90 8M100 146c30-4 60-2 90 8M250 94c30-10 60-12 90-8M250 124c30-10 60-12 90-8M250 154c30-10 60-12 90-8" opacity=".55"/>
+  </svg>
+  <div class="c-hero-inner">
+    <h1><span class="grad">Stories</span></h1>
+    <p>How the counter is built, how the count is kept fair, and where the idea comes from.</p>
+  </div>
+</section>
+
+<main class="c-main">
+
+  <section class="card" aria-labelledby="builtTitle" style="margin-top:-8px">
+    <div class="card-head">
+      <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></svg></span>
+      <div><h2 id="builtTitle">How It's Built</h2><p>The rules, checks and design choices behind one shared number.</p></div>
+    </div>
+    <ul class="story-list">
+        <li>
+          <h3><a href="/stories/how-one-shared-number-stays-honest">How One Shared Number Stays Honest</a></h3>
+          <p>The database rules behind every click: why each write must be exactly +1 and why nothing can be deleted.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/what-protects-the-counter">Bots, App Check and a Cooldown: What Protects the Counter</a></h3>
+          <p>The three checks every click passes: database rules, Firebase App Check and a short pause.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/which-country-clicked">How We Know Which Country Clicked Without Storing Your IP</a></h3>
+          <p>Where the country on the leaderboard comes from, what a click saves, and what it leaves out.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/live-number-on-a-link-preview">Putting a Live Number on a Link Preview</a></h3>
+          <p>How the share card is drawn on request with the real total, and why App Check forced a new way to read it.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/loading-fast-with-recaptcha">Making a Page That Runs reCAPTCHA Load Fast</a></h3>
+          <p>Fixing a page that jumped while loading, including the change that first made it slower.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/one-counter-on-many-websites">One Counter on Many Websites</a></h3>
+          <p>How the embeddable widget works, why it sits in its own frame, and why its clicks count toward the same total.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="contextTitle">
+    <div class="card-head">
+      <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4" ry="9.5"/><path d="M2.5 12h19"/></svg></span>
+      <div><h2 id="contextTitle">Context and History</h2><p>Earlier experiments, country rivalries, and what the big numbers mean.</p></div>
+    </div>
+    <ul class="story-list">
+        <li>
+          <h3><a href="/stories/internet-doing-one-thing-together">A Short History of the Internet Doing One Thing Together</a></h3>
+          <p>Five earlier experiments where everyone on a page did the same small thing, from 2005 to 2024.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/flags-make-people-click">Flags Make People Click</a></h3>
+          <p>What a national leaderboard changes about a simple button, from Popcat to the flags on r/place.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+        <li>
+          <h3><a href="/stories/how-big-is-a-million-clicks">How Big Is a Million Clicks?</a></h3>
+          <p>The milestone ladder as plain arithmetic: time at one click a second, and how many people a big number needs.</p>
+          <span class="meta">Rehan Sayyed, SRT Corporates &middot; <time datetime="2026-10-09">9 October 2026</time></span>
+        </li>
+    </ul>
+  </section>
+
+  <section class="card banner">
+    <div>
+      <h2>See the <span class="grad">live number.</span></h2>
+      <p>Every story here is about one counter.</p>
+    </div>
+    <a class="btn-outline" href="/">Go to the counter &rarr;</a>
+  </section>
+
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>

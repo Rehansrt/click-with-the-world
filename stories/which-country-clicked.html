@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How We Know Which Country Clicked Without Storing Your IP — Click With The World</title>
+<meta name="description" content="How Click With The World credits each click to a country using the connection's country code, what a click saves, and why your IP address is not stored.">
+<link rel="canonical" href="https://www.clickwiththeworld.fun/stories/which-country-clicked">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How We Know Which Country Clicked Without Storing Your IP — Click With The World">
+<meta property="og:description" content="How Click With The World credits each click to a country using the connection's country code, what a click saves, and why your IP address is not stored.">
+<meta property="og:url" content="https://www.clickwiththeworld.fun/stories/which-country-clicked">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="article:published_time" content="2026-10-09">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site-shell.css">
+<link rel="stylesheet" href="/pages.css">
+<!-- AdSense. Ads only render where a page has an ad section (see ad-slot.js); Stories pages have none. -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5895766839000240" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main class="prose story">
+  <p class="story-crumb"><a href="/stories">&larr; Stories</a></p>
+  <h1>How We Know Which Country Clicked Without Storing Your IP</h1>
+  <p class="updated">By Rehan Sayyed, SRT Corporates &middot; Published <time datetime="2026-10-09">9 October 2026</time></p>
+
+  <p>Every click on Click With The World is credited to a country. The leaderboard depends on it. Yet the site has no accounts, never asks where you are, and does not store your IP address. This is how those fit together.</p>
+
+  <h2>Step one: our host already has a rough idea</h2>
+  <p>Every request on the web arrives from an IP address. That is how the reply finds its way back to you.</p>
+  <p>Our hosting provider, Vercel, looks up the country associated with that address and attaches it to the request as a two-letter code, such as IN, BR or DE. Our page calls a very small function of ours that reads that one code and hands it back. The function reads nothing else, calls no outside service and saves nothing.</p>
+  <p>Vercel can estimate more than the country from the same address: region, city, postal code, even latitude and longitude. We read none of those. The country is the only thing a country leaderboard needs.</p>
+
+  <h2>Step two: a fallback, only when needed</h2>
+  <p>Occasionally Vercel has no country to offer. In that case a fallback service, ipwho.is, is asked instead. It receives your IP address, as any site you contact does, and returns a country code. We use only the code.</p>
+  <p>This fallback runs on the Home page and in the embeddable widget, where clicks happen. The <a href="/leaderboard">Leaderboard</a> page uses step one only. If that finds nothing, the "Your Country" card simply stays hidden.</p>
+
+  <h2>Once per visit</h2>
+  <p>The lookup happens once per visit, not once per click.</p>
+
+  <h2>What a click actually saves</h2>
+  <p>When you click, the click is credited to that country code. The database records:</p>
+  <ul>
+    <li>one more on the world total,</li>
+    <li>one more on that country's total,</li>
+    <li>one more on today's total, counted by UTC date,</li>
+    <li>an entry in the Live Clicks list holding the country code and the time, and</li>
+    <li>the time of your browser's last click, filed under a random ID, for the short pause between clicks.</li>
+  </ul>
+  <p>The Live Clicks list holds six entries. Each new click overwrites the oldest, so no history of individual clicks builds up.</p>
+  <p>What is not saved: your IP address, your name, your email, your city, or anything that describes your device.</p>
+
+  <h2>When it gets the country wrong</h2>
+  <p>Finding a country from an IP address is an estimate. It is usually right, but not always:</p>
+  <ul>
+    <li>With a VPN or proxy, your clicks are credited to the country the connection appears to come from.</li>
+    <li>Some mobile, corporate and satellite networks route traffic through another country.</li>
+  </ul>
+  <p>There is no country picker, so this cannot be corrected by hand. That is deliberate. The leaderboard is meant to show where clicks come from, not which flag people would choose.</p>
+
+  <h2>When there is no country at all</h2>
+  <p>If neither step finds a country, the click still counts. It adds to the world total and to today's total, but it is not added to any country's row, and the Live Clicks list shows it as a click with no country named.</p>
+  <p>This is also why the percentages on the leaderboard can add up to slightly less than 100.</p>
+
+  <h2>Who still sees your IP address</h2>
+  <p>Not storing an address is different from never receiving one. An IP address is part of every connection, so:</p>
+  <ul>
+    <li>Vercel, which hosts the site, keeps standard short-lived request logs.</li>
+    <li>Google receives it when the page connects to Firebase and reCAPTCHA.</li>
+    <li>ipwho.is receives it on the occasions the fallback is used.</li>
+  </ul>
+  <p>What we do is leave it out of our own data. The full list of services is in the <a href="/privacy">Privacy Policy</a>.</p>
+
+  <h2>Why not ask the browser for your location?</h2>
+  <p>Browsers can share a precise location if you grant permission. We don't ask. A country worked out from the connection is coarse on purpose, and it needs no permission prompt.</p>
+
+  <h2>Source</h2>
+  <ul class="story-sources">
+    <li><a href="https://vercel.com/docs/headers/request-headers" target="_blank" rel="noopener">Request headers, Vercel documentation</a></li>
+  </ul>
+
+  <nav class="story-nav" aria-label="More stories">
+    <a href="/stories/what-protects-the-counter">&larr; Bots, App Check and a Cooldown: What Protects the Counter</a>
+    <a href="/stories/live-number-on-a-link-preview">Putting a Live Number on a Link Preview &rarr;</a>
+  </nav>
+</main>
+
+<div id="site-footer"></div>
+
+<script type="module" src="/site-shell.js"></script>
+</body>
+</html>
