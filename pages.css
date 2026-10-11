@@ -197,6 +197,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .t-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
 .t-form label { display: flex; flex-direction: column; gap: 6px; color: var(--text-dim); font-size: 13px; }
 .t-opt { opacity: 0.8; }
+.t-form .t-name { flex-basis: 100%; }
+.t-form .t-name input { width: 100%; max-width: 340px; }
 .t-form input {
   height: 46px;
   padding: 0 12px;

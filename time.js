@@ -302,13 +302,19 @@ function fontsReady() {
   ]);
 }
 
-// Draws one 1080x1350 share card: a title, an optional highlighted line, a
-// list of label/value rows, and the site name with the page address.
-function drawCard(canvas, { title, highlight, rows }) {
+// Right-to-left scripts (Arabic, Urdu, Persian, Hebrew...).
+const RTL_TEXT = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/;
+
+// Draws one 1080x1350 share card: a title, an optional subtitle, an optional
+// highlighted line, a list of label/value rows, and the site name with the
+// page address. The title can be a visitor's name in any script.
+function drawCard(canvas, { title, subtitle, highlight, rows }) {
   canvas.width = IMG_W;
   canvas.height = IMG_H;
   const ctx = canvas.getContext("2d");
-  const HEAD = '"Space Grotesk", "Inter", system-ui, sans-serif';
+  // The site's heading font first; names in other scripts fall through to
+  // whatever system font has the glyphs.
+  const HEAD = '"Space Grotesk", "Inter", system-ui, "Segoe UI", "Nirmala UI", "Noto Sans", "Noto Sans Devanagari", "Noto Naskh Arabic", "Noto Nastaliq Urdu", Tahoma, Arial, sans-serif';
   const BODY = '"Inter", system-ui, sans-serif';
   const M = 84;
 
@@ -350,16 +356,39 @@ function drawCard(canvas, { title, highlight, rows }) {
   ctx.font = `600 26px ${BODY}`;
   ctx.fillText("CLICK WITH THE WORLD", M, 132);
 
+  // The title is shrunk to fit on one line; a right-to-left name is drawn
+  // with the canvas direction set to match.
   ctx.fillStyle = "#eaf6ff";
-  fit(title, 700, 70, HEAD, IMG_W - 2 * M);
-  ctx.fillText(title, M, 218);
+  ctx.textAlign = "left";
+  ctx.direction = RTL_TEXT.test(title) ? "rtl" : "ltr";
+  let titlePx = fit(title, 700, 70, HEAD, IMG_W - 2 * M);
+  let y = subtitle ? 226 : 218;
+  if (subtitle) {
+    // A name can be in a script that stands taller or hangs lower than Latin
+    // letters; shrink it until it clears the label above and the subtitle below.
+    for (;;) {
+      const m = ctx.measureText(title);
+      if (titlePx <= 28 || ((m.actualBoundingBoxAscent || 0) <= 70 && (m.actualBoundingBoxDescent || 0) <= 20)) break;
+      titlePx -= 2;
+      ctx.font = `700 ${titlePx}px ${HEAD}`;
+    }
+  }
+  ctx.fillText(title, M, y);
+  ctx.direction = "ltr";
 
-  let top = 262;
+  if (subtitle) {
+    y += 50;
+    ctx.fillStyle = "#d3e3f8";
+    ctx.font = `600 34px ${BODY}`;
+    ctx.fillText(subtitle, M, y);
+  }
+  let top = y + (subtitle ? 40 : 44);
   if (highlight) {
+    y += subtitle ? 48 : 72;
     ctx.fillStyle = "#27d3ff";
     fit(highlight, 600, 36, BODY, IMG_W - 2 * M);
-    ctx.fillText(highlight, M, 290);
-    top = 330;
+    ctx.fillText(highlight, M, y);
+    top = y + (subtitle ? 38 : 40);
   }
 
   const bottom = IMG_H - 220;
@@ -513,7 +542,13 @@ function setupTodayShare() {
 }
 
 // ---------- section 3: your birthday ----------
+// One entry holds everything the birthday tool remembers: { d, t, n } =
+// date of birth, time of birth and the optional name.
 const DOB_KEY = "cww_time_dob";
+const NAME_MAX = 30;
+// Trimmed and cut to 30 characters (counted as whole characters, so a name in
+// any script is never cut in the middle of one).
+const cleanName = (value) => [...String(value || "").trim()].slice(0, NAME_MAX).join("").trim();
 const BIRTHDAY_CALENDARS = CALENDARS.filter((c) => c.kind === "intl");
 
 function loadDob() {
@@ -632,7 +667,9 @@ function setupBirthday() {
   let birth = null;
   let renderedDay = null;
   const hideYear = el("hideYear");
+  const nameInput = el("uname");
   const shareCount = BIRTHDAY_CALENDARS.length;
+  let name = "";
 
   // What the Share row sends: the birth date in each Intl calendar. With
   // "Hide my birth year" on, the year and the age are left out of both the
@@ -645,10 +682,13 @@ function setupBirthday() {
       return [cal.short, hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth)];
     });
     const [y, mo, d] = ageParts(birth, new Date());
+    const heading = name ? `${name} — birthday in ${shareCount} calendars` : `My birthday in ${shareCount} calendars`;
     return {
-      text: [`My birthday in ${shareCount} calendars 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
+      text: [`${heading} 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
       card: {
-        title: `My birthday in ${shareCount} calendars`,
+        // With a name, the name is the big title and the rest moves to a subtitle.
+        title: name || `My birthday in ${shareCount} calendars`,
+        subtitle: name ? `Birthday in ${shareCount} calendars` : "",
         highlight: hide ? "" : `Age: ${plural(y, "year")}, ${plural(mo, "month")}, ${plural(d, "day")}`,
         rows,
       },
@@ -656,6 +696,15 @@ function setupBirthday() {
     };
   });
   hideYear.addEventListener("change", refreshShare);
+
+  // The name can be typed or changed after the results are showing; the share
+  // preview follows it, and it is remembered with the date of birth.
+  nameInput.addEventListener("input", () => {
+    name = cleanName(nameInput.value);
+    if (!birth) return;
+    saveDob({ d: dobInput.value, t: tobInput.value, n: name });
+    refreshShare();
+  });
 
   const todayIso = () => {
     const n = new Date();
@@ -689,6 +738,7 @@ function setupBirthday() {
   }
 
   function show(v) {
+    name = cleanName(v.n);
     birth = parseBirth(v.d, v.t);
     if (!birth || birth > new Date()) {
       birth = null;
@@ -718,7 +768,8 @@ function setupBirthday() {
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const v = { d: dobInput.value, t: tobInput.value };
+    const v = { d: dobInput.value, t: tobInput.value, n: cleanName(nameInput.value) };
+    nameInput.value = v.n;
     if (!show(v)) {
       errorEl.textContent = "Enter a date of birth that is not in the future.";
       errorEl.hidden = false;
@@ -731,6 +782,7 @@ function setupBirthday() {
   el("dobClear").addEventListener("click", () => {
     clearDob();
     birth = null;
+    name = "";
     hideYear.checked = false;
     form.reset();
     errorEl.hidden = true;
@@ -739,6 +791,7 @@ function setupBirthday() {
 
   const saved = loadDob();
   if (saved) {
+    nameInput.value = cleanName(saved.n);
     dobInput.value = saved.d;
     tobInput.value = saved.t || "";
     if (!show(saved)) clearDob();

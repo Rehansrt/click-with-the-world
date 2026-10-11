@@ -30,7 +30,7 @@
   "mainEntity": [
     {"@type":"Question","name":"Why is it a different year in different calendars?","acceptedAnswer":{"@type":"Answer","text":"Each calendar counts from its own starting point and measures the year in its own way: by the sun, by the moon, or by both. So the same day carries a different year number in each of them."}},
     {"@type":"Question","name":"Why might the Islamic date here differ from my local date?","acceptedAnswer":{"@type":"Answer","text":"This page uses the Umm al-Qura calendar, which is calculated in advance. Many communities begin each month when the new crescent moon is sighted locally, so the date where you live can be a day earlier or later."}},
-    {"@type":"Question","name":"Is my date of birth sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. It is saved only in your own browser, so the page can remember it next time. It is never sent to our servers or to anyone else, and the \"Clear my birthday\" button removes it."}},
+    {"@type":"Question","name":"Is my name or date of birth sent anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. They are saved only in your own browser, so the page can remember them next time. They are never sent to our servers or to anyone else, and the \"Clear my birthday\" button removes them."}},
     {"@type":"Question","name":"Where do the festival dates come from?","acceptedAnswer":{"@type":"Answer","text":"They are taken from published calendars for 2026 to 2028, mainly timeanddate.com and Drik Panchang. Dates that depend on sighting the moon, or that are not yet confirmed, are marked \"expected\" and can move by a day. Countdowns run to midnight in your own time zone; several traditions begin the day at sunset the evening before."}}
   ]
 }
@@ -129,6 +129,9 @@
     </div>
 
     <form id="dobForm" class="t-form" novalidate>
+      <label for="uname" class="t-name">Name <span class="t-opt">(optional)</span>
+        <input id="uname" name="uname" type="text" maxlength="30" autocomplete="off" dir="auto">
+      </label>
       <label for="dob">Date of birth
         <input id="dob" name="dob" type="date" min="1900-01-01" required>
       </label>
@@ -139,7 +142,7 @@
       <button id="dobClear" class="t-clear" type="button">Clear my birthday</button>
     </form>
     <p id="dobError" class="status err" hidden></p>
-    <p class="t-privacy">Your birthday stays in your browser. It's never sent to our servers.</p>
+    <p class="t-privacy">Your name and birthday stay in your browser. They're never sent to our servers.</p>
 
     <div id="bdayOut" hidden>
       <h3 class="t-sub">Your age right now</h3>
@@ -199,7 +202,7 @@
     <div class="faq-items">
       <details class="qa"><summary>Why is it a different year in different calendars?</summary><div class="ans"><p>Each calendar counts from its own starting point and measures the year in its own way: by the sun, by the moon, or by both. So the same day carries a different year number in each of them.</p></div></details>
       <details class="qa"><summary>Why might the Islamic date here differ from my local date?</summary><div class="ans"><p>This page uses the Umm al-Qura calendar, which is calculated in advance. Many communities begin each month when the new crescent moon is sighted locally, so the date where you live can be a day earlier or later.</p></div></details>
-      <details class="qa"><summary>Is my date of birth sent anywhere?</summary><div class="ans"><p>No. It is saved only in your own browser, so the page can remember it next time. It is never sent to our servers or to anyone else, and the "Clear my birthday" button removes it.</p></div></details>
+      <details class="qa"><summary>Is my name or date of birth sent anywhere?</summary><div class="ans"><p>No. They are saved only in your own browser, so the page can remember them next time. They are never sent to our servers or to anyone else, and the "Clear my birthday" button removes them.</p></div></details>
       <details class="qa"><summary>Where do the festival dates come from?</summary><div class="ans"><p>They are taken from published calendars for 2026 to 2028, mainly timeanddate.com and Drik Panchang. Dates that depend on sighting the moon, or that are not yet confirmed, are marked "expected" and can move by a day. Countdowns run to midnight in your own time zone; several traditions begin the day at sunset the evening before.</p></div></details>
     </div>
   </section>
