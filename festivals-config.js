@@ -75,7 +75,7 @@ export const FESTIVALS = [
   {
     name: "Sharad Navratri begins",
     tradition: "Hindu",
-    note: "First day of Sharad Navratri.",
+    note: "Nine nights honouring the Goddess Durga; ends with Dussehra.",
     dates: [
       { date: "2026-10-11" }, // T&D india/2026: Sun 11 Oct, First Day of Sharad Navratri
       { date: "2027-09-30" }, // T&D india/2027: Thu 30 Sep, First Day of Sharad Navratri
