@@ -96,33 +96,35 @@ function nanakshahiParts(date) {
 const SHAKA_NOTE = "Approximate year change; the traditional new year (Chaitra Shukla Pratipada) follows the lunar calendar.";
 
 // One entry per card. All cards share one design; the order is not a ranking.
+// `tradition` is the label shown under the calendar's name everywhere: on the
+// cards, in the birthday results, and in the birthday share text and image.
 // kind: "intl" (Intl calendar), "offset" (year derived from another Intl
 // calendar, year number only) or "nanakshahi".
 const CALENDAR_DEFS = [
-  { id: "gregory", kind: "intl", intl: "gregory", name: "Gregorian", short: "Gregorian", tradition: "Common Era · Christian", suffix: "CE",
+  { id: "gregory", kind: "intl", intl: "gregory", name: "Gregorian", short: "Gregorian", tradition: "Christian · Global civil", suffix: "CE",
     started: "1 CE", origin: "traditional count from the birth of Jesus (Anno Domini); Gregorian reform 1582" },
-  { id: "islamic", kind: "intl", intl: "islamic-umalqura", name: "Islamic Hijri", short: "Hijri", tradition: "Islam", suffix: "AH",
+  { id: "islamic", kind: "intl", intl: "islamic-umalqura", name: "Islamic Hijri", short: "Hijri", tradition: "Islamic", suffix: "AH",
     started: "622 CE", origin: "the Hijra (Prophet Muhammad's migration from Mecca to Medina)", solarFrom: 622,
     note: "Based on Umm al-Qura; local moon sighting may differ by ±1 day." },
   { id: "hebrew", kind: "intl", intl: "hebrew", name: "Hebrew", short: "Hebrew", tradition: "Jewish", suffix: "",
     started: "3761 BCE", origin: "traditional count from Creation (Anno Mundi)" },
-  { id: "persian", kind: "intl", intl: "persian", name: "Persian (Solar Hijri)", short: "Persian", tradition: "Iran · Afghanistan", suffix: "AP",
+  { id: "persian", kind: "intl", intl: "persian", name: "Persian (Solar Hijri)", short: "Persian", tradition: "Iranian", suffix: "AP",
     started: "622 CE", origin: "the Hijra, counted in solar years from Nowruz" },
-  { id: "shaka", kind: "intl", intl: "indian", name: "Shaka", short: "Shaka", tradition: "Hindu · Indian National Calendar", suffix: "Saka", expired: true,
+  { id: "shaka", kind: "intl", intl: "indian", name: "Shaka", short: "Shaka", tradition: "Hindu · Indian national", suffix: "Saka", expired: true,
     started: "78 CE", origin: "Shaka era; adopted as India's national calendar in 1957" },
   { id: "vikram", kind: "offset", intl: "indian", offset: 135, name: "Vikram Samvat", short: "Vikram Samvat", tradition: "Hindu", expired: true,
     started: "57 BCE", origin: "traditionally linked to King Vikramaditya", note: SHAKA_NOTE },
   { id: "kali", kind: "offset", intl: "indian", offset: 3179, name: "Kali Yuga", short: "Kali Yuga", tradition: "Hindu", expired: true,
     started: "3102 BCE", origin: "traditional start of the Kali Yuga", note: SHAKA_NOTE },
-  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", short: "Buddhist", tradition: "Buddhism", suffix: "BE",
+  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", short: "Buddhist", tradition: "Buddhist (Thai)", suffix: "BE",
     started: "543 BCE", origin: "traditional year of the Buddha's Parinirvana (Thai reckoning)",
     note: "Thai reckoning; Sri Lanka/Myanmar count differs by 1 year." },
   { id: "nanakshahi", kind: "nanakshahi", name: "Nanakshahi", short: "Nanakshahi", tradition: "Sikh", suffix: "NS",
     started: "1469 CE", origin: "birth of Guru Nanak Dev Ji; calendar introduced 2003",
     note: "Fixed dates of the original (2003) Nanakshahi calendar." },
-  { id: "ethiopic", kind: "intl", intl: "ethiopic", name: "Ethiopian", short: "Ethiopian", tradition: "Ethiopia · Eritrea", suffix: "",
+  { id: "ethiopic", kind: "intl", intl: "ethiopic", name: "Ethiopian", short: "Ethiopian", tradition: "Ethiopian Orthodox", suffix: "",
     started: "8 CE", origin: "Ethiopian Incarnation era" },
-  { id: "chinese", kind: "intl", intl: "chinese", name: "Chinese", short: "Chinese", tradition: "Chinese lunisolar", suffix: "",
+  { id: "chinese", kind: "intl", intl: "chinese", name: "Chinese", short: "Chinese", tradition: "Chinese · East Asian", suffix: "",
     cycle: "Counted in 60-year cycles; no single starting year" },
 ];
 
@@ -306,8 +308,10 @@ function fontsReady() {
 const RTL_TEXT = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/;
 
 // Draws one 1080x1350 share card: a title, an optional subtitle, an optional
-// highlighted line, a list of label/value rows, and the site name with the
-// page address. The title can be a visitor's name in any script.
+// highlighted line, a list of rows, and the site name with the page address.
+// A row is [label, value] or [label, value, sublabel]; the sublabel is drawn
+// smaller and dimmer under the label. The title can be a visitor's name in
+// any script.
 function drawCard(canvas, { title, subtitle, highlight, rows }) {
   canvas.width = IMG_W;
   canvas.height = IMG_H;
@@ -393,7 +397,7 @@ function drawCard(canvas, { title, subtitle, highlight, rows }) {
 
   const bottom = IMG_H - 220;
   const rowH = Math.min(96, (bottom - top) / rows.length);
-  rows.forEach(([label, value], i) => {
+  rows.forEach(([label, value, sub], i) => {
     const y = top + rowH * i;
     ctx.strokeStyle = "rgba(39, 211, 255, 0.22)";
     ctx.lineWidth = 1.5;
@@ -405,8 +409,16 @@ function drawCard(canvas, { title, subtitle, highlight, rows }) {
     ctx.textAlign = "left";
     ctx.fillStyle = "#9fb6d9";
     ctx.font = `400 30px ${BODY}`;
-    ctx.fillText(label, M, base);
-    const labelWidth = ctx.measureText(label).width;
+    // With a sublabel the label moves up and the two lines share the row.
+    ctx.fillText(label, M, sub ? base - 16 : base);
+    let labelWidth = ctx.measureText(label).width;
+    if (sub) {
+      ctx.fillStyle = "rgba(159, 182, 217, 0.72)";
+      ctx.font = `400 22px ${BODY}`;
+      ctx.fillText(sub, M, base + 16);
+      labelWidth = Math.max(labelWidth, ctx.measureText(sub).width);
+    }
+    // The value is shrunk to whatever room the label column leaves.
     ctx.textAlign = "right";
     ctx.fillStyle = "#eaf6ff";
     fit(value, 600, 34, BODY, IMG_W - 2 * M - labelWidth - 36);
@@ -679,12 +691,12 @@ function setupBirthday() {
     const hide = hideYear.checked;
     const rows = BIRTHDAY_CALENDARS.map((cal) => {
       const p = cal.parts(birth);
-      return [cal.short, hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth)];
+      return [cal.short, hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth), cal.tradition];
     });
     const [y, mo, d] = ageParts(birth, new Date());
     const heading = name ? `${name} — birthday in ${shareCount} calendars` : `My birthday in ${shareCount} calendars`;
     return {
-      text: [`${heading} 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
+      text: [`${heading} 🌍`, ...rows.map(([k, v, sub]) => `${k} (${sub}): ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
       card: {
         // With a name, the name is the big title and the rest moves to a subtitle.
         title: name || `My birthday in ${shareCount} calendars`,
@@ -717,7 +729,7 @@ function setupBirthday() {
     renderedDay = dayKey(today);
 
     el("bornRows").innerHTML = CALENDARS.map(
-      (cal) => `<li><span class="t-k">${cal.name}</span><span class="t-v">${dateText(cal, birth)}</span></li>`
+      (cal) => `<li><span class="t-k">${cal.short}<small>${cal.tradition}</small></span><span class="t-v">${dateText(cal, birth)}</span></li>`
     ).join("");
 
     el("nextRows").innerHTML = BIRTHDAY_CALENDARS.map((cal) => {
@@ -726,7 +738,7 @@ function setupBirthday() {
       const inDays = daysBetween(today, n.date);
       const when = inDays === 0 ? "today" : inDays === 1 ? "tomorrow" : `in ${fmtInt(inDays)} days`;
       return `<li>
-        <span class="t-k">${cal.name}</span>
+        <span class="t-k">${cal.short}<small>${cal.tradition}</small></span>
         <span class="t-v">${GREG_LONG.format(n.date)} <em>${when}</em>
           <small>${dateText(cal, n.date)}${n.turning > 0 ? ` · turning ${fmtInt(n.turning)}` : ""}</small>
           ${n.note ? `<small class="t-warn">${n.note}</small>` : ""}

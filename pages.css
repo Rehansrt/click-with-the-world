@@ -261,6 +261,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .t-rows li:last-child { border-bottom: 0; }
 .t-k { color: var(--text-dim); }
+.t-k small { display: block; font-size: 12.5px; opacity: 0.8; }
 .t-v { color: var(--text); overflow-wrap: anywhere; }
 .t-v em { color: var(--cyan); font-style: normal; font-size: 13.5px; margin-left: 6px; }
 .t-v small { display: block; color: var(--text-dim); font-size: 13px; }
