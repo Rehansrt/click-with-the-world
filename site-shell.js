@@ -12,6 +12,7 @@ export const PAGES = [
   { label: "Leaderboard", href: "/leaderboard", live: true },
   { label: "Stories", href: "/stories", live: true },
   { label: "Embed", href: "/embed-this", live: true },
+  { label: "Time", href: "/time", live: true },
   { label: "Partner", href: "/sponsor", live: true },
   { label: "About", href: "/about", live: true },
   { label: "FAQ", href: "/faq", live: true },
