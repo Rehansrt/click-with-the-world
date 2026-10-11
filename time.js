@@ -31,6 +31,7 @@ const durationText = (ms) => {
 };
 
 const GREG_LONG = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" });
+const GREG_SHORT = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 // ---------- calendars ----------
 const SUPPORTED = (() => {
@@ -116,7 +117,7 @@ const CALENDAR_DEFS = [
     started: "57 BCE", origin: "traditionally linked to King Vikramaditya", note: SHAKA_NOTE },
   { id: "kali", kind: "offset", intl: "indian", offset: 3179, name: "Kali Yuga", short: "Kali Yuga", tradition: "Hindu", expired: true,
     started: "3102 BCE", origin: "traditional start of the Kali Yuga", note: SHAKA_NOTE },
-  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", short: "Buddhist", tradition: "Buddhist (Thai)", suffix: "BE",
+  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", short: "Buddhist", tradition: "Buddhist (Thai)", shareLabel: "Buddhist (Thai)", suffix: "BE",
     started: "543 BCE", origin: "traditional year of the Buddha's Parinirvana (Thai reckoning)",
     note: "Thai reckoning; Sri Lanka/Myanmar count differs by 1 year." },
   { id: "nanakshahi", kind: "nanakshahi", name: "Nanakshahi", short: "Nanakshahi", tradition: "Sikh", suffix: "NS",
@@ -127,6 +128,9 @@ const CALENDAR_DEFS = [
   { id: "chinese", kind: "intl", intl: "chinese", name: "Chinese", short: "Chinese", tradition: "Chinese · East Asian", suffix: "",
     cycle: "Counted in 60-year cycles; no single starting year" },
 ];
+
+// How a calendar is named in share text: "Hijri (Islamic)".
+const shareName = (cal) => cal.shareLabel || `${cal.short} (${cal.tradition})`;
 
 // Calendars the browser can't do are dropped here, so their cards never render.
 const CALENDARS = CALENDAR_DEFS.map((def) => {
@@ -309,9 +313,9 @@ const RTL_TEXT = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/;
 
 // Draws one 1080x1350 share card: a title, an optional subtitle, an optional
 // highlighted line, a list of rows, and the site name with the page address.
-// A row is [label, value] or [label, value, sublabel]; the sublabel is drawn
-// smaller and dimmer under the label. The title can be a visitor's name in
-// any script.
+// A row is [label, value, sublabel, subvalue]; the last two are optional and
+// are drawn smaller and dimmer under the label and under the value. The title
+// can be a visitor's name in any script.
 function drawCard(canvas, { title, subtitle, highlight, rows }) {
   canvas.width = IMG_W;
   canvas.height = IMG_H;
@@ -397,7 +401,7 @@ function drawCard(canvas, { title, subtitle, highlight, rows }) {
 
   const bottom = IMG_H - 220;
   const rowH = Math.min(96, (bottom - top) / rows.length);
-  rows.forEach(([label, value, sub], i) => {
+  rows.forEach(([label, value, sub, subValue], i) => {
     const y = top + rowH * i;
     ctx.strokeStyle = "rgba(39, 211, 255, 0.22)";
     ctx.lineWidth = 1.5;
@@ -421,8 +425,14 @@ function drawCard(canvas, { title, subtitle, highlight, rows }) {
     // The value is shrunk to whatever room the label column leaves.
     ctx.textAlign = "right";
     ctx.fillStyle = "#eaf6ff";
-    fit(value, 600, 34, BODY, IMG_W - 2 * M - labelWidth - 36);
-    ctx.fillText(value, IMG_W - M, base);
+    const room = IMG_W - 2 * M - labelWidth - 36;
+    fit(value, 600, subValue ? 32 : 34, BODY, room);
+    ctx.fillText(value, IMG_W - M, subValue ? base - 16 : base);
+    if (subValue) {
+      ctx.fillStyle = "rgba(159, 182, 217, 0.9)";
+      fit(subValue, 400, 22, BODY, room, 16);
+      ctx.fillText(subValue, IMG_W - M, base + 16);
+    }
   });
   ctx.textAlign = "left";
 
@@ -527,9 +537,15 @@ function setupTodayShare() {
     const now = new Date();
     const today = startOfDay(now);
     const rows = CALENDARS.map((cal) => [cal.short, dateText(cal, today)]);
-    rows.push(["Click With The World", `Day ${siteDay(now)}`]);
+    const dayLine = `Day ${siteDay(now)}`;
+    rows.push(["Click With The World", dayLine]);
     return {
-      text: [`Today in ${count} calendars 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `See yours: ${SHARE_URL}`].join("\n"),
+      text: [
+        `Today in ${count} calendars 🌍`,
+        ...CALENDARS.map((cal) => `${shareName(cal)}: ${dateText(cal, today)}`),
+        `Click With The World: ${dayLine}`,
+        `See yours: ${SHARE_URL}`,
+      ].join("\n"),
       card: { title: "Today around the world", rows },
       fileName: "today-around-the-world.png",
     };
@@ -683,20 +699,37 @@ function setupBirthday() {
   const shareCount = BIRTHDAY_CALENDARS.length;
   let name = "";
 
-  // What the Share row sends: the birth date in each Intl calendar. With
-  // "Hide my birth year" on, the year and the age are left out of both the
-  // text and the image.
+  // What the Share row sends: the birth date in each Intl calendar, with the
+  // next birthday in that calendar (the same search the results list uses).
+  // With "Hide my birth year" on, the birth year and the age are left out of
+  // both the text and the image; the next birthdays are future dates and stay.
   const refreshShare = setupSharePanel(el("bdayShare"), () => {
     if (!birth) return null;
     const hide = hideYear.checked;
+    const now = new Date();
+    const today = startOfDay(now);
+    const lines = [];
     const rows = BIRTHDAY_CALENDARS.map((cal) => {
       const p = cal.parts(birth);
-      return [cal.short, hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth), cal.tradition];
+      const value = hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth);
+      const next = nextBirthday(cal, birth, today);
+      let nextText = "";
+      let nextCard = "";
+      if (next) {
+        const inDays = daysBetween(today, next.date);
+        const date = GREG_SHORT.format(next.date);
+        // Hijri dates ahead depend on the moon, so the card marks them expected.
+        const expected = cal.id === "islamic" ? " (exp.)" : "";
+        nextText = inDays === 0 ? " → next: today" : ` → next: ${date}`;
+        nextCard = inDays === 0 ? "Today! 🎉" : `Next: ${date}${expected} · in ${plural(inDays, "day")}`;
+      }
+      lines.push(`${shareName(cal)}: ${value}${nextText}`);
+      return [cal.short, value, cal.tradition, nextCard];
     });
-    const [y, mo, d] = ageParts(birth, new Date());
+    const [y, mo, d] = ageParts(birth, now);
     const heading = name ? `${name} — birthday in ${shareCount} calendars` : `My birthday in ${shareCount} calendars`;
     return {
-      text: [`${heading} 🌍`, ...rows.map(([k, v, sub]) => `${k} (${sub}): ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
+      text: [`${heading} 🌍`, ...lines, `Find yours: ${SHARE_URL}`].join("\n"),
       card: {
         // With a name, the name is the big title and the rest moves to a subtitle.
         title: name || `My birthday in ${shareCount} calendars`,
