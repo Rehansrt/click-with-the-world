@@ -5,6 +5,7 @@
 // ships so no link ever points at a 404.
 
 import { sponsorConfig } from "./sponsor-config.js";
+import { SITE_START } from "./site-config.js";
 
 export const PAGES = [
   { label: "Home", href: "/", live: true },
@@ -94,11 +95,22 @@ function renderHeader(el) {
   });
 }
 
+// "Counting since 2 Oct 2026 · Day 10": whole days since the counter started,
+// plus one, worked out in the visitor's browser. Empty if the date is unusable.
+function sinceLine() {
+  const start = new Date(SITE_START);
+  const days = Math.floor((Date.now() - start) / 86400000);
+  if (Number.isNaN(days) || days < 0) return "";
+  const date = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(start);
+  return `Counting since ${date} · Day ${(days + 1).toLocaleString("en-US")}`;
+}
+
 function renderFooter(el) {
   const active = currentPath();
   const legal = LEGAL_LINKS.filter((l) => l.live)
     .map((l) => `<a href="${l.href}">${l.label}</a>`)
     .join('<span class="sf-sep" aria-hidden="true">|</span>');
+  const since = sinceLine();
   el.innerHTML = `
     <div class="sf-inner">
       <a class="sh-brand" href="/">
@@ -109,6 +121,7 @@ function renderFooter(el) {
     </div>
     <div class="sf-bottom">
       <span>&copy; 2026 Click With The World</span>${legal ? '<span class="sf-sep" aria-hidden="true">|</span>' + legal : ""}
+      ${since ? `<span class="sf-since">${since}</span>` : ""}
     </div>`;
 }
 

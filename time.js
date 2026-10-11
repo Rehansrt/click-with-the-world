@@ -2,10 +2,12 @@
 // Everything is computed in the browser with the built-in Intl API. The page
 // talks to no service of ours or anyone else's: no Firebase, no fetch.
 import { FESTIVALS } from "./festivals-config.js";
+import { SITE_START } from "./site-config.js";
 
 const el = (id) => document.getElementById(id);
 const pad = (n) => String(n).padStart(2, "0");
 const fmtInt = (n) => n.toLocaleString("en-US");
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 // ---------- date helpers (local time; calendar days start at local midnight) ----------
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -76,6 +78,7 @@ const NANAKSHAHI_MONTHS = [
   ["Sawan", 6, 16], ["Bhadon", 7, 16], ["Assu", 8, 15], ["Katak", 9, 15],
   ["Maghar", 10, 14], ["Poh", 11, 14], ["Magh", 0, 13], ["Phagun", 1, 12],
 ];
+const NANAKSHAHI_NAMES = NANAKSHAHI_MONTHS.map(([name]) => name);
 function nanakshahiParts(date) {
   const d = startOfDay(date);
   const gy = d.getFullYear();
@@ -96,17 +99,31 @@ const SHAKA_NOTE = "Approximate year change; the traditional new year (Chaitra S
 // kind: "intl" (Intl calendar), "offset" (year derived from another Intl
 // calendar, year number only) or "nanakshahi".
 const CALENDAR_DEFS = [
-  { id: "gregory", kind: "intl", intl: "gregory", name: "Gregorian", tradition: "Common Era · Christian", suffix: "CE" },
-  { id: "islamic", kind: "intl", intl: "islamic-umalqura", name: "Islamic Hijri", tradition: "Islam", suffix: "AH", note: "Based on Umm al-Qura; local moon sighting may differ by ±1 day." },
-  { id: "hebrew", kind: "intl", intl: "hebrew", name: "Hebrew", tradition: "Jewish", suffix: "" },
-  { id: "persian", kind: "intl", intl: "persian", name: "Persian (Solar Hijri)", tradition: "Iran · Afghanistan", suffix: "AP" },
-  { id: "shaka", kind: "intl", intl: "indian", name: "Shaka", tradition: "Hindu · Indian National Calendar", suffix: "Saka" },
-  { id: "vikram", kind: "offset", intl: "indian", offset: 135, name: "Vikram Samvat", tradition: "Hindu", note: SHAKA_NOTE },
-  { id: "kali", kind: "offset", intl: "indian", offset: 3179, name: "Kali Yuga", tradition: "Hindu", note: SHAKA_NOTE },
-  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", tradition: "Buddhism", suffix: "BE", note: "Thai reckoning; Sri Lanka/Myanmar count differs by 1 year." },
-  { id: "nanakshahi", kind: "nanakshahi", name: "Nanakshahi", tradition: "Sikh", suffix: "NS", note: "Fixed dates of the original (2003) Nanakshahi calendar." },
-  { id: "ethiopic", kind: "intl", intl: "ethiopic", name: "Ethiopian", tradition: "Ethiopia · Eritrea", suffix: "" },
-  { id: "chinese", kind: "intl", intl: "chinese", name: "Chinese", tradition: "Chinese lunisolar", suffix: "" },
+  { id: "gregory", kind: "intl", intl: "gregory", name: "Gregorian", short: "Gregorian", tradition: "Common Era · Christian", suffix: "CE",
+    started: "1 CE", origin: "traditional count from the birth of Jesus (Anno Domini); Gregorian reform 1582" },
+  { id: "islamic", kind: "intl", intl: "islamic-umalqura", name: "Islamic Hijri", short: "Hijri", tradition: "Islam", suffix: "AH",
+    started: "622 CE", origin: "the Hijra (Prophet Muhammad's migration from Mecca to Medina)", solarFrom: 622,
+    note: "Based on Umm al-Qura; local moon sighting may differ by ±1 day." },
+  { id: "hebrew", kind: "intl", intl: "hebrew", name: "Hebrew", short: "Hebrew", tradition: "Jewish", suffix: "",
+    started: "3761 BCE", origin: "traditional count from Creation (Anno Mundi)" },
+  { id: "persian", kind: "intl", intl: "persian", name: "Persian (Solar Hijri)", short: "Persian", tradition: "Iran · Afghanistan", suffix: "AP",
+    started: "622 CE", origin: "the Hijra, counted in solar years from Nowruz" },
+  { id: "shaka", kind: "intl", intl: "indian", name: "Shaka", short: "Shaka", tradition: "Hindu · Indian National Calendar", suffix: "Saka", expired: true,
+    started: "78 CE", origin: "Shaka era; adopted as India's national calendar in 1957" },
+  { id: "vikram", kind: "offset", intl: "indian", offset: 135, name: "Vikram Samvat", short: "Vikram Samvat", tradition: "Hindu", expired: true,
+    started: "57 BCE", origin: "traditionally linked to King Vikramaditya", note: SHAKA_NOTE },
+  { id: "kali", kind: "offset", intl: "indian", offset: 3179, name: "Kali Yuga", short: "Kali Yuga", tradition: "Hindu", expired: true,
+    started: "3102 BCE", origin: "traditional start of the Kali Yuga", note: SHAKA_NOTE },
+  { id: "buddhist", kind: "intl", intl: "buddhist", name: "Buddhist", short: "Buddhist", tradition: "Buddhism", suffix: "BE",
+    started: "543 BCE", origin: "traditional year of the Buddha's Parinirvana (Thai reckoning)",
+    note: "Thai reckoning; Sri Lanka/Myanmar count differs by 1 year." },
+  { id: "nanakshahi", kind: "nanakshahi", name: "Nanakshahi", short: "Nanakshahi", tradition: "Sikh", suffix: "NS",
+    started: "1469 CE", origin: "birth of Guru Nanak Dev Ji; calendar introduced 2003",
+    note: "Fixed dates of the original (2003) Nanakshahi calendar." },
+  { id: "ethiopic", kind: "intl", intl: "ethiopic", name: "Ethiopian", short: "Ethiopian", tradition: "Ethiopia · Eritrea", suffix: "",
+    started: "8 CE", origin: "Ethiopian Incarnation era" },
+  { id: "chinese", kind: "intl", intl: "chinese", name: "Chinese", short: "Chinese", tradition: "Chinese lunisolar", suffix: "",
+    cycle: "Counted in 60-year cycles; no single starting year" },
 ];
 
 // Calendars the browser can't do are dropped here, so their cards never render.
@@ -126,6 +143,35 @@ function dateText(cal, date) {
   if (cal.kind === "offset") return `Year ${p.year + cal.offset}`;
   if (cal.id === "chinese") return `${p.day} ${tidyMonth(p.month)}, Year of the ${chineseYearName(p.year)}`;
   return `${p.day} ${p.month} ${p.year}${cal.suffix ? " " + cal.suffix : ""}`;
+}
+
+// Completed months since the calendar's own new year: the number of times
+// the month changes between the first day of the year and today.
+function monthsCompleted(cal, start, today) {
+  if (cal.kind === "nanakshahi") return NANAKSHAHI_NAMES.indexOf(cal.parts(today).month);
+  let count = 0;
+  let prev = cal.parts(start).month;
+  for (let d = addDays(start, 1); d <= today; d = addDays(d, 1)) {
+    const m = cal.parts(d).month;
+    if (m !== prev) {
+      count++;
+      prev = m;
+    }
+  }
+  return count;
+}
+
+// How long the calendar has been counting, in its own years and months.
+// Most eras number the year in progress, so the completed years are one fewer
+// than the year number; the Indian eras count years already expired. The two
+// year-only calendars get years and days, from the approximate year start.
+function ageText(cal, today, start) {
+  if (cal.cycle) return "";
+  const p = cal.parts(today);
+  const year = p.year + (cal.offset || 0);
+  const years = cal.expired ? year : year - 1;
+  if (cal.kind === "offset") return `Age: ${plural(years, "year")}, ${plural(daysBetween(start, today), "day")} (approximate)`;
+  return `Age: ${plural(years, "year")}, ${plural(monthsCompleted(cal, start, today), "month")}, ${plural(p.day - 1, "day")}`;
 }
 
 // Step back one day at a time until the year number changes.
@@ -176,19 +222,32 @@ function buildCalendarCards() {
       <p class="t-trad">${cal.tradition}</p>
       <p class="t-date"></p>
       <p class="t-timer"><span class="t-num"></span><small>into this year</small></p>
+      <p class="t-origin">${cal.cycle ? cal.cycle : `<b>Started:</b> ${cal.started} — ${cal.origin}`}</p>
+      ${cal.cycle ? "" : '<p class="t-ageline"></p>'}
+      ${cal.solarFrom ? '<p class="t-ageline t-solar"></p>' : ""}
       ${cal.id === "chinese" ? '<p class="t-note t-cycle"></p>' : ""}
       ${cal.note ? `<p class="t-note">${cal.note}</p>` : ""}`;
     grid.append(card);
-    return { cal, dateEl: card.querySelector(".t-date"), numEl: card.querySelector(".t-num"), cycleEl: card.querySelector(".t-cycle"), start: null };
+    return {
+      cal,
+      dateEl: card.querySelector(".t-date"),
+      numEl: card.querySelector(".t-num"),
+      ageEl: card.querySelector(".t-ageline"),
+      solarEl: card.querySelector(".t-solar"),
+      cycleEl: card.querySelector(".t-cycle"),
+      start: null,
+    };
   });
 
   tickers.push((now) => {
-    // Dates and year starts only change when the local day does.
+    // Dates, year starts and ages only change when the local day does.
     if (!today || dayKey(today) !== dayKey(now)) {
       today = startOfDay(now);
       for (const c of cards) {
         c.dateEl.textContent = dateText(c.cal, today);
         c.start = yearStart(c.cal, today);
+        if (c.ageEl) c.ageEl.textContent = ageText(c.cal, today, c.start);
+        if (c.solarEl) c.solarEl.textContent = `≈ ${today.getFullYear() - c.cal.solarFrom} solar years`;
         if (c.cycleEl) {
           const p = c.cal.parts(today);
           c.cycleEl.textContent = `Cycle name ${p.yearName}; the year began in ${p.year} CE.`;
@@ -196,6 +255,260 @@ function buildCalendarCards() {
       }
     }
     for (const c of cards) c.numEl.textContent = durationText(now - c.start);
+  });
+}
+
+// ---------- this website's age ----------
+const SITE_START_DATE = new Date(SITE_START);
+// Day 1 is the first 24 hours after the start.
+const siteDay = (now) => Math.floor((now - SITE_START_DATE) / 86400000) + 1;
+
+function setupSiteAge() {
+  const out = el("siteAge");
+  const since = el("siteSince");
+  if (!out || Number.isNaN(SITE_START_DATE.getTime())) return;
+  // The start date is written as it reads in India, where the counter began.
+  const startText = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" }).format(SITE_START_DATE);
+  since.textContent = `Counting since ${startText} — the day the world counter started from zero.`;
+  tickers.push((now) => {
+    if (now < SITE_START_DATE) {
+      out.textContent = "—";
+      return;
+    }
+    const [y, mo, d, h, mi, s] = ageParts(SITE_START_DATE, now);
+    const bits = [];
+    if (y) bits.push(plural(y, "year"));
+    if (mo) bits.push(plural(mo, "month"));
+    bits.push(plural(d, "day"));
+    out.textContent = `${bits.join(", ")}, ${pad(h)}:${pad(mi)}:${pad(s)}`;
+  });
+}
+
+// ---------- sharing ----------
+// Share text and images are built here, in the browser. The link is always
+// the plain page address: nothing about the visitor is ever put in a URL of
+// this site.
+const SHARE_URL = "https://www.clickwiththeworld.fun/time";
+const IMG_W = 1080;
+const IMG_H = 1350;
+
+// The canvas uses the site's own fonts; wait briefly for them, then draw anyway.
+function fontsReady() {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  const wanted = ['700 64px "Space Grotesk"', '600 34px "Inter"', '400 30px "Inter"'];
+  return Promise.race([
+    Promise.all(wanted.map((f) => document.fonts.load(f))).catch(() => {}),
+    new Promise((resolve) => setTimeout(resolve, 1500)),
+  ]);
+}
+
+// Draws one 1080x1350 share card: a title, an optional highlighted line, a
+// list of label/value rows, and the site name with the page address.
+function drawCard(canvas, { title, highlight, rows }) {
+  canvas.width = IMG_W;
+  canvas.height = IMG_H;
+  const ctx = canvas.getContext("2d");
+  const HEAD = '"Space Grotesk", "Inter", system-ui, sans-serif';
+  const BODY = '"Inter", system-ui, sans-serif';
+  const M = 84;
+
+  const bg = ctx.createLinearGradient(0, 0, 0, IMG_H);
+  bg.addColorStop(0, "#09183e");
+  bg.addColorStop(1, "#040c24");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, IMG_W, IMG_H);
+  const glow = ctx.createRadialGradient(IMG_W * 0.8, 120, 0, IMG_W * 0.8, 120, 620);
+  glow.addColorStop(0, "rgba(39, 211, 255, 0.22)");
+  glow.addColorStop(1, "rgba(39, 211, 255, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, IMG_W, IMG_H);
+
+  ctx.save();
+  ctx.shadowColor = "rgba(39, 211, 255, 0.55)";
+  ctx.shadowBlur = 34;
+  ctx.strokeStyle = "rgba(39, 211, 255, 0.7)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(36, 36, IMG_W - 72, IMG_H - 72, 36);
+  else ctx.rect(36, 36, IMG_W - 72, IMG_H - 72);
+  ctx.stroke();
+  ctx.restore();
+
+  // Shrinks a font until the text fits the given width.
+  const fit = (text, weight, size, family, maxWidth, min = 20) => {
+    let px = size;
+    do {
+      ctx.font = `${weight} ${px}px ${family}`;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      px -= 2;
+    } while (px > min);
+    return px;
+  };
+
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#9fb6d9";
+  ctx.font = `600 26px ${BODY}`;
+  ctx.fillText("CLICK WITH THE WORLD", M, 132);
+
+  ctx.fillStyle = "#eaf6ff";
+  fit(title, 700, 70, HEAD, IMG_W - 2 * M);
+  ctx.fillText(title, M, 218);
+
+  let top = 262;
+  if (highlight) {
+    ctx.fillStyle = "#27d3ff";
+    fit(highlight, 600, 36, BODY, IMG_W - 2 * M);
+    ctx.fillText(highlight, M, 290);
+    top = 330;
+  }
+
+  const bottom = IMG_H - 220;
+  const rowH = Math.min(96, (bottom - top) / rows.length);
+  rows.forEach(([label, value], i) => {
+    const y = top + rowH * i;
+    ctx.strokeStyle = "rgba(39, 211, 255, 0.22)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(M, y);
+    ctx.lineTo(IMG_W - M, y);
+    ctx.stroke();
+    const base = y + rowH / 2 + 12;
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#9fb6d9";
+    ctx.font = `400 30px ${BODY}`;
+    ctx.fillText(label, M, base);
+    const labelWidth = ctx.measureText(label).width;
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#eaf6ff";
+    fit(value, 600, 34, BODY, IMG_W - 2 * M - labelWidth - 36);
+    ctx.fillText(value, IMG_W - M, base);
+  });
+  ctx.textAlign = "left";
+
+  ctx.fillStyle = "#eaf6ff";
+  ctx.font = `700 40px ${HEAD}`;
+  ctx.fillText("Click With The World", M, IMG_H - 132);
+  ctx.fillStyle = "#27d3ff";
+  ctx.font = `600 32px ${BODY}`;
+  ctx.fillText("clickwiththeworld.fun/time", M, IMG_H - 84);
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const box = document.createElement("textarea");
+      box.value = text;
+      box.setAttribute("readonly", "");
+      box.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.append(box);
+      box.select();
+      const ok = document.execCommand("copy");
+      box.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
+// Wires one share panel: a text preview, an image preview, and the three
+// buttons. `build()` returns { text, card, fileName } for the current state;
+// the preview always shows exactly that text and that image.
+function setupSharePanel(root, build) {
+  const pre = root.querySelector(".t-preview");
+  const canvas = root.querySelector("canvas");
+  const status = root.querySelector(".t-share-status");
+  let current = null;
+  let drawn = 0;
+
+  const say = (message) => {
+    status.textContent = message;
+    if (message) setTimeout(() => { if (status.textContent === message) status.textContent = ""; }, 2500);
+  };
+
+  async function refresh() {
+    current = build();
+    if (!current) return;
+    pre.textContent = current.text;
+    const mine = ++drawn;
+    await fontsReady();
+    if (mine === drawn) drawCard(canvas, current.card);
+  }
+
+  root.querySelector('[data-share="native"]').addEventListener("click", async () => {
+    if (!current) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: current.text });
+        return;
+      } catch (err) {
+        if (err && err.name === "AbortError") return; // the visitor closed the share sheet
+      }
+    }
+    say((await copyText(current.text)) ? "Copied!" : "Couldn't copy. Select the text above instead.");
+  });
+
+  root.querySelector('[data-share="whatsapp"]').addEventListener("click", () => {
+    if (!current) return;
+    window.open("https://wa.me/?text=" + encodeURIComponent(current.text), "_blank", "noopener");
+  });
+
+  root.querySelector('[data-share="image"]').addEventListener("click", async () => {
+    if (!current) return;
+    await refresh();
+    canvas.toBlob((blob) => {
+      if (!blob) return say("Couldn't create the image.");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = current.fileName;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      say("Image saved.");
+    }, "image/png");
+  });
+
+  return refresh;
+}
+
+function setupTodayShare() {
+  const button = el("todayShareBtn");
+  const panel = el("todayShare");
+  const count = CALENDARS.length;
+  button.textContent = `Share today in ${count} calendars`;
+
+  const refresh = setupSharePanel(panel, () => {
+    const now = new Date();
+    const today = startOfDay(now);
+    const rows = CALENDARS.map((cal) => [cal.short, dateText(cal, today)]);
+    rows.push(["Click With The World", `Day ${siteDay(now)}`]);
+    return {
+      text: [`Today in ${count} calendars 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `See yours: ${SHARE_URL}`].join("\n"),
+      card: { title: "Today around the world", rows },
+      fileName: "today-around-the-world.png",
+    };
+  });
+
+  let shownFor = null;
+  button.addEventListener("click", () => {
+    panel.hidden = !panel.hidden;
+    button.setAttribute("aria-expanded", String(!panel.hidden));
+    if (!panel.hidden) {
+      shownFor = dayKey(new Date());
+      refresh();
+    }
+  });
+  // Keep an open panel right when the day rolls over.
+  tickers.push((now) => {
+    if (!panel.hidden && shownFor !== dayKey(now)) {
+      shownFor = dayKey(now);
+      refresh();
+    }
   });
 }
 
@@ -318,6 +631,31 @@ function setupBirthday() {
   const UNIT_NAMES = ["year", "month", "day", "hour", "minute", "second"];
   let birth = null;
   let renderedDay = null;
+  const hideYear = el("hideYear");
+  const shareCount = BIRTHDAY_CALENDARS.length;
+
+  // What the Share row sends: the birth date in each Intl calendar. With
+  // "Hide my birth year" on, the year and the age are left out of both the
+  // text and the image.
+  const refreshShare = setupSharePanel(el("bdayShare"), () => {
+    if (!birth) return null;
+    const hide = hideYear.checked;
+    const rows = BIRTHDAY_CALENDARS.map((cal) => {
+      const p = cal.parts(birth);
+      return [cal.short, hide ? `${p.day} ${tidyMonth(p.month)}` : dateText(cal, birth)];
+    });
+    const [y, mo, d] = ageParts(birth, new Date());
+    return {
+      text: [`My birthday in ${shareCount} calendars 🌍`, ...rows.map(([k, v]) => `${k}: ${v}`), `Find yours: ${SHARE_URL}`].join("\n"),
+      card: {
+        title: `My birthday in ${shareCount} calendars`,
+        highlight: hide ? "" : `Age: ${plural(y, "year")}, ${plural(mo, "month")}, ${plural(d, "day")}`,
+        rows,
+      },
+      fileName: `my-birthday-in-${shareCount}-calendars.png`,
+    };
+  });
+  hideYear.addEventListener("change", refreshShare);
 
   const todayIso = () => {
     const n = new Date();
@@ -346,6 +684,8 @@ function setupBirthday() {
         </span>
       </li>`;
     }).join("");
+
+    refreshShare();
   }
 
   function show(v) {
@@ -391,6 +731,7 @@ function setupBirthday() {
   el("dobClear").addEventListener("click", () => {
     clearDob();
     birth = null;
+    hideYear.checked = false;
     form.reset();
     errorEl.hidden = true;
     out.hidden = true;
@@ -472,7 +813,9 @@ function setupFestivals() {
   });
 }
 
+setupSiteAge();
 buildCalendarCards();
+setupTodayShare();
 setupBirthday();
 setupFestivals();
 tick(); // fill everything in once, even if the tab starts out hidden

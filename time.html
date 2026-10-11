@@ -10,7 +10,13 @@
 <meta property="og:title" content="What Year Is It? World Calendars and Festival Countdowns — Click With The World">
 <meta property="og:description" content="Today's date in eleven calendars, your birthday in every calendar, and live countdowns to major festivals.">
 <meta property="og:url" content="https://www.clickwiththeworld.fun/time">
-<meta property="og:image" content="https://www.clickwiththeworld.fun/api/og-image">
+<meta property="og:image" content="https://www.clickwiththeworld.fun/assets/og-time.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Year Is It? World Calendars and Festival Countdowns — Click With The World">
+<meta name="twitter:description" content="Today's date in eleven calendars, your birthday in every calendar, and live countdowns to major festivals.">
+<meta name="twitter:image" content="https://www.clickwiththeworld.fun/assets/og-time.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -88,7 +94,31 @@
       <span class="card-ico" aria-hidden="true"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
       <div><h2 id="yearTitle">The Year Right Now, Around the World</h2><p>Today's date in each calendar, in your own time zone. Days are counted from midnight.</p></div>
     </div>
+    <div class="t-site">
+      <h3>Click With The World is&hellip;</h3>
+      <p class="t-big"><span id="siteAge">&mdash;</span></p>
+      <p id="siteSince" class="t-trad">Counting since 2 October 2026 — the day the world counter started from zero.</p>
+    </div>
+
     <div id="calGrid" class="t-grid"></div>
+    <p class="note">Ages are counted from each calendar's traditional starting point.</p>
+
+    <div class="t-share-open">
+      <button id="todayShareBtn" class="btn-outline" type="button" aria-expanded="false" aria-controls="todayShare">Share today in 11 calendars</button>
+    </div>
+    <div id="todayShare" class="t-share" hidden>
+      <p class="t-share-hint">This is exactly what will be shared:</p>
+      <div class="t-share-preview">
+        <pre class="t-preview"></pre>
+        <canvas class="t-canvas" width="1080" height="1350" role="img" aria-label="Preview of the share image"></canvas>
+      </div>
+      <div class="t-share-btns">
+        <button type="button" class="btn-outline" data-share="native">Share</button>
+        <button type="button" class="btn-outline" data-share="whatsapp">WhatsApp</button>
+        <button type="button" class="btn-outline" data-share="image">Download image</button>
+        <span class="t-share-status" role="status"></span>
+      </div>
+    </div>
     <noscript><p class="note">The dates on this page are calculated in your browser and need JavaScript.</p></noscript>
   </section>
 
@@ -134,6 +164,22 @@
 
       <h3 class="t-sub">Your next birthday in each calendar</h3>
       <ul id="nextRows" class="t-rows"></ul>
+
+      <h3 class="t-sub">Share</h3>
+      <div id="bdayShare" class="t-share">
+        <label class="t-check"><input id="hideYear" type="checkbox"> Hide my birth year</label>
+        <p class="t-share-hint">This is exactly what will be shared:</p>
+        <div class="t-share-preview">
+          <pre class="t-preview"></pre>
+          <canvas class="t-canvas" width="1080" height="1350" role="img" aria-label="Preview of the share image"></canvas>
+        </div>
+        <div class="t-share-btns">
+          <button type="button" class="btn-outline" data-share="native">Share</button>
+          <button type="button" class="btn-outline" data-share="whatsapp">WhatsApp</button>
+          <button type="button" class="btn-outline" data-share="image">Download image</button>
+          <span class="t-share-status" role="status"></span>
+        </div>
+      </div>
     </div>
   </section>
 

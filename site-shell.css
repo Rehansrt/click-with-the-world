@@ -100,6 +100,8 @@
 .sf-bottom a { color: var(--sh-dim); text-decoration: none; }
 .sf-bottom a:hover { color: var(--sh-cyan); }
 .sf-sep { opacity: 0.5; }
+/* "Counting since ... · Day N": its own line under the legal links. */
+.sf-since { flex-basis: 100%; text-align: center; font-size: 12.5px; opacity: 0.85; }
 
 /* The header nav needs about 1160px to fit on one line, so below 1240px it
    collapses behind the menu button instead of wrapping onto a second row. */
