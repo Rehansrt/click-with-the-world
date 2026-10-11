@@ -73,7 +73,7 @@ export const FESTIVALS = [
     ],
   },
   {
-    name: "Navratri begins",
+    name: "Sharad Navratri begins",
     tradition: "Hindu",
     note: "First day of Sharad Navratri.",
     dates: [
