@@ -1,6 +1,8 @@
 // /time — world calendars, birthday in every calendar, festival countdowns.
-// Everything is computed in the browser with the built-in Intl API. The page
-// talks to no service of ours or anyone else's: no Firebase, no fetch.
+// Everything is computed in the browser with the built-in Intl API. There is
+// no Firebase on this page. Its one request is to our own /api/count, made
+// when a birthday image is generated, to print the live click total on it;
+// that request carries nothing about the visitor.
 import { FESTIVALS } from "./festivals-config.js";
 import { SITE_START } from "./site-config.js";
 
@@ -315,8 +317,9 @@ const RTL_TEXT = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/;
 // highlighted line, a list of rows, and the site name with the page address.
 // A row is [label, value, sublabel, subvalue]; the last two are optional and
 // are drawn smaller and dimmer under the label and under the value. The title
-// can be a visitor's name in any script.
-function drawCard(canvas, { title, subtitle, highlight, rows }) {
+// can be a visitor's name in any script. `countLine`, when given, is one
+// muted line just above the site name.
+function drawCard(canvas, { title, subtitle, highlight, rows, countLine }) {
   canvas.width = IMG_W;
   canvas.height = IMG_H;
   const ctx = canvas.getContext("2d");
@@ -436,6 +439,13 @@ function drawCard(canvas, { title, subtitle, highlight, rows }) {
   });
   ctx.textAlign = "left";
 
+  // Sits in the gap between the last row and the site name; no row moves.
+  if (countLine) {
+    ctx.fillStyle = "#9fb6d9";
+    fit(countLine, 400, 24, BODY, IMG_W - 2 * M, 16);
+    ctx.fillText(countLine, M, IMG_H - 182);
+  }
+
   ctx.fillStyle = "#eaf6ff";
   ctx.font = `700 40px ${HEAD}`;
   ctx.fillText("Click With The World", M, IMG_H - 132);
@@ -465,10 +475,30 @@ async function copyText(text) {
   }
 }
 
+// The live world total from our own /api/count (this page has no Firebase).
+// Gives a positive whole number, or null if the request fails, returns
+// anything else, or takes longer than 3 seconds. Nothing is remembered between
+// calls, so an old number can never be shown.
+async function fetchClickCount() {
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 3000);
+  try {
+    const res = await fetch("/api/count", { cache: "no-store", signal: abort.signal });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data && Number.isInteger(data.total) && data.total > 0 ? data.total : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Wires one share panel: a text preview, an image preview, and the three
 // buttons. `build()` returns { text, card, fileName } for the current state;
-// the preview always shows exactly that text and that image.
-function setupSharePanel(root, build) {
+// the preview always shows exactly that text and that image. With
+// `liveCount`, a generated image also carries the live click total.
+function setupSharePanel(root, build, { liveCount = false } = {}) {
   const pre = root.querySelector(".t-preview");
   const canvas = root.querySelector("canvas");
   const status = root.querySelector(".t-share-status");
@@ -489,6 +519,22 @@ function setupSharePanel(root, build) {
     if (mine === drawn) drawCard(canvas, current.card);
   }
 
+  // Every PNG this panel hands out is made here, so they are all identical
+  // whichever button asked for one. The click total is read once per image;
+  // if it can't be read, its line is simply left off.
+  async function makeImage() {
+    const total = liveCount ? await fetchClickCount() : null;
+    current = build();
+    if (!current) return null;
+    pre.textContent = current.text;
+    const card = { ...current.card };
+    if (total !== null) card.countLine = `${fmtInt(total)} clicks worldwide · as of ${GREG_SHORT.format(new Date())}`;
+    await fontsReady();
+    drawn++; // a preview redraw still in flight must not paint over this
+    drawCard(canvas, card);
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  }
+
   root.querySelector('[data-share="native"]').addEventListener("click", async () => {
     if (!current) return;
     if (navigator.share) {
@@ -507,10 +553,12 @@ function setupSharePanel(root, build) {
     window.open("https://wa.me/?text=" + encodeURIComponent(current.text), "_blank", "noopener");
   });
 
-  root.querySelector('[data-share="image"]').addEventListener("click", async () => {
-    if (!current) return;
-    await refresh();
-    canvas.toBlob((blob) => {
+  const imageButton = root.querySelector('[data-share="image"]');
+  imageButton.addEventListener("click", async () => {
+    if (!current || imageButton.disabled) return;
+    imageButton.disabled = true;
+    try {
+      const blob = await makeImage();
       if (!blob) return say("Couldn't create the image.");
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -521,7 +569,9 @@ function setupSharePanel(root, build) {
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       say("Image saved.");
-    }, "image/png");
+    } finally {
+      imageButton.disabled = false;
+    }
   });
 
   return refresh;
@@ -739,7 +789,7 @@ function setupBirthday() {
       },
       fileName: `my-birthday-in-${shareCount}-calendars.png`,
     };
-  });
+  }, { liveCount: true });
   hideYear.addEventListener("change", refreshShare);
 
   // The name can be typed or changed after the results are showing; the share
