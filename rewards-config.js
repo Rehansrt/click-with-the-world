@@ -5,13 +5,23 @@
 // Fields (per deal):
 //   category — short tag shown at the top of the card.
 //   title    — product name.
-//   blurb    — one short line about it. No prices or discounts.
+//   blurb    — one short line about it. No prices.
 //   url      — the store's affiliate link.
 //   store    — store name, used for the button: "View on <store> →".
+//   note     — optional; one small muted line under the blurb, e.g. a
+//              store's offer and its terms.
 //
-// Text only: no product images, logos, prices or discounts on the page.
+// Text only: no product images or logos on the page.
 
 export const REWARDS = [
+  {
+    category: "Audio",
+    title: "boAt Official Store",
+    blurb: "Earbuds, headphones, speakers and smartwatches from boAt's own store.",
+    url: "https://inr.deals/track?id=srt479226254&src=merchant-detail-backend&campaign=cps&url=https%3A%2F%2Fwww.boat-lifestyle.com%2F",
+    store: "boAt",
+    note: "Code BTXINR5: 5% off prepaid orders, min. order ₹1000, valid till 31 Dec 2026. Offer terms set by the store.",
+  },
   { category: "Audio", title: "Wireless Earbuds", blurb: "Everyday wireless earbuds", url: "https://fktr.in/Vq24mVd", store: "Flipkart" },
   { category: "Wearables", title: "boAt Wave Fury Smartwatch", blurb: "Smartwatch with fitness tracking", url: "https://fktr.in/BpUrckE", store: "Flipkart" },
   { category: "Audio", title: "boAt Bar 480 Speaker", blurb: "Portable Bluetooth speaker", url: "https://fktr.in/0A7fS2L", store: "Flipkart" },

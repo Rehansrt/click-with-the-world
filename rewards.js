@@ -27,6 +27,16 @@ for (const deal of REWARDS) {
   link.rel = "sponsored nofollow noopener noreferrer";
   link.textContent = `View on ${deal.store} →`;
 
-  card.append(tag, title, blurb, link);
+  card.append(tag, title, blurb);
+
+  // Optional small line under the blurb (for example a store's offer terms).
+  if (deal.note) {
+    const note = document.createElement("p");
+    note.className = "rw-note";
+    note.textContent = deal.note;
+    card.append(note);
+  }
+
+  card.append(link);
   grid.append(card);
 }
