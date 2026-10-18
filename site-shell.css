@@ -29,7 +29,9 @@
 .sh-brand-text small { font-size: 12px; color: var(--sh-dim); }
 
 .sh-nav, .sf-nav { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
-.sh-nav { margin: 0 auto; }
+/* 18px between header links (the footer keeps 22px) so all eleven fit on one
+   row inside the 1200px header. */
+.sh-nav { margin: 0 auto; gap: 18px; }
 
 .sh-nav a, .sf-nav a {
   color: var(--sh-text);
