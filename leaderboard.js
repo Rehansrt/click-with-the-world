@@ -5,14 +5,11 @@ import {
   getToken,
   onTokenChanged,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
-import {
-  getDatabase,
-  ref,
-  onValue,
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
+import { startPolling } from "./live-poll.js";
 
 // Read-only page: same Firebase + App Check setup as Home and Milestones. It
 // never writes clicks and sets no cww_* keys of its own (it only reads/writes
@@ -160,37 +157,33 @@ function scheduleRender() {
   }, 250);
 }
 
-onValue(ref(db, "stats/countries"), (snap) => {
-  countriesData = snap.val() || {};
+// Live data is polled (live-poll.js), not streamed; a render only happens
+// when a polled value actually changed.
+let countriesSig = null;
+function onCountries(v) {
+  const sig = JSON.stringify(v || {});
+  if (sig === countriesSig) return;
+  countriesSig = sig;
+  countriesData = v || {};
   scheduleRender();
-});
+}
 
-onValue(ref(db, "stats/total"), (snap) => {
-  const v = snap.val();
-  if (typeof v !== "number") return;
+function onTotal(v) {
+  if (typeof v !== "number" || v === totalData) return;
   totalData = v;
   scheduleRender();
-});
+}
 
 showMoreBtn.addEventListener("click", () => {
   visible += 25;
   renderAll();
 });
 
-// --- Clicks Today (UTC): stats/daily/<date>, re-subscribed at UTC rollover ---
-let dailyDate = null;
-let dailyUnsub = null;
-function watchDaily() {
-  const d = utcDate();
-  if (d === dailyDate) return;
-  dailyDate = d;
-  if (dailyUnsub) dailyUnsub();
-  dailyUnsub = onValue(ref(db, `stats/daily/${d}`), (snap) => {
-    statToday.textContent = fmt(snap.val() || 0);
-  });
+// --- Clicks Today (UTC): stats/daily/<date>; the polled path follows the
+// UTC date, so it rolls over by itself ---
+function onToday(v) {
+  statToday.textContent = fmt(v || 0);
 }
-watchDaily();
-setInterval(watchDaily, 30000);
 
 // --- Your Country: /api/geo only (Vercel header) + the same cww_country
 // session cache as Home. No ipwho.is here; if it can't be detected the card
@@ -256,17 +249,28 @@ function renderLive() {
     .join("");
 }
 
-onValue(ref(db, "recentClicks/feed"), (snap) => {
-  const v = snap.val() || {};
-  feedEntries = Object.entries(v)
+let feedSig = null;
+function onFeed(v) {
+  const entries = Object.entries(v || {})
     .filter(([, e]) => e && typeof e.t === "number" && /^[A-Z]{2}$/.test(e.c || ""))
     .map(([slot, e]) => ({ key: slot + ":" + e.t, c: e.c, t: e.t }))
     .sort((a, b) => b.t - a.t)
     .slice(0, 6);
+  const sig = entries.map((e) => e.key).join(",");
+  if (sig === feedSig) return;
+  feedSig = sig;
+  feedEntries = entries;
   renderLive();
   feedLoaded = true;
-});
+}
 setInterval(renderLive, 10000);
+
+startPolling(db, [
+  { path: "stats/total", every: 2500, watch: true, onData: onTotal },
+  { path: "recentClicks/feed", every: 2500, onData: onFeed },
+  { path: "stats/countries", every: 5000, onData: onCountries },
+  { path: () => `stats/daily/${utcDate()}`, every: 10000, onData: onToday },
+]);
 
 // --- Leaderboard sponsor slot (copy of Home's renderSponsorSlot behaviour) ---
 function renderSponsor() {

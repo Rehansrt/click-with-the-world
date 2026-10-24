@@ -8,7 +8,6 @@ import {
 import {
   getDatabase,
   ref,
-  onValue,
   update,
   increment,
   serverTimestamp,
@@ -17,6 +16,7 @@ import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { isLive } from "./site-shell.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
+import { startPolling } from "./live-poll.js";
 
 const app = initializeApp(firebaseConfig);
 
@@ -54,14 +54,16 @@ const db = getDatabase(app);
 
 // Records each milestone's first-reached time (separate observer writes; the
 // click update below is untouched). Dynamic import so a failure here can never
-// break the page.
+// break the page. It gets the polled total from here (see startPolling below)
+// rather than keeping its own live listener.
+let recorder = null;
+let serverTotal = null; // last total read from the database (no local +1s)
 import("./milestone-recorder.js")
-  .then((m) => m.startMilestoneRecorder(db))
+  .then((m) => {
+    recorder = m.startMilestoneRecorder(db, { externalTotal: true });
+    if (serverTotal !== null) recorder?.setTotal(serverTotal);
+  })
   .catch(() => {});
-
-const totalRef = ref(db, "stats/total");
-const countriesRef = ref(db, "stats/countries");
-const latestClickRef = ref(db, "recentClicks/latest");
 
 const countDisplay = document.getElementById("countDisplay");
 const clickBtn = document.getElementById("clickBtn");
@@ -352,19 +354,20 @@ function updateMilestone(total) {
   }
 }
 
-// Animates the visible count from its current value to `target` over ~300ms
-// (ease-out) instead of jumping instantly, every time the real-time listener
-// reports a new total. Purely cosmetic — the underlying value is already
-// correct the instant this starts.
+// Animates the visible count from its current value to `target` instead of
+// jumping: ~300ms ease-out for the visitor's own click, or a steady (linear)
+// roll across most of the gap to the next poll, so the digits keep moving
+// between polls. Purely cosmetic — the underlying value is already correct
+// the instant this starts.
+const POLL_ROLL_MS = 2300;
 let displayedTotal = 0;
 let rollupRaf = null;
 let rollupFallbackTimer = null;
 let rollupToken = 0;
 
-function animateCountTo(target) {
+function animateCountTo(target, duration = 300, linear = false) {
   const start = displayedTotal;
   const startTime = performance.now();
-  const duration = 300;
   const myToken = ++rollupToken;
 
   if (rollupRaf) cancelAnimationFrame(rollupRaf);
@@ -380,7 +383,7 @@ function animateCountTo(target) {
     if (myToken !== rollupToken) return;
     const elapsed = now - startTime;
     const t = Math.min(1, elapsed / duration);
-    const eased = 1 - Math.pow(1 - t, 3);
+    const eased = linear ? t : 1 - Math.pow(1 - t, 3);
     const value = Math.round(start + (target - start) * eased);
     displayedTotal = value;
     countDisplay.textContent = formatCount(value);
@@ -405,12 +408,17 @@ function animateCountTo(target) {
 
 let hasRenderedCount = false;
 
-function renderCount(total) {
-  if (!hasRenderedCount) {
+// mode: "click" (own click, quick roll), "poll" (steady roll until about the
+// next poll) or "jump" (no animation, e.g. back from a hidden tab).
+function renderCount(total, mode = "click") {
+  if (!hasRenderedCount || mode === "jump") {
     // First render of the page — set instantly, no roll-up from 0.
     hasRenderedCount = true;
+    ++rollupToken; // cancels any roll still running
     countDisplay.textContent = formatCount(total);
     displayedTotal = total;
+  } else if (mode === "poll") {
+    animateCountTo(total, POLL_ROLL_MS, true);
   } else {
     animateCountTo(total);
   }
@@ -452,39 +460,39 @@ function renderLeaderboard(countries) {
 
 renderSponsorSlot(leaderboardSponsor, sponsorConfig.leaderboard);
 
-let currentCountries = {};
+// --- Live data is polled (live-poll.js), not streamed. Counters only ever go
+// up (the rules allow exactly +1), so a poll never lowers what's shown: that
+// is what keeps the visitor's own clicks, shown at once by the click handler,
+// from flickering back while the database catches up. ---
+let currentCountries = null; // null until the first read
 
-onValue(totalRef, (snap) => {
-  currentTotal = snap.val() || 0;
-  renderCount(currentTotal);
-});
-
-onValue(countriesRef, (snap) => {
-  currentCountries = snap.val() || {};
-  renderLeaderboard(currentCountries);
-});
-
-onValue(latestClickRef, (snap) => {
-  const data = snap.val();
-  if (!data) return;
-  ticker.textContent = `${flagEmoji(data.country)} someone in ${countryName(data.country)} just clicked`;
-});
-
-// --- "Clicks Today (UTC)": one counter per UTC day at stats/daily/<date>.
-// Re-subscribes when the UTC date rolls over while the page stays open. ---
-let dailyDate = null;
-let dailyUnsub = null;
-function watchDaily() {
-  const d = utcDate();
-  if (d === dailyDate) return;
-  dailyDate = d;
-  if (dailyUnsub) dailyUnsub();
-  dailyUnsub = onValue(ref(db, `stats/daily/${d}`), (snap) => {
-    statToday.textContent = formatCount(snap.val() || 0);
-  });
+function onTotal(v, { resumed }) {
+  serverTotal = v || 0;
+  recorder?.setTotal(serverTotal);
+  const next = currentTotal === null ? serverTotal : Math.max(currentTotal, serverTotal);
+  if (next === currentTotal) return;
+  currentTotal = next;
+  renderCount(next, resumed ? "jump" : "poll");
 }
-watchDaily();
-setInterval(watchDaily, 30000);
+
+function onCountries(v) {
+  const merged = { ...(v || {}) };
+  for (const [code, n] of Object.entries(currentCountries || {})) {
+    if (typeof n === "number" && !(merged[code] >= n)) merged[code] = n;
+  }
+  currentCountries = merged;
+  renderLeaderboard(currentCountries);
+}
+
+// --- "Clicks Today (UTC)": one counter per UTC day at stats/daily/<date>;
+// the polled path follows the UTC date, so it rolls over by itself. ---
+let todayDate = null;
+let todayCount = 0;
+function showToday(date, count) {
+  todayCount = date === todayDate ? Math.max(todayCount, count) : count;
+  todayDate = date;
+  statToday.textContent = formatCount(todayCount);
+}
 
 // --- Live Clicks: recentClicks/feed is a 6-slot ring (slot = newTotal % 6),
 // each slot {c: country, t: server timestamp}. Sorted newest-first here. ---
@@ -514,17 +522,34 @@ function renderLive() {
     .join("");
 }
 
-onValue(ref(db, "recentClicks/feed"), (snap) => {
-  const v = snap.val() || {};
-  feedEntries = Object.entries(v)
+// The ticker ("someone in X just clicked") is the newest feed entry, so
+// recentClicks/latest no longer needs a read of its own.
+let feedSig = null;
+function onFeed(v) {
+  const entries = Object.entries(v || {})
     .filter(([, e]) => e && typeof e.t === "number" && /^[A-Z]{2}$/.test(e.c || ""))
     .map(([slot, e]) => ({ key: slot + ":" + e.t, c: e.c, t: e.t }))
     .sort((a, b) => b.t - a.t)
     .slice(0, 6);
+  const sig = entries.map((e) => e.key).join(",");
+  if (sig === feedSig) return;
+  feedSig = sig;
+  feedEntries = entries;
   renderLive();
   feedLoaded = true;
-});
+  const newest = entries[0];
+  if (newest) {
+    ticker.textContent = `${flagEmoji(newest.c)} someone in ${countryName(newest.c)} just clicked`;
+  }
+}
 setInterval(renderLive, 10000);
+
+const poller = startPolling(db, [
+  { path: "stats/total", every: 2500, watch: true, onData: onTotal },
+  { path: "recentClicks/feed", every: 2500, onData: onFeed },
+  { path: () => `stats/daily/${utcDate()}`, every: 10000, onData: (v, { path }) => showToday(path.slice(-10), v || 0) },
+  { path: "stats/countries", every: 15000, onData: onCountries },
+]);
 
 // Links to pages that don't exist yet stay hidden (see site-shell.js PAGES).
 fullLeaderboardLink.hidden = !isLive("/leaderboard");
@@ -668,6 +693,19 @@ clickBtn.addEventListener("click", async (e) => {
     updates[`recentClicks/feed/${(currentTotal + 1) % 6}`] = { c: country, t: serverTimestamp() };
   }
   update(ref(db), updates);
+
+  // Show this click straight away (the next poll confirms it). Display only:
+  // nothing below is written anywhere.
+  if (currentTotal !== null) {
+    currentTotal += 1;
+    renderCount(currentTotal);
+  }
+  if (todayDate === utcDate()) showToday(todayDate, todayCount + 1);
+  if (currentCountries) {
+    currentCountries = { ...currentCountries, [country]: (currentCountries[country] || 0) + 1 };
+    renderLeaderboard(currentCountries);
+  }
+  poller.bump();
 });
 
 shareBtn.addEventListener("click", async () => {

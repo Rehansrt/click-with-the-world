@@ -14,6 +14,7 @@ import { firebaseConfig, recaptchaSiteKey } from "./firebase-config.js";
 import { sponsorConfig } from "./sponsor-config.js";
 import { resolveCountryName } from "./country-utils.js";
 import { MILESTONE_LADDER } from "./milestone-ladder.js";
+import { startPolling } from "./live-poll.js";
 
 // Read-only page: same Firebase + App Check setup as Home (app.js) so every
 // request carries a token, but it never writes clicks and stores no cww_* keys.
@@ -199,37 +200,40 @@ function render(total) {
   renderLadder(total);
 }
 
-onValue(ref(db, "stats/total"), (snap) => {
-  const total = snap.val();
-  if (typeof total !== "number") return; // keep "—" until real data arrives
-  render(total);
-});
-
+// stats/milestones changes only when a milestone is first recorded, so it
+// stays a live listener; everything else is polled (live-poll.js).
 onValue(ref(db, "stats/milestones"), (snap) => {
   milestoneTimes = snap.val() || {};
   if (lastTotal !== null) renderLadder(lastTotal);
 });
 
-onValue(ref(db, "stats/countries"), (snap) => {
-  const countries = snap.val() || {};
-  // Same resolved-name count as Leaderboard and Home (a made-up code that
-  // passes the rules but isn't a real country doesn't count here either).
-  statCountries.textContent = fmt(
-    Object.keys(countries).filter((c) => resolveCountryName(c)).length
-  );
-});
-
-// Clicks Today (UTC): stats/daily/<date>, re-subscribed when the UTC date rolls over.
-let dailyDate = null;
-let dailyUnsub = null;
-function watchDaily() {
-  const d = utcDate();
-  if (d === dailyDate) return;
-  dailyDate = d;
-  if (dailyUnsub) dailyUnsub();
-  dailyUnsub = onValue(ref(db, `stats/daily/${d}`), (snap) => {
-    statToday.textContent = fmt(snap.val() || 0);
-  });
-}
-watchDaily();
-setInterval(watchDaily, 30000);
+startPolling(db, [
+  {
+    path: "stats/total",
+    every: 2500,
+    watch: true,
+    onData: (total) => {
+      if (typeof total !== "number" || total === lastTotal) return; // keep "—" until real data arrives
+      render(total);
+    },
+  },
+  {
+    // Clicks Today (UTC): the polled path follows the UTC date.
+    path: () => `stats/daily/${utcDate()}`,
+    every: 10000,
+    onData: (v) => {
+      statToday.textContent = fmt(v || 0);
+    },
+  },
+  {
+    path: "stats/countries",
+    every: 30000,
+    onData: (v) => {
+      // Same resolved-name count as Leaderboard and Home (a made-up code that
+      // passes the rules but isn't a real country doesn't count here either).
+      statCountries.textContent = fmt(
+        Object.keys(v || {}).filter((c) => resolveCountryName(c)).length
+      );
+    },
+  },
+]);
