@@ -173,10 +173,25 @@ describe("click rules (database.rules.json, Phase 2)", () => {
     assert.equal(await readAsAdmin("stats/total"), 102);
   });
 
-  it("n. KNOWN GAP — still open: one total +1 that also adds +1 to a second country → currently PASS", async () => {
+  it("n. one total +1 that also adds +1 to a second country → FAIL (Phase 2.1)", async () => {
     const update = { ...clickUpdate({ uid: "uid-a" }), "stats/countries/US": increment(1) };
-    await assertSucceeds(asUser("uid-a").ref().update(update));
+    await assertFails(asUser("uid-a").ref().update(update));
+    assert.equal(await readAsAdmin("stats/total"), 100);
+    assert.equal(await readAsAdmin("stats/countries/US"), 40);
+  });
+
+  it('o. valid click with latest.country "IN" but incrementing stats/countries/US → FAIL', async () => {
+    const update = clickUpdate({ uid: "uid-a", country: "IN" });
+    delete update["stats/countries/IN"];
+    update["stats/countries/US"] = increment(1);
+    await assertFails(asUser("uid-a").ref().update(update));
+    assert.equal(await readAsAdmin("stats/total"), 100);
+    assert.equal(await readAsAdmin("stats/countries/US"), 40);
+  });
+
+  it('p. valid click from the "XX" fallback country → PASS', async () => {
+    await assertSucceeds(asUser("uid-a").ref().update(clickUpdate({ uid: "uid-a", country: "XX" })));
     assert.equal(await readAsAdmin("stats/total"), 101);
-    assert.equal(await readAsAdmin("stats/countries/US"), 41);
+    assert.equal(await readAsAdmin("stats/countries/XX"), 1);
   });
 });

@@ -13,7 +13,7 @@
         "$country": {
           ".read": true,
           ".write": "auth != null && newData.exists()",
-          ".validate": "$country.matches(/^[A-Z]{2}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().child('total').val() == (root.child('stats/total').exists() ? root.child('stats/total').val() : 0) + 1"
+          ".validate": "$country.matches(/^[A-Z]{2}$/) && newData.isNumber() && newData.val() == (data.exists() ? data.val() : 0) + 1 && newData.parent().parent().child('total').val() == (root.child('stats/total').exists() ? root.child('stats/total').val() : 0) + 1 && newData.parent().parent().parent().child('recentClicks/latest/country').val() == $country"
         }
       },
       "daily": {
