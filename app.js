@@ -9,6 +9,7 @@ import {
   getAuth,
   signInAnonymously,
   onAuthStateChanged,
+  signOut,
   connectAuthEmulator,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
@@ -237,6 +238,37 @@ onAuthStateChanged(auth, (user) => {
     signIn();
   }
 });
+
+// The 30-day auto clean-up of anonymous accounts can delete this visitor's
+// account while the page is open, and the SDK doesn't always sign out by
+// itself then (a failed token refresh can leave the deleted user in place).
+// So the account is re-checked when the tab comes back, every 10 minutes
+// while visible, and after a rejected click (at most once a minute); if it's
+// gone, signing out makes the handler above sign in again with a new uid.
+const ACCOUNT_GONE = new Set([
+  "auth/user-not-found",
+  "auth/user-disabled",
+  "auth/user-token-expired",
+  "auth/invalid-user-token",
+  "auth/invalid-refresh-token",
+]);
+let lastAccountCheck = 0;
+async function checkAccount() {
+  const user = auth.currentUser;
+  if (!user || Date.now() - lastAccountCheck < 60000) return;
+  lastAccountCheck = Date.now();
+  try {
+    await user.reload();
+  } catch (e) {
+    if (ACCOUNT_GONE.has(e && e.code)) signOut(auth).catch(() => {});
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) checkAccount();
+});
+setInterval(() => {
+  if (!document.hidden) checkAccount();
+}, 600000);
 
 // --- click sound: short synthesized tone, Web Audio only (no audio files) ---
 function getAudioContext() {
@@ -754,7 +786,7 @@ clickBtn.addEventListener("click", async (e) => {
   if (currentTotal !== null) {
     updates[`recentClicks/feed/${(currentTotal + 1) % 6}`] = { c: country, t: serverTimestamp() };
   }
-  update(ref(db), updates);
+  update(ref(db), updates).catch(() => checkAccount());
 
   // Show this click straight away (the next poll confirms it). Display only:
   // nothing below is written anywhere.
