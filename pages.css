@@ -520,6 +520,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .c-hero h1 { max-width: 640px; }
 .c-hero { min-height: 250px; }
 
+/* Compact page title for the "feature first" pages (Leaderboard, Milestones,
+   Embed, Partner): the title stays at the top, the page's main feature comes
+   straight after it, and the intro text moves lower down (.page-intro). */
+.c-hero.is-compact { min-height: 0; padding: 28px 20px 30px; }
+.c-hero.is-compact h1 { font-size: clamp(30px, 5vw, 46px); margin: 0; }
+.c-hero.is-compact h1 + p { margin-top: 10px; }
+.c-hero.is-compact .btn-outline { margin-top: 14px; }
+.c-hero.is-compact .hero-art { top: 0; height: 100%; width: auto; }
+.page-intro p { margin: 0; max-width: 720px; font-size: clamp(16px, 2vw, 18px); line-height: 1.5; color: var(--text); }
+.page-intro .eg-feats { margin-top: 16px; }
+/* Partner: the form comes first (and first on mobile) but keeps the narrower column. */
+.c-grid.is-form-first { grid-template-columns: 1fr 1.55fr; }
+
 .faq-grid {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr) 290px;
@@ -1112,7 +1125,7 @@ details.qa .ans a { overflow-wrap: anywhere; }
 }
 
 @media (max-width: 820px) {
-  .c-grid, .c-cards { grid-template-columns: 1fr; }
+  .c-grid, .c-grid.is-form-first, .c-cards { grid-template-columns: 1fr; }
   .plane { opacity: 0.35; width: 70vw; right: -6%; }
 }
 

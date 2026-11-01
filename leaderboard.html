@@ -22,7 +22,7 @@
 
 <div id="site-header"></div>
 
-<section class="c-hero">
+<section class="c-hero is-compact">
   <svg class="hero-art" viewBox="0 0 440 240" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false">
     <path d="M10 230C60 100 170 50 220 50s160 50 210 180" opacity=".8"/>
     <path d="M60 230C100 130 170 90 220 90s120 40 160 140" opacity=".6"/>
@@ -31,28 +31,12 @@
   </svg>
   <div class="c-hero-inner">
     <h1>Country <span class="grad">Leaderboard</span></h1>
-    <p>Which country clicks the most? Every click counts for your flag.</p>
   </div>
 </section>
 
 <main class="c-main">
 
-  <ul class="lb-stats" style="margin-top:-8px">
-    <li class="card">
-      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4" ry="9.5"/><path d="M2.5 12h19M4 7.5h16M4 16.5h16"/></svg></span>
-      <div><strong id="statCountries">&mdash;</strong><span>Countries</span></div>
-    </li>
-    <li class="card">
-      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg></span>
-      <div><strong id="statTotal">&mdash;</strong><span>Total Clicks</span></div>
-    </li>
-    <li class="card">
-      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
-      <div><strong id="statToday">&mdash;</strong><span>Clicks Today <small>(UTC)</small></span></div>
-    </li>
-  </ul>
-
-  <div class="lb-grid">
+  <div class="lb-grid" style="margin-top:-8px">
 
     <section class="card" aria-labelledby="tcTitle">
       <div class="card-head">
@@ -97,6 +81,25 @@
       </section>
 
     </div>
+  </div>
+
+  <ul class="lb-stats">
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><ellipse cx="12" cy="12" rx="4" ry="9.5"/><path d="M2.5 12h19M4 7.5h16M4 16.5h16"/></svg></span>
+      <div><strong id="statCountries">&mdash;</strong><span>Countries</span></div>
+    </li>
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="13" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="11" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/></svg></span>
+      <div><strong id="statTotal">&mdash;</strong><span>Total Clicks</span></div>
+    </li>
+    <li class="card">
+      <span class="card-ico" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+      <div><strong id="statToday">&mdash;</strong><span>Clicks Today <small>(UTC)</small></span></div>
+    </li>
+  </ul>
+
+  <div class="page-intro">
+      <p>Which country clicks the most? Every click counts for your flag.</p>
   </div>
 
   <section class="card explain" aria-labelledby="lbHowTitle">
