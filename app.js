@@ -6,7 +6,14 @@ import {
   onTokenChanged,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
 import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged,
+  connectAuthEmulator,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {
   getDatabase,
+  connectDatabaseEmulator,
   ref,
   update,
   increment,
@@ -18,39 +25,63 @@ import { isLive } from "./site-shell.js";
 import { resolveCountryName, flagImg, assignRanks } from "./country-utils.js";
 import { startPolling } from "./live-poll.js";
 
-const app = initializeApp(firebaseConfig);
+// EMULATOR MODE, for local testing only: on localhost / 127.0.0.1 with
+// ?emulator=1 in the URL, the page talks to the local Firebase emulators
+// under the demo project "demo-cww" (a demo- project can't reach any real
+// one) and skips App Check, which the emulators don't use. Exact hostname
+// match, so it can't switch on anywhere else.
+const EMULATOR =
+  (location.hostname === "localhost" || location.hostname === "127.0.0.1") &&
+  new URLSearchParams(location.search).get("emulator") === "1";
 
-// Must run before any other Firebase service (getDatabase, etc.) is touched —
-// App Check attaches itself to the app instance and every subsequent SDK call
-// picks up its token automatically. No UI, no user-visible prompt: reCAPTCHA
-// Enterprise runs its risk assessment silently in the background.
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
-  isTokenAutoRefreshEnabled: true,
-});
+const app = initializeApp(
+  EMULATOR
+    ? { apiKey: "demo-key", projectId: "demo-cww", databaseURL: "https://demo-cww-default-rtdb.firebaseio.com" }
+    : firebaseConfig
+);
 
-// initializeAppCheck() returns immediately, but the reCAPTCHA challenge that
-// produces the first token is async (real network round trip). getDatabase()
-// opens the RTDB WebSocket connection right away too, so without waiting
-// here, that connection can be established before a valid token exists —
-// showing up as "invalid"/"outdated client" in App Check's metrics for the
-// entire page session, even though nothing is actually broken. Waiting here
-// closes that race; failing open (no token) rather than blocking the app if
-// App Check itself is ever unavailable, since enforcement is off regardless.
-try {
-  await getToken(appCheck);
-} catch {
-  /* proceed without a pre-fetched token — not a hard dependency */
+if (!EMULATOR) {
+  // Must run before any other Firebase service (getDatabase, etc.) is touched —
+  // App Check attaches itself to the app instance and every subsequent SDK call
+  // picks up its token automatically. No UI, no user-visible prompt: reCAPTCHA
+  // Enterprise runs its risk assessment silently in the background.
+  const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
+    isTokenAutoRefreshEnabled: true,
+  });
+
+  // initializeAppCheck() returns immediately, but the reCAPTCHA challenge that
+  // produces the first token is async (real network round trip). getDatabase()
+  // opens the RTDB WebSocket connection right away too, so without waiting
+  // here, that connection can be established before a valid token exists —
+  // showing up as "invalid"/"outdated client" in App Check's metrics for the
+  // entire page session, even though nothing is actually broken. Waiting here
+  // closes that race; failing open (no token) rather than blocking the app if
+  // App Check itself is ever unavailable, since enforcement is off regardless.
+  try {
+    await getToken(appCheck);
+  } catch {
+    /* proceed without a pre-fetched token — not a hard dependency */
+  }
+
+  // Token-change listener kept registered, as before; it used to log each
+  // background refresh and no longer does.
+  onTokenChanged(appCheck, {
+    next: () => {},
+    error: () => {},
+  });
 }
 
-// Token-change listener kept registered, as before; it used to log each
-// background refresh and no longer does.
-onTokenChanged(appCheck, {
-  next: () => {},
-  error: () => {},
-});
-
+// Anonymous Firebase Auth: each visitor gets a uid (kept across reloads by the
+// SDK's default local persistence) that keys their clientCooldowns entry; the
+// rules only accept clicks from a signed-in visitor. Sign-in starts below,
+// once the click button exists.
+const auth = getAuth(app);
 const db = getDatabase(app);
+if (EMULATOR) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectDatabaseEmulator(db, "127.0.0.1", 9000);
+}
 
 // Records each milestone's first-reached time (separate observer writes; the
 // click update below is untouched). Dynamic import so a failure here can never
@@ -163,6 +194,49 @@ function renderGoldenStat() {
   goldenStat.textContent = `✨ ${goldenFoundCount} golden click${goldenFoundCount === 1 ? "" : "s"} found`;
 }
 renderGoldenStat();
+
+// --- anonymous sign-in gate: the click button stays disabled until the
+// visitor is signed in. If that takes over 2 s or fails, a small
+// "Connecting…" line (same style as the golden-click stat) shows while
+// sign-in keeps retrying. ---
+const authStatus = document.createElement("p");
+authStatus.className = "golden-stat";
+authStatus.textContent = "Connecting…";
+authStatus.hidden = true;
+ticker.insertAdjacentElement("afterend", authStatus);
+
+clickBtn.disabled = true;
+let signingIn = false;
+let signInFailures = 0;
+
+async function signIn() {
+  if (signingIn) return;
+  signingIn = true;
+  try {
+    await signInAnonymously(auth); // onAuthStateChanged below enables the button
+  } catch {
+    authStatus.hidden = false;
+    signInFailures += 1;
+    setTimeout(signIn, Math.min(30000, 2000 * 2 ** (signInFailures - 1)));
+  } finally {
+    signingIn = false;
+  }
+}
+
+const slowSignInTimer = setTimeout(() => {
+  if (!auth.currentUser) authStatus.hidden = false;
+}, 2000);
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    clearTimeout(slowSignInTimer);
+    authStatus.hidden = true;
+    clickBtn.disabled = false;
+  } else {
+    clickBtn.disabled = true;
+    signIn();
+  }
+});
 
 // --- click sound: short synthesized tone, Web Audio only (no audio files) ---
 function getAudioContext() {
@@ -279,30 +353,17 @@ async function detectCountry() {
 
 const countryPromise = detectCountry();
 
-// Interim client-side rate-limit stopgap while App Check enforcement stays
-// off (blocked on firebase/firebase-js-sdk#10385). Not a security boundary —
-// this ID lives in localStorage and anyone can fabricate a fresh one — it
-// only needs to persist per browser so the clientCooldowns/$clientId rule
-// (see database.rules.json) can reject a second write from the same client
-// within COOLDOWN_MS. The real fix is still App Check.
+// Button-level pause between clicks, matching the 800 ms clientCooldowns rule
+// (database.rules.json), which is keyed by the anonymous uid (see signIn above).
 const COOLDOWN_MS = 800;
 
-function getClientId() {
-  let id = localStorage.getItem("cww_client_id");
-  if (!id) {
-    id = crypto.randomUUID
-      ? crypto.randomUUID()
-      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-          const r = (Math.random() * 16) | 0;
-          const v = c === "x" ? r : (r & 0x3) | 0x8;
-          return v.toString(16);
-        });
-    localStorage.setItem("cww_client_id", id);
-  }
-  return id;
+// The random ID that keyed clientCooldowns before anonymous sign-in; no
+// longer used, so it is removed from the browser.
+try {
+  localStorage.removeItem("cww_client_id");
+} catch {
+  /* storage unavailable */
 }
-
-const clientId = getClientId();
 
 let currentTotal = null;
 
@@ -645,7 +706,8 @@ clickBtn.addEventListener("click", async (e) => {
   // a whole (multi-path updates are all-or-nothing) once the cooldown rule
   // fails, since the update() promise here isn't surfaced to the user.
   // Disabling the button keeps every click a user can actually make succeed.
-  if (clickBtn.disabled) return;
+  if (clickBtn.disabled || !auth.currentUser) return;
+  const uid = auth.currentUser.uid;
   clickBtn.disabled = true;
   setTimeout(() => {
     clickBtn.disabled = false;
@@ -686,7 +748,7 @@ clickBtn.addEventListener("click", async (e) => {
     [`stats/countries/${country}`]: increment(1),
     [`stats/daily/${utcDate()}`]: increment(1),
     "recentClicks/latest": { country, ts: serverTimestamp() },
-    [`clientCooldowns/${clientId}`]: serverTimestamp(),
+    [`clientCooldowns/${uid}`]: serverTimestamp(),
   };
   // Live Clicks ring: slot = the total this click produces, mod 6.
   if (currentTotal !== null) {
