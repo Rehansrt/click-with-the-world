@@ -24,12 +24,12 @@
 
 <main class="prose">
   <h1>Privacy Policy — Click With The World</h1>
-  <p class="updated">Last updated: October 18, 2026</p>
+  <p class="updated">Last updated: November 1, 2026</p>
 
-  <p>Click With The World (www.clickwiththeworld.fun) is a shared global click counter. There are no accounts or sign-ins, and you never need to give us your name or email to click. This policy explains what data is involved and why.</p>
+  <p>Click With The World (www.clickwiththeworld.fun) is a shared global click counter. You never need to create an account, sign in, or share personal details. This policy explains what data is involved and why.</p>
 
   <h2>1. What happens when you click</h2>
-  <p>Each click adds +1 to the global total, to your country's total, and to today's total (counted by UTC date). These are aggregate counts only. We also show the country and time of the last few clicks in a live feed; each new click overwrites the oldest entry, so no individual click history is kept. Separately, a random browser ID and a timestamp are saved only to stop rapid automated clicking. This ID is generated in your browser and is not linked to your name, email, or IP address. We do not store your IP address, name, or email with any click.</p>
+  <p>Each click adds +1 to the global total, to your country's total, and to today's total (counted by UTC date). These are aggregate counts only. We also show the country and time of the last few clicks in a live feed; each new click overwrites the oldest entry, so no individual click history is kept. Separately, an anonymous identifier for your browser and a timestamp are saved only to stop rapid automated clicking (see section 4). We do not link this identifier to your name, email, or IP address. We do not store your IP address, name, or email with any click.</p>
 
   <h2>2. How we detect your country</h2>
   <p>Your approximate country comes from our hosting provider, Vercel, based on your IP address. We do not store your IP address. If Vercel cannot provide it, your browser asks a third-party service, ipwho.is, which receives your IP address and returns a country code. We only use the country code.</p>
@@ -37,16 +37,16 @@
   <h2>3. Data stored in your browser</h2>
   <p>We set no cookies ourselves. We use your browser's local storage for:</p>
   <ul>
-    <li>a random ID used for rate-limiting</li>
     <li>your sound on/off preference</li>
     <li>a local count of "golden clicks" you've found</li>
   </ul>
   <p>Your detected country is kept in session storage and is cleared when you close the tab.</p>
   <p>If you use the birthday tool on the <a href="/time">Time page</a>, the name (if you give one) and the date and time of birth you enter are stored only in your browser's local storage and are never transmitted to us or anyone else. The "Clear my birthday" button removes them. Share text and images are created in your browser and leave it only when you choose to share them.</p>
-  <p>The Firebase SDK also keeps a security token and basic technical data (such as SDK version and dates) in your browser. You can clear all of this at any time through your browser settings.</p>
+  <p>The Firebase SDK also keeps a security token, the anonymous identifier described in section 4, and basic technical data (such as SDK version and dates) in your browser. You can clear all of this at any time through your browser settings.</p>
 
   <h2>4. Security and anti-abuse</h2>
   <p>Every click is verified by Firebase App Check, using Google reCAPTCHA Enterprise, to block bots and automated clicking; a short per-browser rate limit also stops rapid repeat clicks, and clicks that fail verification are rejected. No system is perfect. reCAPTCHA Enterprise runs on every page that loads the live counter: the Home, Milestones and Leaderboard pages, and the embeddable widget (/embed), including the preview on our Embed page. Google may collect device and browser signals and use cookies for this. The Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply. We do not keep our own log of failed security checks.</p>
+  <p>We use Firebase Authentication (a Google service) to give your browser an anonymous identifier when you first open a page where you can click (the Home page or the embeddable widget). It is stored in your browser and used only for fair-play rate limiting: it lets us enforce a short pause between clicks from the same browser. No name, email, or other personal details are collected for it. Clearing your browser storage removes it, and a new one is issued on your next visit.</p>
 
   <h2>5. Advertising</h2>
   <p>We use Google AdSense. Third-party vendors, including Google, use cookies to show ads based on your previous visits to this and other websites. Google's advertising cookies let it and its partners show ads based on your visits across the internet. You can opt out of personalised advertising at Google's Ads Settings (<a href="https://adssettings.google.com" target="_blank" rel="noopener">adssettings.google.com</a>) or at <a href="https://www.aboutads.info" target="_blank" rel="noopener">www.aboutads.info</a>.</p>

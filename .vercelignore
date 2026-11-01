@@ -1,0 +1,6 @@
+# Local test tooling only: never deployed (nothing on the site or in /api uses these).
+firebase.json
+.firebaserc
+tests/
+database.rules.json
+*-debug.log

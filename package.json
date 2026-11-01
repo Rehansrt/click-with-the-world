@@ -4,10 +4,16 @@
   "private": true,
   "description": "A live, shared click counter with a real-time country leaderboard, backed by Firebase Realtime Database.",
   "scripts": {
-    "dev": "npx serve ."
+    "dev": "npx serve .",
+    "test:rules": "firebase emulators:exec --only database --project demo-cww \"node --test tests/rules.test.js\""
   },
   "dependencies": {
-    "satori": "^0.12.2",
-    "@resvg/resvg-js": "^2.6.2"
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.12.2"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^15.34.2"
   }
 }
