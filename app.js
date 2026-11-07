@@ -97,6 +97,15 @@ import("./milestone-recorder.js")
   })
   .catch(() => {});
 
+// Personal click badges (count kept only in this browser). Same dynamic-import
+// safety; the click handler below credits a click only once Firebase confirms it.
+let badges = null;
+import("./badges.js")
+  .then((m) => {
+    badges = m.startBadges();
+  })
+  .catch(() => {});
+
 const countDisplay = document.getElementById("countDisplay");
 const clickBtn = document.getElementById("clickBtn");
 const ticker = document.getElementById("ticker");
@@ -786,7 +795,10 @@ clickBtn.addEventListener("click", async (e) => {
   if (currentTotal !== null) {
     updates[`recentClicks/feed/${(currentTotal + 1) % 6}`] = { c: country, t: serverTimestamp() };
   }
-  update(ref(db), updates).catch(() => checkAccount());
+  update(ref(db), updates).then(
+    () => badges?.recordClick(),
+    () => checkAccount()
+  );
 
   // Show this click straight away (the next poll confirms it). Display only:
   // nothing below is written anywhere.
