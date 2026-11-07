@@ -235,6 +235,91 @@ h1 {
   margin: 0;
 }
 
+/* ---------- personal click badges (badges.js; count stored only in this browser) ---------- */
+.my-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  max-width: 100%;
+}
+
+/* Space is kept while the page loads, so the content below doesn't jump. */
+.my-badge.is-pending { visibility: hidden; }
+
+.my-badge-pill {
+  min-width: 0;
+  padding: 7px 16px 8px;
+  border: 1px solid rgba(39, 211, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(3, 10, 32, 0.7);
+  text-align: center;
+}
+
+.my-badge-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.my-badge-text strong { color: var(--text); font-weight: 600; }
+
+.my-badge-bar {
+  height: 3px;
+  margin: 6px 0 4px;
+  border-radius: 3px;
+  background: rgba(39, 211, 255, 0.15);
+  overflow: hidden;
+}
+
+.my-badge-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(39, 211, 255, 0.7);
+  transition: width 0.3s ease;
+}
+
+.my-badge-next {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.my-badge .my-badge-share { margin-left: 0; }
+
+.badge-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 501;
+  background: rgba(4, 12, 36, 0.95);
+  border: 1px solid rgba(39, 211, 255, 0.6);
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  box-shadow: 0 0 24px rgba(39, 211, 255, 0.35);
+  text-align: center;
+  max-width: calc(100vw - 32px);
+}
+
+.badge-toast.is-showing { animation: toastInOut 3s ease forwards; }
+
+@keyframes toastInOut {
+  0% { opacity: 0; transform: translate(-50%, 12px); }
+  12% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 12px); }
+}
+
 /* ---------- stat pills ---------- */
 .pills {
   list-style: none;
@@ -713,7 +798,8 @@ h1 {
   .combo-text,
   .trail-dot,
   .confetti-piece,
-  .milestone-banner {
+  .milestone-banner,
+  .badge-toast.is-showing {
     animation: none !important;
   }
 }

@@ -63,6 +63,16 @@
           <button id="muteBtn" class="mute-btn" aria-label="Mute click sound" title="Mute click sound">🔊</button>
         </div>
         <div id="ticker" class="sr-only" aria-hidden="true"></div>
+        <!-- Personal click badges (badges.js): this browser's own count, stored only here. -->
+        <div id="myBadge" class="my-badge is-pending">
+          <div class="my-badge-pill">
+            <p class="my-badge-text"><span id="myBadgeCount">Your clicks: 0</span><span id="myBadgeSep" hidden> · </span><strong id="myBadgeName"></strong></p>
+            <div class="my-badge-bar" aria-hidden="true"><i id="myBadgeFill"></i></div>
+            <p id="myBadgeNext" class="my-badge-next"></p>
+          </div>
+          <button id="myBadgeShare" class="share-btn my-badge-share" type="button" hidden>Share my badge</button>
+        </div>
+        <div id="badgeToast" class="badge-toast" role="status" aria-live="polite" hidden></div>
       </div>
 
       <ul class="pills">
