@@ -124,7 +124,7 @@ export function startBadges() {
   shareEl.addEventListener("click", async () => {
     const { current } = tiersFor(count);
     if (!current) return;
-    const text = `I'm a ${current.name} on Click With The World with ${fmt(count)} clicks! Add yours: ${SITE}`;
+    const text = `I'm a ${current.name} on Click With The World with ${fmt(count)} ${count === 1 ? "click" : "clicks"}! Add yours: ${SITE}`;
     if (navigator.share) {
       try {
         await navigator.share({ text });
