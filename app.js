@@ -131,8 +131,25 @@ const GOLDEN_CHANCE = 0.02; // ~1-in-50 clicks
 const COMBO_WINDOW_MS = 700;
 let comboCount = 0;
 let lastClickTime = 0;
-let isMuted = localStorage.getItem("cww_muted") === "1";
-let goldenFoundCount = parseInt(localStorage.getItem("cww_golden_found") || "0", 10) || 0;
+// Sound and golden-click preferences are only remembered when the browser lets
+// us use storage; if it doesn't, sound stays on and golden clicks just aren't
+// remembered. Nothing here may throw into the page or the click handler.
+function readStored(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function writeStored(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* storage blocked: not remembered */
+  }
+}
+let isMuted = readStored("cww_muted") === "1";
+let goldenFoundCount = parseInt(readStored("cww_golden_found") || "0", 10) || 0;
 let audioCtx = null;
 
 const regionNames = (() => {
@@ -188,7 +205,7 @@ updateMuteButton();
 
 muteBtn.addEventListener("click", () => {
   isMuted = !isMuted;
-  localStorage.setItem("cww_muted", isMuted ? "1" : "0");
+  writeStored("cww_muted", isMuted ? "1" : "0");
   updateMuteButton();
 });
 
@@ -362,7 +379,13 @@ function renderSponsorSlot(el, config) {
 // endpoint first (works once deployed), then falls back to a keyless IP
 // lookup for local development.
 async function detectCountry() {
-  const cached = sessionStorage.getItem("cww_country");
+  // The session cache is optional: if the browser blocks storage, just look it up.
+  let cached = null;
+  try {
+    cached = sessionStorage.getItem("cww_country");
+  } catch {
+    /* storage blocked */
+  }
   if (cached) return cached;
 
   let code = "XX";
@@ -388,7 +411,11 @@ async function detectCountry() {
     }
   }
 
-  sessionStorage.setItem("cww_country", code);
+  try {
+    sessionStorage.setItem("cww_country", code);
+  } catch {
+    /* storage blocked: not cached this session */
+  }
   return code;
 }
 
@@ -775,7 +802,7 @@ clickBtn.addEventListener("click", async (e) => {
 
   if (isGolden) {
     goldenFoundCount += 1;
-    localStorage.setItem("cww_golden_found", String(goldenFoundCount));
+    writeStored("cww_golden_found", String(goldenFoundCount));
     renderGoldenStat();
   }
 
